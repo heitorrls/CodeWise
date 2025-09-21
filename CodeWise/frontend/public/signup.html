@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeWise - Criar Conta</title>
+    <link rel="stylesheet" href="src/assets/styles/signup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="left-section">
+        <div class="signup-form">
+          <h1 class="form-title">Criar conta</h1>
+
+          <form id="signupForm">
+            <div class="input-group">
+              <label for="email">Email:</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Digite seu email"
+                required
+              />
+            </div>
+
+            <div class="input-group">
+              <label for="password">Senha:</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Digite sua senha"
+                required
+              />
+            </div>
+
+            <div class="input-group">
+              <label for="confirmPassword">Confirmar Senha:</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Confirme sua senha"
+                required
+              />
+            </div>
+
+            <button type="submit" class="signup-btn">Confirmar</button>
+
+            <div class="login-link">
+              <span>Já tem uma conta? </span>
+              <a href="#" id="loginLink">Entrar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="right-section">
+        <div class="mascot-container">
+          <img
+            src="src/assets/images/macaquinho-removebg-preview.png"
+            alt="Mascote CodeWise"
+          />
+        </div>
+      </div>
+    </div>
+
+    <script src="src/pages/script.js"></script>
+  </body>
+</html>
