@@ -4,7 +4,6 @@ function continuar() {
   document.body.style.opacity = "0";
 
   setTimeout(() => {
-    alert("Redirecionando para a próxima página...");
     // Aqui você pode adicionar o redirecionamento real
     window.location.href = "login.html"; // Exemplo de redirecionamento
     document.body.style.opacity = "1";
@@ -148,7 +147,6 @@ if (loginForm) {
             document.body.style.opacity = "0";
 
             setTimeout(() => {
-              alert("Redirecionando para o dashboard...");
               // window.location.href = 'dashboard.html';
               document.body.style.opacity = "1";
             }, 500);
@@ -197,7 +195,6 @@ if (signupLink) {
     document.body.style.opacity = "0";
 
     setTimeout(() => {
-      alert("Redirecionando para página de cadastro...");
       window.location.href = "signup.html";
       document.body.style.opacity = "1";
     }, 500);
@@ -373,7 +370,6 @@ if (signupForm) {
             document.body.style.opacity = "0";
 
             setTimeout(() => {
-              alert("Redirecionando para o login...");
               window.location.href = "login.html";
               document.body.style.opacity = "1";
             }, 500);
@@ -400,7 +396,6 @@ if (loginLink) {
     document.body.style.opacity = "0";
 
     setTimeout(() => {
-      alert("Redirecionando para página de login...");
       window.location.href = "login.html";
       document.body.style.opacity = "1";
     }, 500);
