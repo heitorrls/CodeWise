@@ -163,27 +163,27 @@ if (loginForm) {
   });
 }
 
-// Link "Esqueci a senha"
-if (forgotPasswordLink) {
-  forgotPasswordLink.addEventListener("click", (e) => {
-    e.preventDefault();
+// // Link "Esqueci a senha"
+// if (forgotPasswordLink) {
+//   forgotPasswordLink.addEventListener("click", (e) => {
+//     e.preventDefault();
 
-    const email = emailInput.value.trim();
+//     const email = emailInput.value.trim();
 
-    if (!email) {
-      showError(emailInput, "Digite seu email primeiro para recuperar a senha");
-      return;
-    }
+//     if (!email) {
+//       showError(emailInput, "Digite seu email primeiro para recuperar a senha");
+//       return;
+//     }
 
-    if (!isValidEmail(email)) {
-      showError(emailInput, "Digite um email válido para recuperar a senha");
-      return;
-    }
+//     if (!isValidEmail(email)) {
+//       showError(emailInput, "Digite um email válido para recuperar a senha");
+//       return;
+//     }
 
-    // Simular envio de email de recuperação
-    showSuccess(`Instruções de recuperação enviadas para ${email}`);
-  });
-}
+//     // Simular envio de email de recuperação
+//     showSuccess(`Instruções de recuperação enviadas para ${email}`);
+//   });
+// }
 
 // Link "Cadastre-se"
 if (signupLink) {
@@ -420,3 +420,123 @@ if (emailInput) {
     }
   });
 }
+// CÓDIGO ESPECÍFICO DA PÁGINA DE CONFIRMAÇÃO DE EMAIL
+
+// Elementos específicos da confirmação
+const confirmationForm = document.getElementById('confirmationForm');
+
+// Função para voltar à página anterior
+function goBack() {
+  // Animação de transição
+  document.body.style.transition = "opacity 0.5s ease";
+  document.body.style.opacity = "0";
+
+  setTimeout(() => {
+    // Voltar para a página anterior ou para signup se não houver histórico
+    if (document.referrer) {
+      window.history.back();
+    } else {
+      window.location.href = "login.html";
+    }
+  }, 500);
+}
+
+// Event listener para o formulário de confirmação
+if (confirmationForm) {
+  confirmationForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const email = emailInput.value.trim();
+    let hasError = false;
+
+    // Validação do email
+    if (!email) {
+      showError(emailInput, "Por favor, digite seu email");
+      hasError = true;
+    } else if (!isValidEmail(email)) {
+      showError(emailInput, "Por favor, digite um email válido");
+      hasError = true;
+    }
+
+    // Se não há erros, simular envio do código
+    if (!hasError) {
+      // Desabilitar botão e mostrar loading
+      const sendBtn = document.querySelector(".send-btn");
+      const originalText = sendBtn.textContent;
+      
+      sendBtn.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          Enviando...
+        </div>
+      `;
+      sendBtn.disabled = true;
+
+      // Simular processo de envio
+      setTimeout(() => {
+        // Simular resposta do servidor
+        const sendSuccess = Math.random() > 0.1; // 90% chance de sucesso
+
+        if (sendSuccess) {
+          showSuccess(`Código de confirmação enviado para ${email}`);
+          
+          // Animação de transição para próxima página
+          setTimeout(() => {
+            document.body.style.transition = "opacity 0.5s ease";
+            document.body.style.opacity = "0";
+
+            setTimeout(() => {
+              // Redirecionar para página de inserir código
+              alert("Redirecionando para inserir código de confirmação...");
+              // window.location.href = "verify-code.html";
+              document.body.style.opacity = "1";
+            }, 500);
+          }, 2000);
+
+        } else {
+          showError(emailInput, "Erro ao enviar código. Tente novamente.");
+        }
+
+        // Reabilitar botão
+        sendBtn.textContent = originalText;
+        sendBtn.disabled = false;
+      }, 2500);
+    }
+  });
+}
+
+// Verificação de email em tempo real para página de confirmação
+if (confirmationForm && emailInput) {
+  let emailCheckTimeout;
+  
+  emailInput.addEventListener('input', () => {
+    clearTimeout(emailCheckTimeout);
+    clearError(emailInput);
+    
+    if (isValidEmail(emailInput.value)) {
+      emailCheckTimeout = setTimeout(() => {
+        // Simular verificação se email existe no sistema
+        const emailExists = Math.random() > 0.2; // 80% chance de existir
+        
+        if (!emailExists) {
+          showError(emailInput, 'Email não encontrado no sistema');
+        }
+      }, 1500);
+    }
+  });
+}
+
+// Animação de entrada da página de confirmação
+document.addEventListener("DOMContentLoaded", () => {
+  const card = document.querySelector(".confirmation-card");
+  if (card) {
+    card.style.opacity = "0";
+    card.style.transform = "translateY(30px)";
+    
+    setTimeout(() => {
+      card.style.transition = "all 0.6s ease";
+      card.style.opacity = "1";
+      card.style.transform = "translateY(0)";
+    }, 100);
+  }
+});
