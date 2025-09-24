@@ -1,0 +1,353 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Arial", sans-serif;
+  background: linear-gradient(135deg, #1a1b3a 0%, #0f1020 50%, #1a1b3a 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      2px 2px at 20px 30px,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    ),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.2), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(
+      1px 1px at 130px 80px,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: twinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 600px;
+  padding: 40px;
+}
+
+.back-button {
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  width: 50px;
+  height: 50px;
+  background: rgba(139, 124, 200, 0.2);
+  border: 1px solid rgba(139, 124, 200, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8b7cc8;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+
+.back-button:hover {
+  background: rgba(139, 124, 200, 0.3);
+  border-color: rgba(139, 124, 200, 0.5);
+  transform: translateX(-3px);
+}
+
+.back-button:active {
+  transform: translateX(-1px);
+}
+
+.verification-card {
+  background: rgba(40, 42, 70, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(139, 124, 200, 0.2);
+  border-radius: 20px;
+  padding: 60px 50px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 50px;
+  line-height: 1.4;
+  background: linear-gradient(135deg, #ffffff, #e0d8f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.code-input-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 50px;
+}
+
+.code-input {
+  width: 60px;
+  height: 70px;
+  background: rgba(139, 124, 200, 0.1);
+  border: 2px solid rgba(139, 124, 200, 0.3);
+  border-radius: 15px;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.code-input:focus {
+  border-color: #8b7cc8;
+  background: rgba(139, 124, 200, 0.2);
+  box-shadow: 0 0 0 4px rgba(139, 124, 200, 0.1);
+  transform: scale(1.05);
+}
+
+.code-input.filled {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.code-input.error {
+  border-color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  animation: shake 0.5s ease-in-out;
+}
+
+.confirm-btn {
+  width: 100%;
+  max-width: 300px;
+  background: linear-gradient(135deg, #8b7cc8, #a89bd1);
+  color: white;
+  border: none;
+  padding: 20px 40px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(139, 124, 200, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.confirm-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(139, 124, 200, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.confirm-btn:hover::before {
+  left: 100%;
+}
+
+.confirm-btn:active {
+  transform: translateY(-1px);
+}
+
+.confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.resend-section {
+  color: #b8b0d0;
+  font-size: 1rem;
+}
+
+.resend-section a {
+  color: #8b7cc8;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.resend-section a:hover {
+  color: #a89bd1;
+}
+
+.resend-section a.disabled {
+  color: #6b5b9e;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.countdown {
+  color: #6b5b9e;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-3px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 1rem;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  display: none;
+  padding: 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 10px;
+}
+
+.success-message {
+  color: #4caf50;
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 20px;
+  display: none;
+  padding: 15px;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 10px;
+}
+
+.loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  .back-button {
+    top: 20px;
+    left: 20px;
+    width: 45px;
+    height: 45px;
+    z-index: 1000;
+  }
+
+  .verification-card {
+    padding: 40px 30px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 40px;
+  }
+
+  .code-input-container {
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+
+  .code-input {
+    width: 45px;
+    height: 55px;
+    font-size: 1.5rem;
+  }
+
+  .confirm-btn {
+    padding: 18px 35px;
+    font-size: 1.2rem;
+  }
+
+  .resend-section {
+    font-size: 0.9rem;
+  }
+}

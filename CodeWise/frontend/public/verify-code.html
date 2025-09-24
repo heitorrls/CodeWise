@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeWise - Verificar Código</title>
+    <link rel="stylesheet" href="src/assets/styles/verify-code.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="back-button" onclick="goBack()">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M19 12H5M12 19L5 12L12 5"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+
+      <div class="verification-card">
+        <h1 class="title">Informe o código recebido no seu e-mail:</h1>
+
+        <form id="verificationForm">
+          <div class="code-input-container">
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              data-index="0"
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              data-index="1"
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              data-index="2"
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              data-index="3"
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              data-index="4"
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              data-index="5"
+            />
+          </div>
+
+          <button type="submit" class="confirm-btn">Confirmar</button>
+
+          <div class="resend-section">
+            <span>Não recebeu o código? </span>
+            <a href="#" id="resendCode">Reenviar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="src/pages/script.js"></script>
+  </body>
+</html>
