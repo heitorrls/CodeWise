@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeWise - Resultado do Nivelamento</title>
+    <link rel="stylesheet" href="src/assets/styles/style.css" />
+    <link rel="stylesheet" href="src/assets/styles/resultado_nivelamento.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="result-card">
+        <div class="result-header">
+          <h1 id="resultTitle">Você acertou 87% do teste!</h1>
+          <p>Confira abaixo seu desempenho:</p>
+        </div>
+
+        <div class="result-body">
+          <div class="score-section">
+            <span id="scorePercentage">87%</span>
+          </div>
+
+          <div class="details-section">
+            <ul id="categoryScores">
+              <li>Variáveis e Tipos de Dados <span>8/10</span></li>
+              <li>Operadores e Condicionais <span>4/10</span></li>
+              <li>Funções e Escopo <span>6/10</span></li>
+              <li>Laços de Repetição <span>9/10</span></li>
+            </ul>
+            <div class="best-category">
+              Você se saiu melhor em:
+              <strong id="bestCategory">Laços de Repetição</strong>
+            </div>
+          </div>
+
+          <div class="classification-section">
+            Classificação Final:
+            <strong id="finalClassification">Avançado</strong>
+          </div>
+        </div>
+
+        <button class="next-btn">Avançar</button>
+      </div>
+    </div>
+
+    <script src="src/pages/script.js"></script>
+  </body>
+</html>

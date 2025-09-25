@@ -492,5 +492,34 @@ document.addEventListener("DOMContentLoaded", () => {
       testCard.style.opacity = "1";
       testCard.style.transform = "translateY(0)";
     }, 100);
+    const resultCard = document.querySelector(".result-card");
+    if (resultCard) {
+      // Pega os parâmetros da URL (score e total)
+      const params = new URLSearchParams(window.location.search);
+      const score = parseInt(params.get("score")) || 0;
+      const total = parseInt(params.get("total")) || 5;
+
+      // Calcula a porcentagem
+      const percentage = Math.round((score / total) * 100);
+
+      // Atualiza os elementos na tela com os resultados
+      document.getElementById(
+        "resultTitle"
+      ).textContent = `Você acertou ${percentage}% do teste!`;
+      document.getElementById("scorePercentage").textContent = `${percentage}%`;
+
+      // Define a classificação com base na porcentagem
+      let classification = "Iniciante";
+      if (percentage > 80) {
+        classification = "Avançado";
+      } else if (percentage > 50) {
+        classification = "Intermediário";
+      }
+      document.getElementById("finalClassification").textContent =
+        classification;
+
+      // Os outros dados (melhor categoria, etc.) estão fixos como no exemplo,
+      // mas podem ser calculados com uma lógica mais complexa no futuro.
+    }
   }
 });
