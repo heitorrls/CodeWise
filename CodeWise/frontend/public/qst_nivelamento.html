@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeWise - Teste de Nivelamento</title>
+    <link rel="stylesheet" href="src/assets/styles/qst_nivelamento.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="test-card">
+        <div class="question-section">
+          <h2 class="question-title" id="questionTitle">
+            Qual das alternativas abaixo cria corretamente uma função em
+            JavaScript?
+          </h2>
+
+          <div class="options-container" id="optionsContainer">
+            <div class="option" data-option="A">
+              <span class="option-letter">A-</span>
+              <span class="option-text"
+                >function = minhaFuncao() { console.log("Olá Mundo"); }</span
+              >
+            </div>
+
+            <div class="option" data-option="B">
+              <span class="option-letter">B-</span>
+              <span class="option-text"
+                >let minhaFuncao() => { console.log("Olá Mundo"); }</span
+              >
+            </div>
+
+            <div class="option" data-option="C">
+              <span class="option-letter">C-</span>
+              <span class="option-text"
+                >function minhaFuncao() { console.log("Olá Mundo"); }</span
+              >
+            </div>
+
+            <div class="option" data-option="D">
+              <span class="option-letter">D-</span>
+              <span class="option-text"
+                >fun minhaFuncao() { console.log("Olá Mundo"); }</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons-section">
+          <button class="back-btn" onclick="goBackQuestion()">Voltar</button>
+          <button class="next-btn" onclick="nextQuestion()" disabled>
+            Avançar
+          </button>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-text" id="progressText">Questão 1 de 10</span>
+      </div>
+    </div>
+
+    <script src="src/pages/script.js"></script>
+  </body>
+</html>
