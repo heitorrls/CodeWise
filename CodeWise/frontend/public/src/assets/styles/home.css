@@ -1,0 +1,473 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f1419;
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    display: grid;
+    grid-template-areas: 
+        "header header header"
+        "sidebar main missions";
+    grid-template-columns: 200px 1fr 300px;
+    grid-template-rows: 60px 1fr;
+    height: 100vh;
+}
+
+/* Header */
+.header {
+    grid-area: header;
+    background: #1a1f36;
+    border: 2px solid #00bcd4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: none;
+}
+
+.header h1 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* Sidebar */
+.sidebar {
+    grid-area: sidebar;
+    background: #1a1f36;
+    border: 2px solid #00bcd4;
+    border-top: none;
+    border-right: none;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-item {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 0 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.nav-item:hover {
+    background: #7C3AED;
+}
+
+.nav-item.active {
+    background: #A855F7;
+}
+
+/* Main Content */
+.main-content {
+    grid-area: main;
+    background: #1a1f36;
+    border: 2px solid #00bcd4;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    position: relative;
+}
+
+.progress-section {
+    margin-bottom: 40px;
+}
+
+.progress-circle {
+    width: 60px;
+    height: 60px;
+    background: #8B5CF6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Exercise Tree */
+.exercise-tree {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+}
+
+.exercise-level {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+}
+
+.level-1 { top: 20px; }
+.level-2 { top: 100px; }
+.level-3 { top: 180px; }
+.level-4 { top: 260px; }
+.level-5 { top: 340px; }
+
+.exercise-node {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+    position: relative;
+    z-index: 10;
+}
+
+.exercise-node:hover:not(.locked) {
+    transform: scale(1.1);
+}
+
+.exercise-node.completed {
+    background: #00ff00;
+    color: #000;
+}
+
+.exercise-node.current {
+    background: #8B5CF6;
+    color: white;
+    box-shadow: 0 0 20px #8B5CF6;
+}
+
+.exercise-node.locked {
+    background: #4a5568;
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+/* Connections SVG */
+.connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.connection {
+    stroke-width: 3;
+}
+
+.connection.completed {
+    stroke: #00ff00;
+}
+
+.connection.current {
+    stroke: #8B5CF6;
+}
+
+.connection.locked {
+    stroke: #4a5568;
+}
+
+/* Daily Missions */
+.daily-missions {
+    grid-area: missions;
+    background: #1a1f36;
+    border: 2px solid #00bcd4;
+    border-top: none;
+    border-left: none;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.missions-header {
+    margin-bottom: 30px;
+}
+
+.stats {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.missions-content h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.mission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mission-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.mission-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #00ff00;
+}
+
+.mission-item input[type="checkbox"]:checked + .mission-text {
+    text-decoration: line-through;
+    color: #a0aec0;
+}
+
+.avatar-section {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+#monkey-avatar {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#avatar-assistant {
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.3s ease;
+    padding: 0;
+}
+
+#avatar-assistant:hover {
+    transform: scale(1.1);
+}
+
+.assistant-indicator {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 12px;
+    height: 12px;
+    background: #00ff00;
+    border-radius: 50%;
+    border: 2px solid #1a1f36;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Chat Overlay */
+.chat-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-overlay.hidden {
+    display: none;
+}
+
+.chat-container {
+    background: #1a1f36;
+    border: 2px solid #00bcd4;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90vw;
+    height: 500px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #4a5568;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h4 {
+    margin: 0;
+    color: #fff;
+    font-size: 16px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #a0aec0;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    color: #fff;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    display: flex;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.message.assistant {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.message.user .message-content {
+    background: #8B5CF6;
+    color: white;
+}
+
+.message.assistant .message-content {
+    background: #4a5568;
+    color: #fff;
+}
+
+.chat-input-container {
+    padding: 15px 20px;
+    border-top: 1px solid #4a5568;
+    display: flex;
+    gap: 10px;
+}
+
+#chat-input {
+    flex: 1;
+    background: #2d3748;
+    border: 1px solid #4a5568;
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: #fff;
+    font-size: 14px;
+}
+
+#chat-input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+}
+
+#chat-input::placeholder {
+    color: #a0aec0;
+}
+
+.send-btn {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.send-btn:hover {
+    background: #7C3AED;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .container {
+        grid-template-areas: 
+            "header"
+            "main";
+        grid-template-columns: 1fr;
+        grid-template-rows: 60px 1fr;
+    }
+    
+    .sidebar, .daily-missions {
+        display: none;
+    }
+    
+    .main-content {
+        border-left: 2px solid #00bcd4;
+        border-right: 2px solid #00bcd4;
+    }
+}
+
+@media (max-width: 768px) {
+    .exercise-tree {
+        max-width: 400px;
+    }
+    
+    .exercise-level {
+        gap: 60px;
+    }
+    
+    .exercise-node {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+}
