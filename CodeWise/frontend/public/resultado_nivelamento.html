@@ -4,42 +4,60 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CodeWise - Resultado do Nivelamento</title>
-    <link rel="stylesheet" href="src/assets/styles/style.css" />
     <link rel="stylesheet" href="src/assets/styles/resultado_nivelamento.css" />
   </head>
   <body>
     <div class="container">
       <div class="result-card">
         <div class="result-header">
-          <h1 id="resultTitle">Você acertou 87% do teste!</h1>
-          <p>Confira abaixo seu desempenho:</p>
+          <h1 class="result-title" id="resultTitle">
+            Você acertou 87% do teste!
+          </h1>
+          <p class="result-subtitle">Confira abaixo seu desempenho:</p>
         </div>
 
         <div class="result-body">
           <div class="score-section">
-            <span id="scorePercentage">87%</span>
+            <span class="score-percentage" id="scorePercentage">87%</span>
           </div>
 
           <div class="details-section">
-            <ul id="categoryScores">
-              <li>Variáveis e Tipos de Dados <span>8/10</span></li>
-              <li>Operadores e Condicionais <span>4/10</span></li>
-              <li>Funções e Escopo <span>6/10</span></li>
-              <li>Laços de Repetição <span>9/10</span></li>
-            </ul>
+            <div class="category-scores" id="categoryScores">
+              <div class="category-item">
+                <span class="category-name">Variáveis e Tipos de Dados</span>
+                <span class="category-score">8/10</span>
+              </div>
+              <div class="category-item">
+                <span class="category-name">Operadores e Condicionais</span>
+                <span class="category-score">4/10</span>
+              </div>
+              <div class="category-item">
+                <span class="category-name">Funções e Escopo</span>
+                <span class="category-score">6/10</span>
+              </div>
+              <div class="category-item">
+                <span class="category-name">Laços de Repetição</span>
+                <span class="category-score">9/10</span>
+              </div>
+            </div>
+
             <div class="best-category">
-              Você se saiu melhor em:
+              <p>Você se saiu melhor em:</p>
               <strong id="bestCategory">Laços de Repetição</strong>
             </div>
           </div>
 
           <div class="classification-section">
-            Classificação Final:
-            <strong id="finalClassification">Avançado</strong>
+            <p>Classificação Final:</p>
+            <strong class="final-classification" id="finalClassification"
+              >Avançado</strong
+            >
           </div>
         </div>
 
-        <button class="next-btn">Avançar</button>
+        <button class="advance-btn" onclick="proceedToNextStep()">
+          Avançar
+        </button>
       </div>
     </div>
 
