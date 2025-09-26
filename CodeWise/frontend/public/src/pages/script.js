@@ -114,26 +114,42 @@ document.addEventListener("DOMContentLoaded", () => {
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
 
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
       let hasError = false;
 
-      if (!emailInput.value.trim()) {
+      if (!email) {
         showError(emailInput, "Por favor, digite seu email");
         hasError = true;
-      } else if (!isValidEmail(emailInput.value.trim())) {
+      } else if (!isValidEmail(email)) {
         showError(emailInput, "Por favor, digite um email válido");
         hasError = true;
       }
 
-      if (!passwordInput.value.trim()) {
+      if (!password) {
         showError(passwordInput, "Por favor, digite sua senha");
         hasError = true;
       }
 
       if (!hasError) {
-        console.log("Login validado! Redirecionando...");
-        transitionToPage("intro_nivelamento.html");
+        try {
+          const response = await fetch("http://localhost:3001/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await response.json();
+          if (response.ok) {
+            alert("Login realizado com sucesso!");
+            window.location.href = "home.html";
+          } else {
+            alert(data.message || "Erro ao fazer login");
+          }
+        } catch (error) {
+          alert("Erro de conexão com o servidor");
+        }
       }
     });
 
@@ -154,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmPasswordInput = document.getElementById("confirmPassword");
     const loginLink = document.getElementById("loginLink");
 
-    signupForm.addEventListener("submit", (e) => {
+    signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       let hasError = false;
 
@@ -177,9 +193,25 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (!hasError) {
-        console.log("Cadastro submetido com sucesso!");
-        showSuccess("Conta criada com sucesso!", signupForm);
-        setTimeout(() => transitionToPage("login.html"), 1500);
+        try {
+          const response = await fetch("http://localhost:3001/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: emailInput.value.trim(),
+              password: passwordInput.value,
+            }),
+          });
+          const data = await response.json();
+          if (response.ok) {
+            showSuccess("Conta criada com sucesso!", signupForm);
+            setTimeout(() => transitionToPage("login.html"), 1500);
+          } else {
+            alert(data.message || "Erro ao cadastrar");
+          }
+        } catch (error) {
+          alert("Erro de conexão com o servidor");
+        }
       }
     });
 
@@ -517,9 +549,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       document.getElementById("finalClassification").textContent =
         classification;
-
-      // Os outros dados (melhor categoria, etc.) estão fixos como no exemplo,
-      // mas podem ser calculados com uma lógica mais complexa no futuro.
     }
   }
 });
