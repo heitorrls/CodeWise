@@ -303,14 +303,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 7. PÁGINA DE INTRODUÇÃO DO NIVELAMENTO
+  // 7. PÁGINA DE INTRODUÇÃO DO NIVELAMENTO (intro_nivelamento.html)
   const startBtn = document.querySelector(".start-btn");
   if (startBtn) {
-    function startLevelTest() {
+    window.startLevelTest = function () {
       transitionToPage("qst_nivelamento.html");
-    }
+    };
 
-    startBtn.addEventListener("click", startLevelTest);
+    startBtn.addEventListener("click", window.startLevelTest);
 
     const leftSection = document.querySelector(".left-section");
     if (leftSection) {
@@ -326,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 8. PÁGINA DE TESTE DE NIVELAMENTO (qst_nivelamento.html)
   const testCard = document.querySelector(".test-card");
-  if (testCard) {
+  if (testCard && !document.querySelector(".result-card")) {
     const testQuestions = [
       {
         question:
@@ -393,6 +393,60 @@ document.addEventListener("DOMContentLoaded", () => {
           { letter: "D", text: '"boolean"', correct: false },
         ],
       },
+      {
+        question:
+          "Qual operador é usado para comparar valor e tipo em JavaScript?",
+        options: [
+          { letter: "A", text: "==", correct: false },
+          { letter: "B", text: "===", correct: true },
+          { letter: "C", text: "=", correct: false },
+          { letter: "D", text: "!=", correct: false },
+        ],
+      },
+      {
+        question: "Como você cria um loop que executa 5 vezes?",
+        options: [
+          { letter: "A", text: "for (i = 0; i <= 5; i++) { }", correct: false },
+          { letter: "B", text: "for (i = 1; i <= 5; i++) { }", correct: false },
+          {
+            letter: "C",
+            text: "for (let i = 0; i < 5; i++) { }",
+            correct: true,
+          },
+          {
+            letter: "D",
+            text: "for (let i = 1; i < 5; i++) { }",
+            correct: false,
+          },
+        ],
+      },
+      {
+        question: "Qual método converte uma string em número inteiro?",
+        options: [
+          { letter: "A", text: "Number.parseInt()", correct: false },
+          { letter: "B", text: "parseInt()", correct: true },
+          { letter: "C", text: "toInteger()", correct: false },
+          { letter: "D", text: "convertInt()", correct: false },
+        ],
+      },
+      {
+        question: "Como você verifica se uma variável é um array?",
+        options: [
+          { letter: "A", text: "typeof variavel === 'array'", correct: false },
+          { letter: "B", text: "variavel instanceof Array", correct: false },
+          { letter: "C", text: "Array.isArray(variavel)", correct: true },
+          { letter: "D", text: "variavel.isArray()", correct: false },
+        ],
+      },
+      {
+        question: "Qual é o resultado de: '5' + 3 em JavaScript?",
+        options: [
+          { letter: "A", text: "8", correct: false },
+          { letter: "B", text: '"53"', correct: true },
+          { letter: "C", text: '"8"', correct: false },
+          { letter: "D", text: "Erro", correct: false },
+        ],
+      },
     ];
 
     let currentQuestion = 0;
@@ -407,7 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const nextBtn = document.querySelector(".next-btn");
     const backBtn = document.querySelector(".back-btn");
 
-    function goBackQuestion() {
+    window.goBackQuestion = function () {
       if (currentQuestion > 0) {
         currentQuestion--;
         selectedAnswer = userAnswers[currentQuestion] || null;
@@ -415,9 +469,9 @@ document.addEventListener("DOMContentLoaded", () => {
         updateProgress();
         updateButtons();
       }
-    }
+    };
 
-    function nextQuestion() {
+    window.nextQuestion = function () {
       if (selectedAnswer === null) return;
       userAnswers[currentQuestion] = selectedAnswer;
       const isCorrect =
@@ -437,7 +491,7 @@ document.addEventListener("DOMContentLoaded", () => {
           finishTest();
         }
       }, 1000);
-    }
+    };
 
     function displayQuestion() {
       const questionData = testQuestions[currentQuestion];
@@ -503,7 +557,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log(
         `Teste finalizado! Pontuação: ${score}/${testQuestions.length} (${percentage}%)`
       );
-      // Aqui você pode redirecionar para uma página de resultados
       transitionToPage(
         `resultado_nivelamento.html?score=${score}&total=${testQuestions.length}`
       );
@@ -514,8 +567,8 @@ document.addEventListener("DOMContentLoaded", () => {
     updateProgress();
     updateButtons();
 
-    nextBtn.addEventListener("click", nextQuestion);
-    backBtn.addEventListener("click", goBackQuestion);
+    nextBtn.addEventListener("click", window.nextQuestion);
+    backBtn.addEventListener("click", window.goBackQuestion);
 
     testCard.style.opacity = "0";
     testCard.style.transform = "translateY(30px)";
@@ -524,31 +577,177 @@ document.addEventListener("DOMContentLoaded", () => {
       testCard.style.opacity = "1";
       testCard.style.transform = "translateY(0)";
     }, 100);
-    const resultCard = document.querySelector(".result-card");
-    if (resultCard) {
-      // Pega os parâmetros da URL (score e total)
-      const params = new URLSearchParams(window.location.search);
-      const score = parseInt(params.get("score")) || 0;
-      const total = parseInt(params.get("total")) || 5;
+  }
 
-      // Calcula a porcentagem
-      const percentage = Math.round((score / total) * 100);
-
-      // Atualiza os elementos na tela com os resultados
-      document.getElementById(
-        "resultTitle"
-      ).textContent = `Você acertou ${percentage}% do teste!`;
-      document.getElementById("scorePercentage").textContent = `${percentage}%`;
-
-      // Define a classificação com base na porcentagem
-      let classification = "Iniciante";
-      if (percentage > 80) {
-        classification = "Avançado";
-      } else if (percentage > 50) {
-        classification = "Intermediário";
-      }
-      document.getElementById("finalClassification").textContent =
-        classification;
+  // 9. PÁGINA DE RESULTADO DO NIVELAMENTO (resultado_nivelamento.html)
+  const resultCard = document.querySelector(".result-card");
+  if (resultCard) {
+    // Função para calcular percentual
+    function calculatePercentage(correct, total) {
+      return Math.round((correct / total) * 100);
     }
+
+    // Função para determinar classificação
+    function getClassification(percentage) {
+      if (percentage >= 80) return { level: "Avançado", class: "avancado" };
+      if (percentage >= 60)
+        return { level: "Intermediário", class: "intermediario" };
+      return { level: "Iniciante", class: "iniciante" };
+    }
+
+    // Função para simular categorias baseadas na pontuação
+    function generateCategoryScores(score, total) {
+      const percentage = calculatePercentage(score, total);
+      const baseScore = Math.floor(score * 0.4); // 40% do score base
+
+      return [
+        {
+          name: "Variáveis e Tipos de Dados",
+          correct: Math.min(baseScore + Math.floor(Math.random() * 2), 2),
+          total: 2,
+        },
+        {
+          name: "Operadores e Condicionais",
+          correct: Math.min(baseScore + Math.floor(Math.random() * 3), 3),
+          total: 3,
+        },
+        {
+          name: "Funções e Escopo",
+          correct: Math.min(baseScore + Math.floor(Math.random() * 3), 3),
+          total: 3,
+        },
+        {
+          name: "Laços de Repetição",
+          correct: Math.min(score - baseScore * 3, 2),
+          total: 2,
+        },
+      ];
+    }
+
+    // Função para encontrar melhor categoria
+    function getBestCategory(categories) {
+      return categories.reduce((best, current) => {
+        const bestPercentage = calculatePercentage(best.correct, best.total);
+        const currentPercentage = calculatePercentage(
+          current.correct,
+          current.total
+        );
+        return currentPercentage > bestPercentage ? current : best;
+      });
+    }
+
+    // Função para animar contador
+    function animateCounter(element, start, end, duration) {
+      const range = end - start;
+      const increment = range / (duration / 16);
+      let current = start;
+
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= end) {
+          current = end;
+          clearInterval(timer);
+        }
+        element.textContent = Math.round(current) + "%";
+      }, 16);
+    }
+
+    // Função para avançar para próxima etapa
+    window.proceedToNextStep = function () {
+      const advanceBtn = document.querySelector(".advance-btn");
+      const originalText = advanceBtn.textContent;
+
+      advanceBtn.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          Avançando para a criação de avatar...
+        </div>
+      `;
+      advanceBtn.disabled = true;
+
+      setTimeout(() => {
+        transitionToPage("intro_criacao-avatar.html");
+        advanceBtn.textContent = originalText;
+        advanceBtn.disabled = false;
+      }, 2500);
+    };
+
+    // Pega os parâmetros da URL
+    const params = new URLSearchParams(window.location.search);
+    const score = parseInt(params.get("score")) || 4;
+    const total = parseInt(params.get("total")) || 10;
+    const percentage = calculatePercentage(score, total);
+
+    // Gera dados das categorias
+    const categories = generateCategoryScores(score, total);
+    const bestCategory = getBestCategory(categories);
+    const classification = getClassification(percentage);
+
+    // Atualiza elementos na tela
+    document.getElementById(
+      "resultTitle"
+    ).textContent = `Você acertou ${percentage}% do teste!`;
+
+    // Anima o percentual principal
+    const scoreElement = document.getElementById("scorePercentage");
+    animateCounter(scoreElement, 0, percentage, 2000);
+
+    // Atualiza categorias
+    const categoryScoresElement = document.getElementById("categoryScores");
+    if (categoryScoresElement) {
+      categoryScoresElement.innerHTML = "";
+      categories.forEach((category, index) => {
+        const categoryItem = document.createElement("div");
+        categoryItem.className = "category-item";
+        categoryItem.style.animationDelay = `${0.3 + index * 0.2}s`;
+        categoryItem.innerHTML = `
+          <span class="category-name">${category.name}</span>
+          <span class="category-score">${category.correct}/${category.total}</span>
+        `;
+        categoryScoresElement.appendChild(categoryItem);
+      });
+    }
+
+    // Atualiza melhor categoria
+    const bestCategoryElement = document.getElementById("bestCategory");
+    if (bestCategoryElement) {
+      bestCategoryElement.textContent = bestCategory.name;
+    }
+
+    // Atualiza classificação
+    const classificationElement = document.getElementById(
+      "finalClassification"
+    );
+    if (classificationElement) {
+      classificationElement.textContent = classification.level;
+      classificationElement.className = `final-classification classification-${classification.class}`;
+    }
+
+    // Adiciona evento ao botão avançar
+    const advanceBtn = document.querySelector(".advance-btn");
+    if (advanceBtn) {
+      advanceBtn.addEventListener("click", window.proceedToNextStep);
+    }
+
+    // Animação de entrada da página
+    resultCard.style.opacity = "0";
+    resultCard.style.transform = "translateY(40px)";
+    setTimeout(() => {
+      resultCard.style.transition = "all 0.8s ease";
+      resultCard.style.opacity = "1";
+      resultCard.style.transform = "translateY(0)";
+    }, 100);
+
+    // Salva resultado no localStorage
+    const resultData = {
+      score,
+      total,
+      percentage,
+      categories,
+      classification: classification.level,
+      bestCategory: bestCategory.name,
+      completedAt: new Date().toISOString(),
+    };
+    localStorage.setItem("lastTestResult", JSON.stringify(resultData));
   }
 });
