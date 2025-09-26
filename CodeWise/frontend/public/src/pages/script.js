@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const data = await response.json();
           if (response.ok) {
             alert("Login realizado com sucesso!");
-            window.location.href = "home.html";
+            window.location.href = "intro_nivelamento.html";
           } else {
             alert(data.message || "Erro ao fazer login");
           }
@@ -194,14 +194,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!hasError) {
         try {
-          const response = await fetch("http://localhost:3001/api/auth/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: emailInput.value.trim(),
-              password: passwordInput.value,
-            }),
-          });
+          const response = await fetch(
+            "http://localhost:3001/api/auth/signup",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: emailInput.value.trim(),
+                password: passwordInput.value,
+              }),
+            }
+          );
           const data = await response.json();
           if (response.ok) {
             showSuccess("Conta criada com sucesso!", signupForm);
@@ -671,7 +674,33 @@ document.addEventListener("DOMContentLoaded", () => {
         advanceBtn.disabled = false;
       }, 2500);
     };
+    // --- LÓGICA PARA PULAR CRIAÇÃO DE AVATAR ---
+    const skipButton = document.getElementById("skipBtn");
 
+    if (skipButton) {
+      skipButton.addEventListener("click", () => {
+        // Salva o texto original do botão
+        const originalText = skipButton.textContent;
+
+        // Altera o botão para mostrar um estado de carregamento
+        skipButton.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          Pulando...
+        </div>
+      `;
+        skipButton.disabled = true;
+
+        // Aguarda 1.5 segundos e depois redireciona
+        setTimeout(() => {
+          transitionToPage("home.html"); // Redireciona para a home
+
+          // Restaura o botão (útil se o redirecionamento falhar)
+          skipButton.textContent = originalText;
+          skipButton.disabled = false;
+        }, 1500);
+      });
+    }
     // Pega os parâmetros da URL
     const params = new URLSearchParams(window.location.search);
     const score = parseInt(params.get("score")) || 4;
