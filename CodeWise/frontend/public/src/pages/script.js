@@ -674,33 +674,7 @@ document.addEventListener("DOMContentLoaded", () => {
         advanceBtn.disabled = false;
       }, 2500);
     };
-    // --- LÓGICA PARA PULAR CRIAÇÃO DE AVATAR ---
-    const skipButton = document.getElementById("skipBtn");
-
-    if (skipButton) {
-      skipButton.addEventListener("click", () => {
-        // Salva o texto original do botão
-        const originalText = skipButton.textContent;
-
-        // Altera o botão para mostrar um estado de carregamento
-        skipButton.innerHTML = `
-        <div class="loading">
-          <div class="spinner"></div>
-          Pulando...
-        </div>
-      `;
-        skipButton.disabled = true;
-
-        // Aguarda 1.5 segundos e depois redireciona
-        setTimeout(() => {
-          transitionToPage("home.html"); // Redireciona para a home
-
-          // Restaura o botão (útil se o redirecionamento falhar)
-          skipButton.textContent = originalText;
-          skipButton.disabled = false;
-        }, 1500);
-      });
-    }
+    
     // Pega os parâmetros da URL
     const params = new URLSearchParams(window.location.search);
     const score = parseInt(params.get("score")) || 4;
@@ -778,5 +752,34 @@ document.addEventListener("DOMContentLoaded", () => {
       completedAt: new Date().toISOString(),
     };
     localStorage.setItem("lastTestResult", JSON.stringify(resultData));
+  }
+
+  // 10. PÁGINA DE INTRODUÇÃO À CRIAÇÃO DE AVATAR (intro_criacao-avatar.html)
+  const avatarBtn = document.querySelector(".avatar-btn");
+  if (avatarBtn) {
+    avatarBtn.addEventListener("click", () => {
+      // Futuramente, redirecionar para a página de criação de avatar
+      transitionToPage("home.html"); // Placeholder
+    });
+  }
+
+  // 11. LÓGICA DO BOTÃO PULAR (skipBtn)
+  const skipBtn = document.getElementById("skipBtn");
+  if (skipBtn) {
+    skipBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      // Mostra um estado de carregamento
+      skipBtn.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <span>Carregando...</span>
+        </div>
+      `;
+      skipBtn.disabled = true;
+      // Redireciona para a home após um pequeno atraso
+      setTimeout(() => {
+        transitionToPage("home.html");
+      }, 1500);
+    });
   }
 });

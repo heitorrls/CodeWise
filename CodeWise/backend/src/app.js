@@ -6,14 +6,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Servir arquivos estáticos do frontend/public
+// 1. Servindo arquivos estáticos (CSS, JS, Imagens)
 app.use(express.static(path.join(__dirname, '../../frontend/public')));
 
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
+// 2. Servindo a página de login na rota principal
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/public/login.html'));
+  res.sendFile(path.join(__dirname, '../../frontend/public/apresentacao.html'));
 });
 
 module.exports = app;
