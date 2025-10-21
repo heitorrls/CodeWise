@@ -1,3 +1,4 @@
+/* Reset básico e configurações do corpo */
 * {
   margin: 0;
   padding: 0;
@@ -5,139 +6,230 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #050024; /* Fundo mais escuro da paleta */
-  color: #FFFFFF; /* Texto branco */
-  height: 100vh;
-  overflow: hidden;
+  font-family: "Arial", sans-serif; /* Fonte do modelo */
+  background: linear-gradient(135deg, #1a1b3a 0%, #0f1020 50%, #1a1b3a 100%); /* Gradiente do modelo */
+  min-height: 100vh;
+  color: white;
+  overflow-x: hidden; /* Evita scroll horizontal geral */
+  position: relative; /* Necessário para o z-index do container funcionar */
 }
 
-.container {
-  display: grid;
-  grid-template-areas:
-    "header header header"
-    "sidebar main right-sidebar";
-  grid-template-columns: 220px 1fr 320px;
-  grid-template-rows: 70px 1fr;
-  height: 100vh;
-  gap: 15px;
-  padding: 15px;
+/* Efeito de estrelas do modelo */
+body::before {
+  content: "";
+  position: fixed; /* Fixo para não rolar com o conteúdo */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      2px 2px at 20px 30px,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    ),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.2), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(
+      1px 1px at 130px 80px,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: twinkle 4s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1; /* Fica atrás de todo o conteúdo */
 }
 
-.header,
-.sidebar,
-.main-content,
-.right-sidebar {
-  background: #1A1131; /* Fundo principal dos painéis */
-  border: 1px solid #3F3261; /* Borda com o tom mais claro */
-  border-radius: 15px;
-  display: flex; 
-  flex-direction: column; 
+@keyframes twinkle {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.8;
+  }
 }
 
-.main-content {
-    padding: 25px;
-}
-
+/* Header fixo */
 .header {
-  grid-area: header;
-  flex-direction: row;
+  grid-area: header; /* Necessário para o grid do container */
+  background: rgba(26, 27, 58, 0.9); /* Do modelo */
+  border-bottom: 2px solid rgba(139, 124, 200, 0.3); /* Do modelo */
+  padding: 15px 40px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  backdrop-filter: blur(8px); /* Do modelo */
+  display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 2px solid #9D00FF; /* Roxo como cor de destaque principal */
+  height: 70px;
 }
 
 .header h1 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #9D00FF; /* Roxo */
-  letter-spacing: 1.5px;
+  font-size: 2rem; /* Do modelo */
+  font-weight: bold;
+  color: #a89bd1; /* Cor ajustada do modelo */
+  text-shadow: 0 0 15px rgba(139, 124, 200, 0.4); /* Sombra do modelo */
+  text-align: center;
 }
 
+/* Layout principal */
+.container {
+  display: grid;
+  grid-template-columns: 250px 1fr 300px; /* Layout desktop */
+  grid-template-rows: 70px 1fr; /* Header fixo e resto da tela */
+  grid-template-areas:
+    "header header header"
+    "sidebar main right-sidebar";
+  gap: 30px;
+  padding: 2px 10px 10px; /* Espaço para header fixo + padding geral */
+  max-width: 2000px;
+  min-height: 100vh; /* Garante altura mínima */
+  margin: 0 auto;
+  position: relative; /* Para ficar acima do ::before */
+  z-index: 1;
+}
+
+/* Estilo base dos painéis */
+.sidebar,
+.main-content,
+.right-sidebar {
+  background: rgba(40, 42, 70, 0.65); /* Fundo semi-transparente do modelo */
+  border: 1px solid rgba(139, 124, 200, 0.2); /* Borda do modelo */
+  border-radius: 20px; /* Borda arredondada do modelo */
+  padding: 20px;
+  backdrop-filter: blur(10px); /* Efeito blur do modelo */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Evitar que conteúdo interno estoure */
+}
+
+/* Sidebar Esquerda (Navegação) */
 .sidebar {
   grid-area: sidebar;
-  padding: 20px;
-  gap: 15px;
+  gap: 12px;
+  height: fit-content; /* Altura se ajusta ao conteúdo */
 }
 
-.nav-item {
-  background: transparent;
-  color: #FFFFFF;
-  border: 1px solid transparent;
-  padding: 15px 20px;
-  text-align: left;
-  font-size: 16px;
-  font-weight: 500;
+.nav-item { /* Renomeado de nav-btn para manter consistência com HTML */
+  background: rgba(139, 124, 200, 0.1);
+  border: 2px solid rgba(139, 124, 200, 0.3);
+  border-radius: 15px;
+  padding: 16px 20px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 10px;
   transition: all 0.3s ease;
+  text-align: left;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
+}
+
+.nav-item i {
+  font-size: 1.2rem;
+  min-width: 20px;
+  text-align: center;
 }
 
 .nav-item:hover {
-  background-color: rgba(157, 0, 255, 0.1);
-  border-color: #9D00FF;
+  background: rgba(139, 124, 200, 0.2);
+  border-color: #a89bd1; /* Cor ajustada */
+  transform: translateX(5px);
 }
 
 .nav-item.active {
-  background-color: #9D00FF; /* Roxo */
-  color: #FFFFFF;
-  font-weight: 700;
+  background: linear-gradient(135deg, #8b7cc8, #a89bd1);
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(139, 124, 200, 0.4);
+  color: white; /* Garante que o texto fique branco */
+}
+
+/* Conteúdo Principal */
+.main-content {
+  grid-area: main;
+  padding: 30px; /* Mais padding interno */
 }
 
 .knowledge-trail {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .knowledge-trail h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-    color: #9D00FF; /* Roxo */
+  color: white; /* Ajustado do modelo */
+  font-size: 1.8rem; /* Ajustado */
+  font-weight: bold;
+  margin-bottom: 25px;
+  text-align: center;
+  background: linear-gradient(135deg, #ffffff, #e0d8f0); /* Efeito do modelo */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .trail-progress {
-    margin-bottom: 20px;
+  margin-bottom: 30px; /* Mais espaço */
 }
 
 .trail-progress span {
-    display: block;
-    text-align: center;
-    margin-bottom: 10px;
-    font-weight: 500;
+  display: block;
+  text-align: center;
+  margin-bottom: 12px;
+  font-weight: 600; /* Mais destaque */
+  color: #d0c8e8; /* Cor suave */
 }
 
 .progress-bar-container {
-    height: 12px;
-    background-color: #050024;
-    border-radius: 6px;
-    border: 1px solid #3F3261;
-    padding: 2px;
-    overflow: hidden;
+  height: 14px;
+  background-color: rgba(26, 27, 58, 0.8); /* Fundo escuro */
+  border-radius: 7px;
+  border: 1px solid rgba(139, 124, 200, 0.3);
+  padding: 3px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3); /* Sombra interna */
 }
 
 .progress-bar-fill {
-    height: 100%;
-    background-color: #39FF14; /* Destaque Verde Neon para progresso */
-    border-radius: 4px;
-    transition: width 0.5s ease-in-out;
+  height: 100%;
+  background: linear-gradient(90deg, #8b7cc8, #c7a9ff); /* Gradiente roxo */
+  border-radius: 4px;
+  transition: width 0.5s ease-in-out;
+  box-shadow: 0 0 10px rgba(168, 155, 209, 0.5); /* Brilho suave */
 }
 
-/* --- Regras para a Trilha de Baixo para Cima --- */
+/* Trilha de Exercícios */
 .exercise-tree {
-  flex: 1; 
+  flex: 1;
   display: flex;
-  flex-direction: column-reverse; 
+  flex-direction: column-reverse; /* Mantido de baixo para cima */
   align-items: center;
-  gap: 30px; 
-  padding: 20px;
+  gap: 35px; /* Mais espaçamento */
+  padding: 30px 10px; /* Ajuste padding (mais vertical) */
   width: 100%;
-  overflow-y: auto; 
+  overflow-y: auto;
   min-height: 0;
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #8b7cc8 rgba(40, 42, 70, 0.6);
+}
+.exercise-tree::-webkit-scrollbar {
+    width: 8px;
+}
+.exercise-tree::-webkit-scrollbar-track {
+    background: rgba(26, 27, 58, 0.5);
+    border-radius: 4px;
+}
+.exercise-tree::-webkit-scrollbar-thumb {
+    background-color: #8b7cc8;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
 }
 
 .trail-item {
@@ -147,195 +239,483 @@ body {
   width: 100%;
 }
 
-/* Linha de conexão ajustada para apontar para cima */
-.trail-item:not(:first-child)::after { 
+/* Linha de conexão */
+.trail-item:not(:first-child)::after {
   content: '';
   position: absolute;
-  bottom: 100%; 
+  bottom: calc(100% + 5px); /* Liga ao nó acima (com pequeno espaço) */
   left: 50%;
   transform: translateX(-50%);
-  height: 30px; 
-  width: 3px;
-  background-image: linear-gradient(#3F3261 60%, transparent 40%);
-  background-size: 3px 10px;
+  height: 30px; /* Altura da linha ajustada */
+  width: 4px; /* Espessura da linha */
+  background-image: linear-gradient(rgba(139, 124, 200, 0.5) 60%, transparent 40%); /* Cor da linha */
+  background-size: 4px 10px; /* Efeito pontilhado */
+  z-index: -1; /* Fica atrás do nó */
 }
 
 .exercise-node {
-  width: 65px;
-  height: 65px;
+  width: 70px; /* Tamanho desktop */
+  height: 70px;
   border-radius: 50%;
-  font-size: 28px;
+  font-size: 30px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid;
-  background: none;
+  border: 4px solid; /* Borda mais grossa */
+  background: rgba(26, 27, 58, 0.7); /* Fundo base */
   padding: 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Sombra */
+  position: relative; /* Para garantir sobreposição correta da linha */
+  z-index: 1;
+}
+.exercise-node:hover {
+    transform: scale(1.05); /* Efeito hover */
 }
 
 .exercise-node.completed {
-  background-color: #140D33;
-  border-color: #39FF14; /* Verde Neon para completado */
-  color: #39FF14;
+  border-color: #6a5acd; /* Roxo mais suave */
+  color: #a89bd1;
+  background: rgba(139, 124, 200, 0.2);
 }
 
 .exercise-node.current {
-  background-color: #9D00FF; /* Roxo */
-  border-color: #9D00FF;
+  background: linear-gradient(135deg, #8b7cc8, #a89bd1); /* Gradiente ativo */
+  border-color: #c7a9ff; /* Borda clara */
   color: #FFFFFF;
-  box-shadow: 0 0 15px #9D00FF, 0 0 25px #9D00FF;
-  animation: pulse 1.8s infinite;
+  box-shadow: 0 0 20px rgba(168, 155, 209, 0.6), 0 0 30px rgba(168, 155, 209, 0.4); /* Brilho mais intenso */
+  animation: pulse 1.8s infinite; /* Mantida a animação */
 }
 
 .exercise-node.locked {
-  background-color: #221943;
-  border-color: #312652;
-  color: #6d6d8a;
+  background-color: rgba(40, 42, 70, 0.8);
+  border-color: rgba(139, 124, 200, 0.2);
+  color: #7a739b; /* Cor mais suave */
   cursor: not-allowed;
+  opacity: 0.7; /* Levemente apagado */
 }
-/* --- Fim das Regras da Trilha --- */
 
+/* Animação Pulse (mantida) */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 15px rgba(168, 155, 209, 0.5), 0 0 20px rgba(168, 155, 209, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(168, 155, 209, 0.8), 0 0 35px rgba(168, 155, 209, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(168, 155, 209, 0.5), 0 0 20px rgba(168, 155, 209, 0.3);
+  }
+}
+
+/* Sidebar Direita */
 .right-sidebar {
   grid-area: right-sidebar;
-  padding: 20px;
-  gap: 20px;
+  gap: 20px; /* Espaço entre seções */
 }
 
-.stats, .daily-missions {
-  padding: 15px;
-  border-radius: 10px;
-  background: #140D33; 
+/* Container para Stats e Missões */
+.stats-missions-container {
+    background: rgba(26, 27, 58, 0.7); /* Fundo levemente diferente */
+    border: 1px solid rgba(139, 124, 200, 0.15);
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espaço entre stats e missões */
 }
 
 .stats {
   display: flex;
   justify-content: space-around;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(139, 124, 200, 0.2); /* Separador */
 }
 
 .stat-item {
   display: flex;
+  flex-direction: column; /* Ícone em cima, valor embaixo */
   align-items: center;
-  gap: 10px;
-  font-size: 20px;
+  gap: 5px;
   font-weight: 600;
+}
+.stat-icon {
+    font-size: 1.8rem; /* Ícone maior */
+}
+.stat-value {
+    font-size: 1.1rem;
+    color: #e0d8f0; /* Cor suave */
 }
 
 .daily-missions h3 {
   margin-bottom: 15px;
-  color: #9D00FF; 
+  color: #c7a9ff; /* Roxo claro */
   text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 .mission-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .mission-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
-}
-
-.mission-item.completed i {
-  color: #39FF14; 
+  font-size: 0.95rem; /* Tamanho ajustado */
+  color: #d0c8e8; /* Cor suave */
 }
 
 .mission-item i {
-    color: #9D00FF; 
+  color: #a89bd1; /* Roxo base */
+  font-size: 1.1rem; /* Ícone um pouco maior */
+  min-width: 16px; /* Garante alinhamento */
+  text-align: center;
+}
+.mission-item.completed i {
+  color: #98e8a0; /* Verde suave */
+}
+.mission-item.completed span {
+    text-decoration: line-through; /* Texto riscado */
+    opacity: 0.7;
 }
 
+/* Chat Container */
 .chat-container {
   display: flex;
   flex-direction: column;
-  flex-grow: 1; 
-  background: #140D33; 
-  border-radius: 10px;
-  overflow: hidden;
-  min-height: 0;
+  flex-grow: 1; /* Ocupa espaço vertical restante na sidebar direita */
+  background: rgba(26, 27, 58, 0.7);
+  border: 1px solid rgba(139, 124, 200, 0.15);
+  border-radius: 15px;
+  overflow: hidden; /* Mantém o conteúdo interno contido */
+  min-height: 250px; /* Altura mínima inicial */
+  /* max-width: 400px; */ /* REMOVIDO - Deixa a largura ser controlada pelo container pai */
+  max-height: 70vh; /* Adiciona uma altura máxima para evitar que fique muito grande em telas altas */
 }
 
 .chat-header {
-  padding: 15px;
+  padding: 12px 15px;
   text-align: center;
-  background: #1A1131;
+  background: rgba(40, 42, 70, 0.8); /* Cor um pouco diferente */
+  border-bottom: 1px solid rgba(139, 124, 200, 0.2);
+  flex-shrink: 0; /* Não encolhe */
+}
+.chat-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
 }
 
 .chat-messages {
-  flex: 1;
+  flex-grow: 1; /* Ocupa espaço disponível */
   padding: 15px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
+   /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #8b7cc8 rgba(40, 42, 70, 0.6);
+}
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+.chat-messages::-webkit-scrollbar-track {
+    background: rgba(26, 27, 58, 0.5);
+    border-radius: 3px;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+    background-color: #8b7cc8;
+    border-radius: 3px;
 }
 
-.message.user .message-content {
-  background: #9D00FF; 
-  color: #FFFFFF;
-  border-bottom-right-radius: 3px;
+.message {
+    display: flex;
+    max-width: 85%; /* Limita largura da mensagem */
 }
-
-.message.assistant .message-content {
-  background: #312652; 
-  color: #FFFFFF;
-  border-bottom-left-radius: 3px;
+.message.user {
+    align-self: flex-end; /* Mensagem do usuário à direita */
+}
+.message.assistant {
+    align-self: flex-start; /* Mensagem do assistente à esquerda */
 }
 
 .message-content {
   padding: 10px 15px;
-  border-radius: 15px;
-  font-size: 14px;
+  border-radius: 18px; /* Mais arredondado */
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-wrap: break-word; /* Quebra palavras longas */
+}
+
+.message.user .message-content {
+  background: linear-gradient(135deg, #8b7cc8, #a89bd1); /* Gradiente usuário */
+  color: #FFFFFF;
+  border-bottom-right-radius: 5px; /* Detalhe */
+}
+
+.message.assistant .message-content {
+  background: rgba(139, 124, 200, 0.2); /* Fundo assistente */
+  color: #e0d8f0; /* Texto mais claro */
+  border: 1px solid rgba(139, 124, 200, 0.3);
+  border-bottom-left-radius: 5px; /* Detalhe */
 }
 
 .chat-input-container {
   padding: 15px;
-  border-top: 1px solid #3F3261;
+  border-top: 1px solid rgba(139, 124, 200, 0.2);
   display: flex;
-  gap: 10px;
+  gap: 10px; /* Espaçamento padrão */
+  background: rgba(40, 42, 70, 0.8);
+  flex-shrink: 0; /* Impede que o container encolha verticalmente */
+  align-items: center; /* Alinha verticalmente input e botão */
 }
 
 #chat-input {
   flex: 1;
-  background: #221943;
-  border: 1px solid #3F3261;
-  border-radius: 8px;
-  padding: 10px 12px;
+  min-width: 0;
+  background: rgba(26, 27, 58, 0.9); /* Fundo input */
+  border: 1px solid rgba(139, 124, 200, 0.3);
+  border-radius: 10px;
+  padding: 8px 1px;
   color: #FFFFFF;
-  font-size: 14px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.3s ease;
 }
 
 #chat-input:focus {
-  outline: none;
-  border-color: #9D00FF; 
+  border-color: #a89bd1; /* Cor de foco */
+  box-shadow: 0 0 8px rgba(168, 155, 209, 0.3); /* Sombra de foco */
 }
 
 .send-btn {
-  background: #9D00FF; 
+background: #8b7cc8; /* Cor principal */
   color: white;
   border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 0 18px; /* Padding horizontal */
+  height: 40px; /* <<< ADICIONE OU AJUSTE ESTA LINHA */
+  border-radius: 10px;
   cursor: pointer;
-  transition: filter 0.3s;
+  transition: all 0.3s ease;
+  font-size: 1.1rem; /* Tamanho do ícone */
+  display: flex;
+  align-items: center; /* Centraliza o ícone verticalmente */
+  justify-content: center; /* Centraliza o ícone horizontalmente */
+  flex-shrink: 0; /* Garante que o botão não encolha */
+  
 }
 
 .send-btn:hover {
-    filter: brightness(1.2);
+  background: #a89bd1; /* Cor mais clara no hover */
+  transform: scale(1.05); /* Efeito scale */
+}
+.send-btn:active {
+    transform: scale(0.98); /* Efeito ao clicar */
 }
 
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 8px #9D00FF, 0 0 12px #9D00FF;
+/* --- RESPONSIVIDADE --- */
+
+/* Tablet e Telas Médias (e.g., < 1200px) */
+@media (max-width: 1200px) {
+  .container {
+    grid-template-columns: 220px 1fr 280px; /* Sidebars um pouco menores */
+    gap: 15px;
+    padding: 85px 15px 15px; /* Padding ajustado */
   }
-  50% {
-    box-shadow: 0 0 18px #9D00FF, 0 0 28px #9D00FF;
+
+  .header h1 { font-size: 1.8rem; } /* Título menor */
+
+  .nav-item { padding: 14px 16px; font-size: 0.95rem; gap: 10px; } /* Ajuste botão nav */
+  .nav-item i { font-size: 1.1rem; }
+
+  .main-content { padding: 25px; }
+
+  .knowledge-trail h2 { font-size: 1.6rem; } /* Título menor */
+  .exercise-node { width: 65px; height: 65px; font-size: 28px; border-width: 3px; } /* Nó menor */
+  .exercise-tree { gap: 30px; } /* Espaço entre nós */
+  .trail-item:not(:first-child)::after { height: 30px; } /* Linha conexão */
+
+  .stat-icon { font-size: 1.6rem; }
+  .stat-value { font-size: 1rem; }
+  .daily-missions h3 { font-size: 1.1rem; }
+  .mission-item { font-size: 0.9rem; }
+  .chat-title { font-size: 1rem; }
+  .message-content { font-size: 0.9rem; }
+  #chat-input { padding: 10px 12px; font-size: 0.9rem; }
+  .send-btn { padding: 0 16px; font-size: 1rem; }
+}
+
+
+/* Tablet Retrato e Telas Menores (e.g., < 992px) - Novo Breakpoint */
+@media (max-width: 992px) {
+    .container {
+        grid-template-columns: 1fr; /* Coluna única */
+        grid-template-rows: 70px auto auto auto; /* Header, Main, Right Sidebar, Bottom Sidebar */
+        grid-template-areas:
+          "header"
+          "main"
+          "right-sidebar" /* Sidebar direita abaixo do main */
+          "sidebar"; /* Sidebar de navegação no fundo */
+        padding: 80px 15px 85px; /* Espaço para header e sidebar fixa no fundo */
+        height: auto; /* Altura automática */
+        min-height: 100vh;
+      }
+      body {
+        overflow-y: auto; /* Habilita scroll do body */
+      }
+
+      .sidebar, .main-content, .right-sidebar {
+        height: auto; /* Altura automática para conteúdo */
+        margin-bottom: 0; /* Remove margem extra */
+      }
+
+      .right-sidebar {
+        flex-direction: column; /* Volta para coluna */
+        gap: 5px;
+      }
+
+      .stats-missions-container,
+      .chat-container {
+        flex: none; /* Remove flex: 1 */
+      }
+
+      /* Sidebar de navegação fixa no fundo */
+      .sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center; /* Centraliza verticalmente */
+        padding: 8px;
+        height: 70px; /* Altura fixa */
+        border-radius: 20px 20px 0 0; /* Cantos superiores arredondados */
+        z-index: 1000;
+        background: rgba(26, 27, 58, 0.95); /* Mais opaco */
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(139, 124, 200, 0.3);
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        gap: 5px; /* Espaço entre botões */
+      }
+
+      .nav-item {
+        flex-direction: column; /* Ícone em cima, texto embaixo */
+        font-size: 0.75rem;
+        padding: 6px 4px; /* Padding ajustado */
+        gap: 4px;
+        min-width: 55px; /* Largura mínima ajustada */
+        border-radius: 10px;
+        flex: 1; /* Ocupa espaço igual */
+        border-width: 1px; /* Borda mais fina */
+        text-align: center; /* Centraliza texto */
+        transform: none; /* Remove transformações */
+        height: 100%; /* Ocupa altura da sidebar */
+        justify-content: center; /* Centraliza conteúdo */
+      }
+      .nav-item i {
+        font-size: 1.3rem;
+        margin-bottom: 2px; /* Espaço entre ícone e texto */
+      }
+      .nav-item:hover { background: rgba(139, 124, 200, 0.15); border-color: rgba(139, 124, 200, 0.3); } /* Hover sutil */
+      .nav-item.active { box-shadow: 0 4px 10px rgba(139, 124, 200, 0.3); } /* Sombra menor */
+}
+
+
+/* Mobile (e.g., < 768px) - Refinamentos */
+@media (max-width: 768px) {
+  .header {
+    padding: 15px 20px;
+    height: 60px; /* Header menor */
   }
-  100% {
-    box-shadow: 0 0 8px #9D00FF, 0 0 12px #9D00FF;
+
+  .header h1 { font-size: 1.6rem; } /* Título menor */
+
+  .container {
+    padding: 70px 10px 80px; /* Padding ajustado para header/sidebar menores */
+    gap: 15px;
   }
+
+  .sidebar { height: 65px; } /* Sidebar inferior menor */
+  .nav-item { font-size: 0.7rem; min-width: 50px; } /* Botões nav menores */
+  .nav-item i { font-size: 1.2rem; }
+
+  .main-content { padding: 20px 15px; } /* Padding menor */
+
+  /* Ajustes específicos do home.html para mobile */
+  .knowledge-trail h2 { font-size: 1.4rem; margin-bottom: 20px; }
+  .trail-progress { margin-bottom: 25px; }
+  .progress-bar-container { height: 12px; }
+
+  .exercise-node {
+      width: 55px; /* Nós menores */
+      height: 55px;
+      font-size: 24px;
+      border-width: 3px;
+  }
+   .exercise-tree {
+       gap: 25px; /* Espaçamento menor */
+       padding: 20px 5px; /* Padding menor */
+   }
+   .trail-item:not(:first-child)::after {
+       height: 25px; /* Linha menor */
+       bottom: calc(100% + 3px); /* Ajuste posição linha */
+       width: 3px; /* Linha mais fina */
+       background-size: 3px 8px;
+   }
+
+  .right-sidebar { gap: 15px; padding: 5px; } /* Padding e gap menores */
+
+   /* Ajustes para stats e missões no mobile */
+   .stats-missions-container { padding: 15px; gap: 15px;}
+   .stats { padding-bottom: 10px; }
+   .stat-icon { font-size: 1.5rem; }
+   .stat-value { font-size: 1rem; }
+   .daily-missions h3 { font-size: 1.1rem; margin-bottom: 10px; }
+   .mission-item { font-size: 0.9rem; }
+
+   /* Ajustes para chat no mobile */
+   .chat-container { min-height: 280px; border-radius: 15px;} /* Altura mínima chat */
+   .chat-header { padding: 10px 12px; }
+   .chat-title { font-size: 1rem; }
+   .chat-messages { padding: 10px; gap: 10px;}
+   .message-content { font-size: 0.9rem; padding: 8px 12px; border-radius: 15px;}
+   .chat-input-container { padding: 10px; gap: 8px;}
+   #chat-input { padding: 10px 12px; font-size: 0.9rem; border-radius: 8px;}
+   .send-btn { padding: 0 15px; font-size: 1rem; border-radius: 8px;}
+}
+
+/* Telas muito pequenas (e.g., < 480px) */
+@media (max-width: 480px) {
+    .header h1 { font-size: 1.4rem; }
+    .container { padding: 65px 5px 75px; gap: 10px; } /* Mais ajustes de padding */
+    .sidebar { height: 60px; } /* Sidebar ainda menor */
+    .nav-item span { display: none; } /* Oculta texto dos botões nav */
+    .nav-item { min-width: 45px; padding: 6px 2px;}
+    .nav-item i { font-size: 1.4rem; } /* Ícone um pouco maior para compensar */
+
+    .main-content, .right-sidebar { padding: 15px; border-radius: 15px;}
+    .knowledge-trail h2 { font-size: 1.3rem; }
+    .exercise-node { width: 50px; height: 50px; font-size: 22px; }
+    .exercise-tree { gap: 20px; }
+    .trail-item:not(:first-child)::after { height: 20px; }
+
+    .stat-icon { font-size: 1.3rem; }
+    .stat-value { font-size: 0.9rem; }
+    .daily-missions h3 { font-size: 1rem; }
+    .mission-item { font-size: 0.85rem; gap: 8px;}
+    .mission-item i { font-size: 1rem; }
+
+    .chat-container { min-height: 250px; }
+    .message-content { font-size: 0.85rem; }
+    #chat-input { padding: 8px 10px; font-size: 0.85rem; }
+    .send-btn { padding: 0 12px; }
 }

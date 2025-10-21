@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rank - CodeWise</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="src/assets/styles/rank.css" />
+</head>
+<body>
+    <header class="header">
+      <h1>CodeWise</h1>
+    </header>
+
+    <div class="container">
+      <nav class="sidebar">
+        <button class="nav-item" onclick="window.location.href='home.html'">
+          <i class="fas fa-book"></i> Lições
+        </button>
+        <button class="nav-item" onclick="window.location.href='perfil.html'"> <i class="fas fa-user"></i> Perfil
+        </button>
+        <button class="nav-item"> <i class="fas fa-store"></i> Loja
+        </button>
+        <button class="nav-item active"> <i class="fas fa-trophy"></i> Rank
+        </button>
+        <button class="nav-item" onclick="window.location.href='configuracoes.html'">
+          <i class="fas fa-cog"></i> Configurações
+        </button>
+      </nav>
+
+      <main class="main-content">
+        <h2 class="page-title">Classificação Geral</h2>
+
+        <div class="rank-list-container">
+          <ul class="rank-list">
+            <li class="rank-item highlight top-1">
+              <span class="rank-position">1º</span>
+              <div class="rank-user">
+                <div class="rank-avatar gold"><i class="fas fa-crown"></i></div>
+                <span class="rank-username">SuperCoder_1</span>
+              </div>
+              <span class="rank-score">1500 XP</span>
+            </li>
+            <li class="rank-item highlight top-2">
+              <span class="rank-position">2º</span>
+              <div class="rank-user">
+                <div class="rank-avatar silver"><i class="fas fa-medal"></i></div>
+                <span class="rank-username">DevMaster</span>
+              </div>
+              <span class="rank-score">1450 XP</span>
+            </li>
+             <li class="rank-item highlight top-3">
+                <span class="rank-position">3º</span>
+                <div class="rank-user">
+                  <div class="rank-avatar bronze"><i class="fas fa-award"></i></div>
+                  <span class="rank-username">PyWizard</span>
+                </div>
+                <span class="rank-score">1380 XP</span>
+              </li>
+            <li class="rank-item current-user">
+              <span class="rank-position">120º</span>
+              <div class="rank-user">
+                <div class="rank-avatar"><i class="fas fa-user"></i></div>
+                <span class="rank-username">NomeDoUsuario</span> </div>
+              <span class="rank-score">550 XP</span>
+            </li>
+            <li class="rank-item">
+              <span class="rank-position">121º</span>
+              <div class="rank-user">
+                <div class="rank-avatar"><i class="fas fa-user"></i></div>
+                <span class="rank-username">User_ABC</span>
+              </div>
+              <span class="rank-score">545 XP</span>
+            </li>
+             <li class="rank-item">
+                <span class="rank-position">122º</span>
+                <div class="rank-user">
+                  <div class="rank-avatar"><i class="fas fa-user"></i></div>
+                  <span class="rank-username">CodeNinja</span>
+                </div>
+                <span class="rank-score">530 XP</span>
+              </li>
+            </ul>
+        </div>
+      </main>
+    </div>
+
+    <script src="src/pages/script.js"></script>
+    </body>
+</html>

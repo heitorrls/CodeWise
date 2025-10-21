@@ -26,10 +26,10 @@
         <button class="nav-item" data-route="/loja">
           <i class="fas fa-store"></i> Loja
         </button>
-        <button class="nav-item" data-route="/rank">
+        <button class="nav-item" data-route="/rank" onclick="window.location.href='rank.html'">
           <i class="fas fa-trophy"></i> Rank
         </button>
-        <button class="nav-item" data-route="/configuracoes">
+        <button class="nav-item" data-route="/configuracoes" onclick="window.location.href='configuracoes.html'"> 
           <i class="fas fa-cog"></i> Configurações
         </button>
       </nav>
@@ -126,7 +126,7 @@
       </aside>
     </div>
 
-    <script>
+    <script src="src/pages/script.js">
       document.getElementById("send-btn").addEventListener("click", sendMessage);
       document
         .getElementById("chat-input")
