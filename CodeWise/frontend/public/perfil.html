@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Configurações - CodeWise</title>
+    <title>Configurações de Perfil - CodeWise</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="stylesheet" href="src/assets/styles/configuracoes.css" />
+    <link rel="stylesheet" href="src/assets/styles/perfil.css" /> 
 </head>
 <body>
     <header class="header">
@@ -20,75 +20,78 @@
         <button class="nav-item" onclick="window.location.href='home.html'">
           <i class="fas fa-book"></i> Lições
         </button>
-        <button class="nav-item" onclick="window.location.href='perfil.html'">
-          <i class="fas fa-user"></i> Perfil
+        <button class="nav-item active" onclick="window.location.href='perfil.html'"> <i class="fas fa-user"></i> Perfil
         </button>
-        <button class="nav-item" onclick="window.location.href='loja.html'"> <i class="fas fa-store"></i> Loja
+        <button class="nav-item" onclick="window.location.href='loja.html'"> 
+          <i class="fas fa-store"></i> Loja
         </button>
         <button class="nav-item" onclick="window.location.href='rank.html'">
           <i class="fas fa-trophy"></i> Rank
         </button>
-        <button class="nav-item active"> <i class="fas fa-cog"></i> Configurações
+        <button class="nav-item" onclick="window.location.href='configuracoes.html'"> 
+          <i class="fas fa-cog"></i> Configurações
         </button>
       </nav>
 
       <main class="main-content">
         <h2 class="page-title">Configurações de Perfil</h2>
 
-        <section class="settings-section account-section">
-          <h3 class="section-title">Conta</h3>
-          <div class="setting-item">
-            <div class="setting-info">
-              <label for="username" class="setting-label">Nome de Usuário</label>
-              <input type="text" id="username" class="setting-input" value="NomeDoUsuario" placeholder="Digite seu nome de usuário">
-            </div>
-            <button class="setting-action-button save-button">Salvar</button>
-          </div>
-          <div class="setting-item">
-            <div class="setting-info">
-              <label for="email" class="setting-label">Endereço de E-mail</label>
-              <input type="email" id="email" class="setting-input" value="usuario@email.com" placeholder="Digite seu e-mail">
-            </div>
-             <button class="setting-action-button save-button">Salvar</button>
-          </div>
-        </section>
-
-        <section class="settings-section password-section">
-          <h3 class="section-title">Senha</h3>
-          <div class="setting-item password-item">
-            <div class="setting-info password-fields">
-                <div class="password-field-group">
-                    <label for="current-password" class="setting-label small">Senha Atual</label>
-                    <input type="password" id="current-password" class="setting-input" placeholder="Digite sua senha atual">
+        <div class="settings-panel">
+            <section class="settings-section account-section">
+              <h3 class="section-title">Conta</h3>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <label for="username" class="setting-label">Nome de Usuário</label>
+                  <input type="text" id="username" class="setting-input" value="NomeDoUsuario" placeholder="Digite seu nome de usuário">
                 </div>
-                 <div class="password-field-group">
-                    <label for="new-password" class="setting-label small">Nova Senha</label>
-                    <input type="password" id="new-password" class="setting-input" placeholder="Digite a nova senha">
-                 </div>
-                 <div class="password-field-group">
-                    <label for="confirm-password" class="setting-label small">Confirmar Nova Senha</label>
-                    <input type="password" id="confirm-password" class="setting-input" placeholder="Confirme a nova senha">
-                 </div>
-            </div>
-             <button class="setting-action-button save-button">Alterar Senha</button>
-          </div>
-        </section>
+                <button class="setting-action-button save-button">Salvar</button>
+              </div>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <label for="email" class="setting-label">Endereço de E-mail</label>
+                  <input type="email" id="email" class="setting-input" value="usuario@email.com" placeholder="Digite seu e-mail">
+                </div>
+                <button class="setting-action-button save-button">Salvar</button>
+              </div>
+            </section>
 
-        <section class="settings-section delete-section">
-          <h3 class="section-title danger-title">Excluir Conta</h3>
-           <div class="setting-item delete-item">
-            <div class="setting-info">
-              <p class="setting-description danger-text">
-                Esta ação é irreversível. Todos os seus dados, progresso e conquistas serão permanentemente perdidos.
-              </p>
-            </div>
-             <button class="setting-action-button delete-button">Excluir Minha Conta</button>
-          </div>
-        </section>
+            <section class="settings-section password-section">
+              <h3 class="section-title">Senha</h3>
+              <div class="setting-item password-item">
+                <div class="setting-info password-fields">
+                    <div class="password-field-group">
+                        <label for="current-password" class="setting-label small">Senha Atual</label>
+                        <input type="password" id="current-password" class="setting-input" placeholder="Digite sua senha atual">
+                    </div>
+                    <div class="password-field-group">
+                        <label for="new-password" class="setting-label small">Nova Senha</label>
+                        <input type="password" id="new-password" class="setting-input" placeholder="Digite a nova senha">
+                    </div>
+                    <div class="password-field-group">
+                        <label for="confirm-password" class="setting-label small">Confirmar Nova Senha</label>
+                        <input type="password" id="confirm-password" class="setting-input" placeholder="Confirme a nova senha">
+                    </div>
+                </div>
+                <button class="setting-action-button save-button">Alterar Senha</button>
+              </div>
+            </section>
+
+            <section class="settings-section delete-section">
+              <h3 class="section-title danger-title">Excluir Conta</h3>
+              <div class="setting-item delete-item">
+                <div class="setting-info">
+                  <p class="setting-description danger-text">
+                    Esta ação é irreversível. Todos os seus dados, progresso e conquistas serão permanentemente perdidos.
+                  </p>
+                </div>
+                <button class="setting-action-button delete-button">Excluir Minha Conta</button>
+              </div>
+            </section>
+        </div>
 
       </main>
     </div>
 
     <script src="src/pages/script.js"></script>
-    </body>
+</body>
 </html>

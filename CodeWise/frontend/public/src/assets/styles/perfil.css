@@ -1,4 +1,4 @@
-/* Reset básico e configurações do corpo */
+/* Reset básico e configurações do corpo (do modelo) */
 * {
   margin: 0;
   padding: 0;
@@ -14,7 +14,7 @@ body {
   position: relative; /* Para ::before */
 }
 
-/* Efeito de estrelas */
+/* Efeito de estrelas (do modelo) */
 body::before {
   content: "";
   position: fixed; /* Fixo para não rolar */
@@ -42,15 +42,11 @@ body::before {
 }
 
 @keyframes twinkle {
-  0% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 0.8;
-  }
+  0% { opacity: 0.3; }
+  100% { opacity: 0.8; }
 }
 
-/* Header Fixo */
+/* Header Fixo (do modelo) */
 .header {
   background: rgba(26, 27, 58, 0.95);
   border-bottom: 2px solid rgba(139, 124, 200, 0.3);
@@ -67,7 +63,7 @@ body::before {
   height: 70px;
 }
 
-.header h1 {
+.header h1 { /* Estilo do .logo aplicado ao h1 */
   font-size: 2rem;
   font-weight: bold;
   color: #8b7cc8;
@@ -85,14 +81,14 @@ body::before {
     "sidebar main";
   gap: 20px;
   padding: 85px 20px 20px;
-  max-width: 1400px;
+  max-width: 1400px; /* Largura máxima */
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
-/* Sidebar Esquerda */
+/* Sidebar Esquerda (do modelo) */
 .sidebar {
   grid-area: sidebar;
   background: rgba(40, 42, 70, 0.6);
@@ -106,8 +102,8 @@ body::before {
   gap: 12px;
 }
 
-/* Botões de Navegação */
-.nav-item {
+/* Botões de Navegação (do modelo) */
+.nav-item { /* .nav-btn renomeado para .nav-item */
   background: rgba(139, 124, 200, 0.1);
   border: 2px solid rgba(139, 124, 200, 0.3);
   border-radius: 15px;
@@ -141,7 +137,7 @@ body::before {
   box-shadow: 0 8px 20px rgba(139, 124, 200, 0.4);
 }
 
-/* Conteúdo Principal */
+/* Conteúdo Principal (do modelo) */
 .main-content {
   grid-area: main;
   background: rgba(40, 42, 70, 0.6);
@@ -152,203 +148,202 @@ body::before {
   overflow: auto; /* Permite scroll se necessário */
 }
 
-/* --- Estilos Específicos da Página da Loja --- */
-
-/* Header do Conteúdo (Título + Saldo) */
-.main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 35px; /* Mais espaço abaixo */
-    padding-bottom: 15px; /* Espaço antes da borda */
-    border-bottom: 1px solid rgba(139, 124, 200, 0.2); /* Separador sutil */
-    flex-wrap: wrap;
-    gap: 15px;
-}
+/* --- Estilos Específicos da Página de Configurações de Perfil --- */
 
 /* Título da Página */
 .page-title {
   color: white;
   font-size: 2rem;
   font-weight: bold;
-  margin-bottom: 0;
-  text-align: left;
+  margin-bottom: 35px;
+  text-align: center;
   background: linear-gradient(135deg, #ffffff, #e0d8f0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Display de Saldo */
-.balance-display {
-    background: rgba(139, 124, 200, 0.1); /* Mais sutil */
-    border: 1px solid rgba(139, 124, 200, 0.2);
-    border-radius: 25px; /* Mais arredondado */
-    padding: 8px 18px; /* Mais padding */
-    font-size: 1rem;
-    font-weight: 500;
-    color: #e0d8f0;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px; /* Mais espaço */
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); /* Sombra interna */
+/* Painel Central */
+.settings-panel {
+  max-width: 750px;
+  margin: 0 auto;
 }
 
-.balance-amount {
-    font-weight: bold;
-    color: white;
-}
-
-.gem-icon {
-    color: #93E9BE; /* Verde-água/Turquesa suave */
-    font-style: normal;
-    text-shadow: 0 0 5px rgba(147, 233, 190, 0.5); /* Leve brilho */
-}
-
-/* Seção da Loja */
-.store-section {
-  margin-bottom: 45px; /* Mais espaço entre seções */
+/* Seção (Conta, Senha, Excluir) */
+.settings-section {
+  background: rgba(26, 27, 58, 0.5);
+  border: 1px solid rgba(139, 124, 200, 0.15);
+  border-radius: 18px;
+  padding: 25px 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  animation: fadeInUp 0.5s ease backwards;
 }
 
 .section-title {
-  font-size: 1.7rem; /* Maior */
+  font-size: 1.5rem;
   color: #c7a9ff;
-  margin-bottom: 25px; /* Mais espaço abaixo */
+  margin-bottom: 25px;
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(139, 124, 200, 0.3);
+  border-bottom: 1px solid rgba(139, 124, 200, 0.25);
 }
-
-/* Grid de Itens */
-.items-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Itens um pouco maiores */
-  gap: 30px; /* Mais espaço */
-}
-
-/* Card de Item */
-.store-item {
-  background: rgba(26, 27, 58, 0.7); /* Fundo mais escuro e opaco */
-  border: 1px solid rgba(139, 124, 200, 0.2);
-  border-radius: 18px; /* Borda ajustada */
-  padding: 25px; /* Mais padding */
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  animation: fadeInUp 0.5s ease backwards;
-  overflow: hidden; /* Garante que elementos internos não vazem */
-  position: relative; /* Para possíveis efeitos futuros */
-}
-/* Delay Animação */
-.store-item:nth-child(1) { animation-delay: 0.05s; }
-.store-item:nth-child(2) { animation-delay: 0.1s; }
-.store-item:nth-child(3) { animation-delay: 0.15s; }
-.store-item:nth-child(4) { animation-delay: 0.2s; }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* Delay Animação */
+.account-section { animation-delay: 0.1s; }
+.password-section { animation-delay: 0.2s; }
+.delete-section { animation-delay: 0.3s; }
 
-.store-item:hover {
-  transform: translateY(-8px) scale(1.02); /* Efeito de elevação maior */
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-  border-color: rgba(168, 155, 209, 0.5); /* Borda mais clara no hover */
-}
-
-/* Ícone/Imagem */
-.store-item-icon,
-.store-item-image {
-  width: 90px; /* Maior */
-  height: 90px;
-  border-radius: 18px;
+/* Item de Configuração Individual */
+.setting-item {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 15px; /* Mais espaço */
-  font-size: 45px;
-  transition: transform 0.3s ease; /* Efeito na imagem */
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(139, 124, 200, 0.1);
+  gap: 20px;
 }
-.store-item:hover .store-item-icon,
-.store-item:hover .store-item-image {
-    transform: scale(1.05); /* Leve zoom na imagem no hover */
+.settings-section .setting-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
-
-.store-item-icon.life {
-  background: radial-gradient(circle, rgba(255,150,150,0.2) 0%, rgba(255,107,107,0.1) 70%);
-  color: #ff8f8f; /* Cor mais viva */
-  border-radius: 50%;
-  font-size: 50px;
-  text-shadow: 0 0 10px rgba(255, 107, 107, 0.5); /* Brilho */
+.settings-section .setting-item:first-of-type {
+  padding-top: 0;
 }
 
-.store-item-image {
-   background: rgba(139, 124, 200, 0.1);
-   color: #a89bd1;
-   border: 1px solid rgba(139, 124, 200, 0.2);
-}
-.store-item-image.astronaut { background-color: #5c6a9c; color: #dfe3f0;}
-.store-item-image.ninja { background-color: #444; color: #ccc;}
-
-/* Título */
-.item-title {
-  font-size: 1.3rem; /* Maior */
-  font-weight: bold;
-  color: white;
-  margin-bottom: 8px; /* Espaço ajustado */
-}
-
-/* Descrição */
-.item-description {
-  font-size: 0.95rem; /* Ligeiramente maior */
-  color: #b8b0d0;
-  line-height: 1.5; /* Mais espaçamento entre linhas */
+.setting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   flex-grow: 1;
-  margin-bottom: 20px; /* Mais espaço antes do botão */
-  max-width: 90%; /* Evita que fique muito largo */
 }
 
-/* Botão de Compra */
-.buy-button {
-  background: linear-gradient(135deg, #8b7cc8, #a89bd1);
-  border: none;
-  border-radius: 12px; /* Mais arredondado */
-  padding: 12px 30px; /* Maior */
+.setting-label {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.setting-label.small {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #b8b0d0;
+  margin-bottom: 0;
+}
+
+.setting-description {
+  color: #b8b0d0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Inputs */
+.setting-input {
+  width: 100%;
+  background: rgba(139, 124, 200, 0.1);
+  border: 2px solid rgba(139, 124, 200, 0.3);
+  border-radius: 10px;
+  padding: 12px 15px;
   color: white;
   font-size: 1rem;
-  font-weight: bold; /* Mais destaque */
+  transition: all 0.3s ease;
+  margin-top: 5px; /* Espaço do label */
+}
+.setting-input:focus {
+  outline: none;
+  background: rgba(139, 124, 200, 0.15);
+  border-color: #8b7cc8;
+  box-shadow: 0 0 10px rgba(139, 124, 200, 0.3);
+}
+.setting-input::placeholder {
+  color: #7a739b;
+}
+
+/* Botões de Ação */
+.setting-action-button {
+  background: rgba(139, 124, 200, 0.15);
+  border: 2px solid rgba(139, 124, 200, 0.4);
+  border-radius: 10px;
+  padding: 10px 20px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px; /* Mais espaço */
-  width: auto;
-  margin-top: auto;
+  flex-shrink: 0; /* Impede que encolha */
+  text-align: center;
+  height: fit-content; /* Alinha com inputs */
+}
+.setting-action-button:hover {
+  background: rgba(139, 124, 200, 0.25);
+  border-color: #a89bd1;
+  transform: scale(1.03);
+}
+.setting-action-button:active {
+    transform: scale(0.98);
+}
+
+.save-button {
+  background: linear-gradient(135deg, #8b7cc8, #a89bd1);
+  border-color: transparent;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
-.buy-button .gem-icon {
-    font-size: 0.9em; /* Ícone um pouco menor que o texto */
+.save-button:hover {
+  filter: brightness(1.1);
+  background: linear-gradient(135deg, #9c8cd6, #b9aedf);
+  box-shadow: 0 6px 15px rgba(139, 124, 200, 0.4);
 }
 
-.buy-button:hover {
-  background: linear-gradient(135deg, #9c8cd6, #b9aedf); /* Clareia no hover */
-  box-shadow: 0 6px 18px rgba(139, 124, 200, 0.4);
-  transform: scale(1.05) translateY(-2px); /* Efeito hover mais pronunciado */
+/* Seção de Senha */
+.password-item {
+    align-items: flex-start; /* Alinha botão ao topo */
 }
-.buy-button:active {
-    transform: scale(0.97) translateY(0); /* Efeito de clique */
-    filter: brightness(0.95);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+.password-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex-grow: 1;
+  width: 100%;
+}
+.password-field-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column; /* Label acima do input */
 }
 
+/* Zona de Perigo */
+.delete-section {
+  border-color: rgba(255, 107, 107, 0.3);
+  background: rgba(255, 107, 107, 0.05);
+}
+.danger-title {
+  color: #ff8f8f;
+  border-bottom-color: rgba(255, 107, 107, 0.2);
+}
+.danger-text {
+  color: #ffb8b8;
+  max-width: 90%; /* Evita que o texto encoste no botão */
+}
+.delete-button {
+  background: rgba(255, 107, 107, 0.15);
+  border: 2px solid rgba(255, 107, 107, 0.4);
+  color: #ff8f8f;
+  font-weight: bold;
+}
+.delete-button:hover {
+  background: rgba(255, 107, 107, 0.25);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+}
 
 /* --- RESPONSIVIDADE --- */
 
 @media (max-width: 1200px) {
   .container {
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 220px 1fr; /* Sidebar menor */
     gap: 15px;
     padding: 85px 15px 15px;
   }
@@ -357,26 +352,26 @@ body::before {
   .nav-item { padding: 14px 16px; font-size: 0.95rem; }
   .main-content { padding: 25px 30px; }
   .page-title { font-size: 1.8rem; }
-  .balance-display { font-size: 0.95rem; padding: 7px 16px; }
-  .section-title { font-size: 1.5rem; }
-  .items-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; }
+  .settings-section { padding: 20px 25px; }
+  .section-title { font-size: 1.4rem; }
 }
 
 @media (max-width: 992px) {
   .container {
-    grid-template-columns: 1fr;
-    grid-template-rows: 70px auto auto;
+    grid-template-columns: 1fr; /* Coluna única */
+    grid-template-rows: 70px auto auto; /* Header, Main, Bottom Sidebar */
     grid-template-areas:
       "header"
       "main"
-      "sidebar";
-    padding: 80px 15px 85px;
+      "sidebar"; /* Sidebar vai para baixo */
+    padding: 80px 15px 85px; /* Espaço para header e sidebar fixa no fundo */
     height: auto; min-height: 100vh;
   }
   body { overflow-y: auto; }
   .sidebar, .main-content { height: auto; margin-bottom: 0; }
-  .main-content { overflow: visible; }
+  .main-content { overflow: visible; } /* Remove scroll do main */
 
+  /* Sidebar fixa no fundo */
   .sidebar {
     position: fixed; bottom: 0; left: 0; right: 0;
     flex-direction: row; justify-content: space-around; align-items: center;
@@ -396,10 +391,14 @@ body::before {
   .nav-item:hover { background: rgba(139, 124, 200, 0.15); border-color: rgba(139, 124, 200, 0.3); }
   .nav-item.active { box-shadow: 0 4px 10px rgba(139, 124, 200, 0.3); }
 
-  .main-header { flex-direction: column; align-items: flex-start; }
-  .balance-display { align-self: flex-end; }
-  .items-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+  /* Ajustes Config Tablet */
+  .settings-panel { max-width: 95%; }
+  .setting-item { flex-wrap: wrap; }
+  .password-item { flex-direction: column; align-items: stretch; }
+  .password-fields { margin-bottom: 15px; }
+  .setting-action-button { width: 100%; } /* Botões em largura total */
 }
+
 
 @media (max-width: 768px) {
   .header { padding: 15px 20px; height: 60px; }
@@ -410,21 +409,33 @@ body::before {
   .nav-item i { font-size: 1.2rem; }
 
   .main-content { padding: 25px 15px; }
-  .main-header { margin-bottom: 25px; }
-  .page-title { font-size: 1.6rem; }
-  .balance-display { font-size: 0.9rem; padding: 6px 12px; }
+  .page-title { font-size: 1.7rem; margin-bottom: 30px; }
+  .settings-section { padding: 20px; border-radius: 15px; }
+  .section-title { font-size: 1.3rem; margin-bottom: 20px; }
 
-  .section-title { font-size: 1.4rem; margin-bottom: 20px; }
-  .items-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
-  .store-item { padding: 20px 15px; gap: 10px; border-radius: 15px;}
-  .store-item-icon, .store-item-image { width: 70px; height: 70px; font-size: 35px; margin-bottom: 10px; border-radius: 15px;}
-  .store-item-icon.life { font-size: 40px; }
-  .item-title { font-size: 1.15rem; }
-  .item-description { font-size: 0.88rem; margin-bottom: 15px; }
-  .buy-button { font-size: 0.95rem; padding: 10px 22px; }
+  .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px 0;
+  }
+  .setting-action-button {
+    align-self: flex-end; /* Botões de salvar normais para a direita */
+    width: auto;
+  }
+  /* Botões na seção de senha e exclusão ficam em largura total */
+  .password-item .setting-action-button,
+  .delete-item .setting-action-button {
+      width: 100%; 
+  }
+  .setting-info { width: 100%; }
+  .setting-label { font-size: 1rem; }
+  .setting-description { font-size: 0.85rem; }
+  .action-button { font-size: 0.9rem; padding: 10px 18px; }
 }
 
 @media (max-width: 480px) {
+  body { padding: 0; }
   .header h1 { font-size: 1.4rem; }
   .container { padding: 65px 5px 70px; gap: 10px; }
   .sidebar { height: 60px; }
@@ -433,30 +444,10 @@ body::before {
   .nav-item i { font-size: 1.4rem; }
 
   .main-content { padding: 20px 10px; }
-  .main-header { align-items: center; }
-  .balance-display { align-self: center; font-size: 0.85rem;}
-  .page-title { text-align: center; font-size: 1.5rem; }
-
-  .section-title { font-size: 1.3rem; }
-  .items-grid { grid-template-columns: 1fr; gap: 15px; } /* Uma coluna */
-
-  /* Reajusta itens para layout horizontal em telas muito pequenas */
-  .store-item { flex-direction: row; text-align: left; align-items: center; padding: 15px;}
-  .store-item-icon, .store-item-image { width: 55px; height: 55px; font-size: 28px; margin-bottom: 0; margin-right: 15px; flex-shrink: 0; border-radius: 12px;}
-  .store-item-icon.life { font-size: 30px; }
-
-  /* Cria container para texto + botão */
-  .store-item > div:not(.store-item-icon):not(.store-item-image) {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      gap: 5px;
-      align-items: flex-start; /* Alinha texto à esquerda */
-  }
-
-  .item-title { margin-bottom: 0; font-size: 1.05rem; }
-  .item-description { font-size: 0.8rem; margin-bottom: 8px; flex-grow: 0;}
-  .buy-button { padding: 8px 18px; font-size: 0.9rem; margin-top: 0; align-self: flex-start; }
+  .page-title { font-size: 1.5rem; }
+  .settings-section { padding: 15px; }
+  .section-title { font-size: 1.2rem; }
+  .setting-label { font-size: 0.95rem; }
+  .setting-description { font-size: 0.8rem; }
+  .setting-input { padding: 11px 13px; font-size: 0.95rem; }
 }
-
-/* --- FIM dos Estilos --- */
