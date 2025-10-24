@@ -13,7 +13,7 @@
   <body>
     <div class="container">
       <header class="header">
-        <h1>CodeWise</h1>
+        <h1>Lições</h1>
       </header>
 
       <nav class="sidebar">
@@ -23,7 +23,7 @@
         <button class="nav-item" data-route="/perfil" onclick="window.location.href='perfil.html'">
           <i class="fas fa-user"></i> Perfil
         </button>
-        <button class="nav-item" data-route="/loja" >
+        <button class="nav-item" data-route="/loja" onclick="window.location.href='loja.html'">
           <i class="fas fa-store"></i> Loja
         </button>
         <button class="nav-item" data-route="/rank" onclick="window.location.href='rank.html'">
@@ -78,7 +78,9 @@
         <div class="stats-missions-container">
             <div class="stats">
                 <div class="stat-item">
-                  <span class="stat-icon">🔥</span>
+                  <a href="calendario.html" class="stat-link">
+                    <span class="stat-icon">🔥</span>
+                  </a>
                   <span class="stat-value">05</span>
                 </div>
                 <div class="stat-item">
@@ -126,48 +128,6 @@
       </aside>
     </div>
 
-    <script src="src/pages/script.js">
-      document.getElementById("send-btn").addEventListener("click", sendMessage);
-      document
-        .getElementById("chat-input")
-        .addEventListener("keypress", function (e) {
-          if (e.key === "Enter") {
-            sendMessage();
-          }
-        });
-
-      function sendMessage() {
-        const input = document.getElementById("chat-input");
-        const message = input.value.trim();
-
-        if (!message) return;
-
-        addMessage("user", message);
-        input.value = "";
-
-        setTimeout(() => {
-          const responses = [
-            "Entendi sua dúvida! Vou te ajudar com isso.",
-            "Ótima pergunta! Deixe-me explicar...",
-            "Posso te dar algumas dicas sobre isso.",
-            "Vou pesquisar mais informações para você!",
-          ];
-          const randomResponse =
-            responses[Math.floor(Math.random() * responses.length)];
-          addMessage("assistant", randomResponse);
-        }, 1000);
-      }
-
-      function addMessage(type, content) {
-        const messagesContainer = document.getElementById("chat-messages");
-        const messageDiv = document.createElement("div");
-        messageDiv.className = `message ${type}`;
-
-        messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
-
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
-    </script>
+    <script src="src/pages/script.js"></script>
   </body>
 </html>

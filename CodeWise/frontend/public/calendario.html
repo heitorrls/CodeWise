@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ofensiva - CodeWise</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="src/assets/styles/calendario.css" />
+</head>
+<body>
+    <header class="header">
+      <h1>CodeWise</h1>
+    </header>
+
+    <div class="container">
+      <nav class="sidebar">
+        <button class="nav-item" onclick="window.location.href='home.html'">
+          <i class="fas fa-book"></i> <span>Lições</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='perfil.html'">
+          <i class="fas fa-user"></i> <span>Perfil</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='loja.html'">
+          <i class="fas fa-store"></i> <span>Loja</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='rank.html'">
+          <i class="fas fa-trophy"></i> <span>Rank</span>
+        </button>
+        <button class="nav-item active">
+          <i class="fas fa-fire"></i> <span>Ofensiva</span>
+        </button>
+        <button class="nav-item" onclick="window.location.href='configuracoes.html'">
+          <i class="fas fa-cog"></i> <span>Configurações</span>
+        </button>
+      </nav>
+
+      <main class="main-content">
+        <div class="calendar-container">
+          <!-- Botão Voltar -->
+          <button class="back-button">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+
+          <!-- Cabeçalho do Calendário -->
+          <div class="calendar-header">
+            <h2 class="month-year">05/2025</h2>
+            <div class="streak-badge">
+              <span class="streak-number">5</span>
+              <span class="streak-label">dias com ofensiva</span>
+            </div>
+          </div>
+
+          <!-- Grid de Dias -->
+          <div class="calendar-grid">
+            <div class="calendar-day active">1</div>
+            <div class="calendar-day active">2</div>
+            <div class="calendar-day active">3</div>
+            <div class="calendar-day active">4</div>
+            <div class="calendar-day active current">5</div>
+            <div class="calendar-day">6</div>
+            <div class="calendar-day">7</div>
+            
+            <div class="calendar-day">8</div>
+            <div class="calendar-day">9</div>
+            <div class="calendar-day">10</div>
+            <div class="calendar-day">11</div>
+            <div class="calendar-day">12</div>
+            <div class="calendar-day">13</div>
+            <div class="calendar-day">14</div>
+            
+            <div class="calendar-day">15</div>
+            <div class="calendar-day">16</div>
+            <div class="calendar-day">17</div>
+            <div class="calendar-day">18</div>
+            <div class="calendar-day">19</div>
+            <div class="calendar-day">20</div>
+            <div class="calendar-day">21</div>
+            
+            <div class="calendar-day">22</div>
+            <div class="calendar-day">23</div>
+            <div class="calendar-day">24</div>
+            <div class="calendar-day">25</div>
+            <div class="calendar-day">26</div>
+            <div class="calendar-day">27</div>
+            <div class="calendar-day">28</div>
+            
+            <div class="calendar-day">29</div>
+            <div class="calendar-day">30</div>
+            <div class="calendar-day">31</div>
+          </div>
+
+          <!-- Legenda -->
+          <div class="calendar-legend">
+            <div class="legend-item">
+              <span class="legend-indicator active-indicator"></span>
+              <span class="legend-text">Dia com ofensiva</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-indicator current-indicator"></span>
+              <span class="legend-text">Dia atual</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-indicator inactive-indicator"></span>
+              <span class="legend-text">Sem ofensiva</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="stats-panel">
+          <h3 class="stats-title">Estatísticas de Ofensiva</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <i class="fas fa-fire stat-icon"></i>
+              <div class="stat-info">
+                <span class="stat-value">5</span>
+                <span class="stat-label">Ofensiva Atual</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-chart-line stat-icon"></i>
+              <div class="stat-info">
+                <span class="stat-value">15</span>
+                <span class="stat-label">Recorde</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-calendar-check stat-icon"></i>
+              <div class="stat-info">
+                <span class="stat-value">23</span>
+                <span class="stat-label">Total de Dias</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // Script para navegação entre meses (funcionalidade futura)
+      document.querySelector('.back-button').addEventListener('click', function() {
+        // Implementar navegação para mês anterior
+        console.log('Voltar para mês anterior');
+      });
+    </script>
+</body>
+</html>

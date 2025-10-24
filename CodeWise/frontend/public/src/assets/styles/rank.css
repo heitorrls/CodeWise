@@ -84,7 +84,7 @@ body::before {
     "header header"
     "sidebar main";
   gap: 20px;
-  padding: 10px 20px 20px; /* Padding Top ajustado para Header fixo */
+  padding: 2px 10px 10px; /* Padding Top ajustado para Header fixo */
   max-width: 2000px; /* Largura máxima */
   margin: 0 auto;
   min-height: 100vh; /* Ocupa altura da tela */

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loja - CodeWise</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="src/assets/styles/loja.css" />
+</head>
+<body>
+    <header class="header">
+      <h1>CodeWise</h1>
+    </header>
+
+    <div class="container">
+      <nav class="sidebar">
+        <button class="nav-item" onclick="window.location.href='home.html'">
+          <i class="fas fa-book"></i> Lições
+        </button>
+        <button class="nav-item" onclick="window.location.href='perfil.html'">
+          <i class="fas fa-user"></i> Perfil
+        </button>
+        <button class="nav-item active"> <i class="fas fa-store"></i> Loja
+        </button>
+        <button class="nav-item" onclick="window.location.href='rank.html'">
+          <i class="fas fa-trophy"></i> Rank
+        </button>
+        <button class="nav-item" onclick="window.location.href='configuracoes.html'">
+          <i class="fas fa-cog"></i> Configurações
+        </button>
+      </nav>
+
+      <main class="main-content">
+        <div class="main-header">
+            <h2 class="page-title">Loja</h2>
+            <div class="balance-display">
+              Seu Saldo: <span class="balance-amount">366</span> <span class="gem-icon">💎</span>
+            </div>
+        </div>
+
+        <section class="store-section">
+          <h3 class="section-title">Vidas</h3>
+          <div class="items-grid">
+            <div class="store-item">
+              <div class="store-item-icon life">❤️</div>
+              <h4 class="item-title">Recarga de Vidas</h4>
+              <p class="item-description">Recarregue todas as suas vidas e continue aprendendo!</p>
+              <button class="buy-button">
+                50 <span class="gem-icon">💎</span>
+              </button>
+            </div>
+             </div>
+        </section>
+
+        <section class="store-section">
+          <h3 class="section-title">Visuais</h3>
+          <div class="items-grid visuals">
+            <div class="store-item">
+              <div class="store-item-image astronaut">
+                <i class="fas fa-user-astronaut"></i> </div>
+              <h4 class="item-title">Astronauta</h4>
+              <p class="item-description">Traje espacial completo para explorar o universo do código.</p>
+              <button class="buy-button">
+                200 <span class="gem-icon">💎</span>
+              </button>
+            </div>
+
+            <div class="store-item">
+              <div class="store-item-image ninja">
+                 <i class="fas fa-user-ninja"></i> </div>
+              <h4 class="item-title">Ninja</h4>
+              <p class="item-description">Mova-se pelas sombras com este uniforme ágil.</p>
+              <button class="buy-button">
+                250 <span class="gem-icon">💎</span>
+              </button>
+            </div>
+
+             </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="src/pages/script.js"></script>
+</body>
+</html>

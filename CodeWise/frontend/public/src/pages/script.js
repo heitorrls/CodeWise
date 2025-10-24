@@ -783,3 +783,46 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// 12. Pagina home.html 
+document.getElementById("send-btn").addEventListener("click", sendMessage);
+      document
+        .getElementById("chat-input")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            sendMessage();
+          }
+        });
+
+      function sendMessage() {
+        const input = document.getElementById("chat-input");
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        addMessage("user", message);
+        input.value = "";
+
+        setTimeout(() => {
+          const responses = [
+            "Entendi sua dúvida! Vou te ajudar com isso.",
+            "Ótima pergunta! Deixe-me explicar...",
+            "Posso te dar algumas dicas sobre isso.",
+            "Vou pesquisar mais informações para você!",
+          ];
+          const randomResponse =
+            responses[Math.floor(Math.random() * responses.length)];
+          addMessage("assistant", randomResponse);
+        }, 1000);
+      }
+
+      function addMessage(type, content) {
+        const messagesContainer = document.getElementById("chat-messages");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${type}`;
+
+        messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
