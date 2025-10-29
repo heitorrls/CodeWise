@@ -1,3 +1,50 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { 
+  getAuth, 
+  connectAuthEmulator,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword 
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { 
+  getFirestore, 
+  connectFirestoreEmulator, 
+  doc,
+  setDoc 
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+// Removi o 'getDatabase' já que você está usando Firestore
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCvHZkIEGnoguHHVN8YY9Gs0ODyDwzeuCk",
+    authDomain: "tcc-codewise.firebaseapp.com",
+    projectId: "tcc-codewise",
+    storageBucket: "tcc-codewise.firebasestorage.app",
+    messagingSenderId: "428907524592",
+    appId: "1:428907524592:web:40c5b59fdb5118a37ded35",
+    measurementId: "G-WSQ8QV713L"
+};
+
+// 1. Inicializa o App
+const app = initializeApp(firebaseConfig);
+
+// 2. Obtém os serviços
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// 3. Conecta aos emuladores (APENAS se estiver em localhost)
+if (window.location.hostname === "localhost") {
+  console.log("Modo de teste: Conectando aos Emuladores Locais...");
+
+  // Conecta o serviço de Autenticação ao emulador
+  connectAuthEmulator(auth, "http://localhost:9099");
+
+  // Conecta o Firestore ao emulador
+  connectFirestoreEmulator(db, "http://localhost:9002");
+}
+
+// 4. Exporta as variáveis para usar em outros scripts
+export { auth, db };
+
 document.addEventListener("DOMContentLoaded", () => {
   // --- FUNÇÕES GLOBAIS E UTILITÁRIAS ---
 
@@ -30,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 500);
   }
 
-  // Função para limpar a mensagem de erro de um campo
+  // Função para limpar la mensagem de erro de um campo
   function clearError(input) {
     if (!input) return;
     input.classList.remove("error");
@@ -134,24 +181,26 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (!hasError) {
-        try {
-          const response = await fetch("http://localhost:3001/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-          });
-          const data = await response.json();
-          if (response.ok) {
-            alert("Login realizado com sucesso!");
-            window.location.href = "intro_nivelamento.html";
-          } else {
-            alert(data.message || "Erro ao fazer login");
-          }
-        } catch (error) {
-          alert("Erro de conexão com o servidor");
-        }
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Login bem-sucedido!
+      const user = userCredential.user;
+      console.log("Usuário logado:", user.uid);
+      alert("Login realizado com sucesso!");
+      // Redireciona para a página desejada (ex: home ou intro_nivelamento)
+      window.location.href = "intro_nivelamento.html"; // Ou 'home.html'
+    })
+    .catch((error) => {
+      // Erro no login
+      console.error("Erro no login:", error);
+      // Mostra uma mensagem de erro mais amigável
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+         alert("Email ou senha inválidos.");
+      } else {
+         alert("Erro ao fazer login: " + error.message);
       }
     });
+}
 
     const signupLink = document.getElementById("signupLink");
     if (signupLink) {
@@ -165,59 +214,63 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. PÁGINA DE CADASTRO (signup.html)
   const signupForm = document.getElementById("signupForm");
   if (signupForm) {
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const confirmPasswordInput = document.getElementById("confirmPassword");
-    const loginLink = document.getElementById("loginLink");
-
-    signupForm.addEventListener("submit", async (e) => {
+    signupForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      let hasError = false;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
 
-      if (!emailInput.value.trim()) {
-        showError(emailInput, "Por favor, digite seu email");
-        hasError = true;
-      } else if (!isValidEmail(emailInput.value.trim())) {
-        showError(emailInput, "Por favor, digite um email válido");
-        hasError = true;
+      // Basic validation
+      if (!email || !password || !confirmPassword) {
+          alert('Por favor, preencha todos os campos.');
+          return;
       }
 
-      if (passwordInput.value.length < 6) {
-        showError(passwordInput, "A senha deve ter pelo menos 6 caracteres");
-        hasError = true;
+      if (password !== confirmPassword) {
+          alert('As senhas não coincidem.');
+          return;
       }
 
-      if (passwordInput.value !== confirmPasswordInput.value) {
-        showError(confirmPasswordInput, "As senhas não coincidem");
-        hasError = true;
-      }
 
-      if (!hasError) {
-        try {
-          const response = await fetch(
-            "http://localhost:3001/api/auth/signup",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                email: emailInput.value.trim(),
-                password: passwordInput.value,
-              }),
-            }
-          );
-          const data = await response.json();
-          if (response.ok) {
-            showSuccess("Conta criada com sucesso!", signupForm);
-            setTimeout(() => transitionToPage("login.html"), 1500);
-          } else {
-            alert(data.message || "Erro ao cadastrar");
-          }
-        } catch (error) {
-          alert("Erro de conexão com o servidor");
-        }
-      }
+      // 1. Cria o usuário no Firebase Authentication
+      createUserWithEmailAndPassword(auth, email, password) // <-- MUDANÇA AQUI
+        .then((userCredential) => {
+          // Usuário criado com sucesso!
+          const user = userCredential.user;
+
+          // 2. Salva os dados extras no Firestore (SINTAXE CORRETA V9)
+
+          // Cria a referência do documento
+          const userDocRef = doc(db, 'users', user.uid); // <-- MUDANÇA AQUI
+
+          // Salva os dados
+          return setDoc(userDocRef, { // <-- MUDANÇA AQUI
+            email: email,
+            pontuacao_total: 0, // Valor inicial
+            moedas: 0,          // Valor inicial
+            avatar: 'macaco.png'  // Valor inicial
+          });
+        })
+        .then(() => {
+          // Tudo salvo! Redireciona para a home
+          console.log('Usuário cadastrado e dados salvos no Firestore!');
+          window.location.href = 'home.html'; // Ou para onde você quer ir após o cadastro
+        })
+        .catch((error) => {
+          // Deu erro
+          console.error("Erro no cadastro Firebase:", error.code, error.message);
+          // Mensagem de erro mais útil
+           if (error.code === 'auth/email-already-in-use') {
+             alert('Este email já está cadastrado.');
+           } else if (error.code === 'auth/weak-password') {
+             alert('A senha é muito fraca. Use pelo menos 6 caracteres.');
+           } else {
+             alert('Erro ao cadastrar: ' + error.message);
+           }
+        });
     });
 
+    const loginLink = document.getElementById("loginLink");
     if (loginLink) {
       loginLink.addEventListener("click", (e) => {
         e.preventDefault();
@@ -782,47 +835,50 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 1500);
     });
   }
+
+  // 12. Pagina home.html
+  const sendBtn = document.getElementById("send-btn");
+  const chatInput = document.getElementById("chat-input");
+
+  if (sendBtn && chatInput) {
+    function sendMessage() {
+      const message = chatInput.value.trim();
+
+      if (!message) return;
+
+      addMessage("user", message);
+      chatInput.value = "";
+
+      setTimeout(() => {
+        const responses = [
+          "Entendi sua dúvida! Vou te ajudar com isso.",
+          "Ótima pergunta! Deixe-me explicar...",
+          "Posso te dar algumas dicas sobre isso.",
+          "Vou pesquisar mais informações para você!",
+        ];
+        const randomResponse =
+          responses[Math.floor(Math.random() * responses.length)];
+        addMessage("assistant", randomResponse);
+      }, 1000);
+    }
+
+    function addMessage(type, content) {
+      const messagesContainer = document.getElementById("chat-messages");
+      if (!messagesContainer) return;
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${type}`;
+
+      messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+
+      messagesContainer.appendChild(messageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    chatInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  }
 });
-
-// 12. Pagina home.html 
-document.getElementById("send-btn").addEventListener("click", sendMessage);
-      document
-        .getElementById("chat-input")
-        .addEventListener("keypress", function (e) {
-          if (e.key === "Enter") {
-            sendMessage();
-          }
-        });
-
-      function sendMessage() {
-        const input = document.getElementById("chat-input");
-        const message = input.value.trim();
-
-        if (!message) return;
-
-        addMessage("user", message);
-        input.value = "";
-
-        setTimeout(() => {
-          const responses = [
-            "Entendi sua dúvida! Vou te ajudar com isso.",
-            "Ótima pergunta! Deixe-me explicar...",
-            "Posso te dar algumas dicas sobre isso.",
-            "Vou pesquisar mais informações para você!",
-          ];
-          const randomResponse =
-            responses[Math.floor(Math.random() * responses.length)];
-          addMessage("assistant", randomResponse);
-        }, 1000);
-      }
-
-      function addMessage(type, content) {
-        const messagesContainer = document.getElementById("chat-messages");
-        const messageDiv = document.createElement("div");
-        messageDiv.className = `message ${type}`;
-
-        messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
-
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
