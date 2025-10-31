@@ -1,5 +1,4 @@
 const User = require("../models/User");
-const UserProfile = require("../models/UserProfile"); // Importa o novo model
 const PasswordReset = require("../models/PasswordReset"); // Importa o novo model
 const bcrypt = require("bcryptjs");
 
@@ -12,31 +11,14 @@ exports.signup = (req, res) => {
     if (err) return res.status(500).json({ message: "Erro no servidor." });
     if (user) return res.status(409).json({ message: "Email já cadastrado." });
 
-    // 1. Cria o usuário
+    // 1. Cria o usuário e responde sem criar perfil
     User.create(email, username, password, (err, userId) => {
       if (err)
         return res.status(500).json({ message: "Erro ao cadastrar usuário." });
 
-      // 2. Cria o perfil padrão para o usuário
-      UserProfile.create(userId, (err, profileId) => {
-        if (err) {
-          // Se falhar aqui, idealmente deveríamos deletar o usuário criado (rollback)
-          // Mas por simplicidade, apenas reportamos o erro.
-          return res
-            .status(500)
-            .json({ message: "Erro ao criar perfil do usuário." });
-        }
-
-        // Atualiza o username no perfil, se a coluna existir
-        if (typeof UserProfile.updateUsername === 'function') {
-          UserProfile.updateUsername(userId, username, () => {});
-        }
-
-        // 3. Responde com sucesso
-        res
-          .status(201)
-          .json({ message: "Cadastro realizado com sucesso!", userId });
-      });
+      return res
+        .status(201)
+        .json({ message: "Cadastro realizado com sucesso!", userId });
     });
   });
 };
