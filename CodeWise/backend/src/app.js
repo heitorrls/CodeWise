@@ -13,12 +13,12 @@ app.use(express.static(path.join(__dirname, '../../frontend/public')));
 // Importa as rotas de autenticação (APENAS UMA VEZ)
 const authRoutes = require('./routes/authRoutes'); 
 
-// Importa as rotas de perfil
-const profileRoutes = require('./routes/profileRoutes');
+// Importa as rotas de usuário (edição de conta)
+const userRoutes = require('./routes/userRoutes');
 
 // Registra as rotas
 app.use('/api/auth', authRoutes);
-app.use('/api', profileRoutes); // Registra a nova rota de perfil
+app.use('/api/user', userRoutes);
 // -------------
 
 // 2. Servindo a página principal

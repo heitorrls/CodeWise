@@ -916,6 +916,71 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 12. Ações de senha em perfil.html
+  const editPasswordBtn = document.getElementById("edit-password-btn");
+  const savePasswordBtn = document.getElementById("save-password-btn");
+  if (editPasswordBtn && savePasswordBtn) {
+    const currentPasswordInput = document.getElementById("current-password");
+    const newPasswordInput = document.getElementById("new-password");
+    const confirmPasswordInput = document.getElementById("confirm-password");
+
+    // Desabilita por padrão (já no HTML), botão Editar habilita
+    editPasswordBtn.addEventListener("click", () => {
+      if (currentPasswordInput) currentPasswordInput.disabled = false;
+      if (newPasswordInput) newPasswordInput.disabled = false;
+      if (confirmPasswordInput) confirmPasswordInput.disabled = false;
+      if (currentPasswordInput) currentPasswordInput.focus();
+    });
+
+    savePasswordBtn.addEventListener("click", async () => {
+      const currentPassword = currentPasswordInput ? currentPasswordInput.value : "";
+      const newPassword = newPasswordInput ? newPasswordInput.value : "";
+      const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : "";
+      const email = localStorage.getItem("userEmail");
+
+      if (!email) {
+        alert("Erro: email do usuário não encontrado. Faça login novamente.");
+        return;
+      }
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        alert("Preencha todos os campos de senha.");
+        return;
+      }
+      if (newPassword.length < 6) {
+        alert("A nova senha deve ter pelo menos 6 caracteres.");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        alert("As senhas não coincidem.");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/user/password", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, currentPassword, newPassword })
+        });
+        const data = await response.json().catch(() => ({}));
+        if (response.ok) {
+          alert(data.message || "Senha alterada com sucesso.");
+          // Limpa e desabilita novamente
+          if (currentPasswordInput) currentPasswordInput.value = "";
+          if (newPasswordInput) newPasswordInput.value = "";
+          if (confirmPasswordInput) confirmPasswordInput.value = "";
+          if (currentPasswordInput) currentPasswordInput.disabled = true;
+          if (newPasswordInput) newPasswordInput.disabled = true;
+          if (confirmPasswordInput) confirmPasswordInput.disabled = true;
+        } else {
+          alert(data.message || "Não foi possível alterar a senha.");
+        }
+      } catch (error) {
+        console.error("Erro ao alterar senha:", error);
+        alert("Erro de conexão com o servidor. Tente novamente.");
+      }
+    });
+  }
+
   // 12. Pagina home.html
   // ... (lógica mantida)
   const sendBtn = document.getElementById("send-btn");
@@ -966,49 +1031,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 13. PÁGINA DE PERFIL (perfil.html)
 const saveAccountBtn = document.getElementById("save-account-btn");
+const editAccountBtn = document.getElementById("edit-account-btn");
 if (saveAccountBtn) {
   const usernameInput = document.getElementById("username");
   const emailInput = document.getElementById("email");
 
-  // Preenche o email do usuário logado (ele não pode mudar)
+  // Preenche o email do usuário logado e bloqueia por padrão
   const userEmail = localStorage.getItem("userEmail");
   if (emailInput && userEmail) {
     emailInput.value = userEmail;
-    emailInput.disabled = true; // Impede a edição do email
+  }
+  // Bloqueia os campos por padrão
+  if (usernameInput) usernameInput.disabled = true;
+  if (emailInput) emailInput.disabled = true;
+
+  // Botão Editar habilita os campos para edição
+  if (editAccountBtn) {
+    editAccountBtn.addEventListener("click", () => {
+      if (usernameInput) usernameInput.disabled = false;
+      if (emailInput) emailInput.disabled = false;
+      if (usernameInput) usernameInput.focus();
+    });
   }
 
-  // Adiciona o evento de clique ao botão salvar
+  // Botão Salvar envia as alterações
   saveAccountBtn.addEventListener("click", async () => {
-    const newUsername = usernameInput.value.trim();
+    const newUsername = usernameInput ? usernameInput.value.trim() : "";
+    const newEmail = emailInput ? emailInput.value.trim() : "";
     const userId = localStorage.getItem("userId");
 
-    if (!newUsername) {
-      alert("Por favor, digite um nome de usuário.");
-      return;
-    }
     if (!userId) {
       alert("Erro: ID do usuário não encontrado. Faça login novamente.");
       return;
     }
+    if (!newUsername && !newEmail) {
+      alert("Nada para atualizar.");
+      return;
+    }
 
     try {
-      const response = await fetch("/api/profile/username", {
+      const response = await fetch("/api/user", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: userId, username: newUsername }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userId, username: newUsername, email: newEmail }),
       });
 
-      const data = await response.json();
-
+      const data = await response.json().catch(() => ({}));
       if (response.ok) {
-        alert(data.message || "Nome alterado com sucesso!");
+        // Atualiza localStorage do email se alterado
+        if (newEmail) {
+          localStorage.setItem("userEmail", newEmail);
+        }
+        alert(data.message || "Dados atualizados com sucesso.");
+        // Rebloqueia os campos após salvar
+        if (usernameInput) usernameInput.disabled = true;
+        if (emailInput) emailInput.disabled = true;
       } else {
-        alert(data.message || "Erro ao alterar o nome.");
+        alert(data.message || "Erro ao atualizar dados.");
       }
     } catch (error) {
-      console.error("Erro ao salvar nome de usuário:", error);
+      console.error("Erro ao atualizar dados:", error);
       alert("Erro de conexão com o servidor. Tente novamente.");
     }
   });

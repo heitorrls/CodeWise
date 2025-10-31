@@ -23,6 +23,28 @@ const User = {
     );
   },
 
+  // Atualiza campos do usuário por ID (username e/ou email)
+  updateById: (id, fields, callback) => {
+    const sets = [];
+    const values = [];
+    if (fields.username !== undefined) {
+      sets.push("username = ?");
+      values.push(fields.username);
+    }
+    if (fields.email !== undefined) {
+      sets.push("email = ?");
+      values.push(fields.email);
+    }
+    if (sets.length === 0) return callback(null, 0);
+
+    values.push(id);
+    const sql = `UPDATE users SET ${sets.join(", ")} WHERE id = ?`;
+    db.query(sql, values, (err, results) => {
+      if (err) return callback(err, null);
+      callback(null, results.affectedRows);
+    });
+  },
+
   // NOVO: Atualiza a senha do usuário
   updatePasswordByEmail: (email, newPassword, callback) => {
     // Gera o hash da nova senha

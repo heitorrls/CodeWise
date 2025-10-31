@@ -45,80 +45,82 @@
 
         <div class="settings-panel">
           <section class="settings-section account-section">
-            <h3 class="section-title">Conta</h3>
+            <div class="account-header" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+              <h3 class="section-title" style="margin:0;">Conta</h3>
+              <div class="actions" style="display:flex; gap:8px;">
+                <button id="edit-account-btn" class="setting-action-button" style="background:#3b3b8f;">Editar</button>
+                <button id="save-account-btn" class="setting-action-button save-button">Salvar</button>
+              </div>
+            </div>
+
             <div class="setting-item">
               <div class="setting-info">
-                <label for="username" class="setting-label"
-                  >Nome de Usuário</label
-                >
+                <label for="username" class="setting-label">Nome de Usuário</label>
                 <input
                   type="text"
                   id="username"
                   class="setting-input"
-                  value="NomeDoUsuario"
                   placeholder="Digite seu nome de usuário"
+                  disabled
                 />
               </div>
-              <button class="setting-action-button save-button">Salvar</button>
             </div>
+
             <div class="setting-item">
               <div class="setting-info">
-                <label for="email" class="setting-label"
-                  >Endereço de E-mail</label
-                >
+                <label for="email" class="setting-label">Endereço de E-mail</label>
                 <input
                   type="email"
                   id="email"
                   class="setting-input"
-                  value="usuario@email.com"
                   placeholder="Digite seu e-mail"
+                  disabled
                 />
               </div>
-              <button class="setting-action-button save-button" id="save-account-btn">Salvar</button>
             </div>
           </section>
 
           <section class="settings-section password-section">
-            <h3 class="section-title">Senha</h3>
+            <div class="account-header" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+              <h3 class="section-title" style="margin:0;">Senha</h3>
+              <div class="actions" style="display:flex; gap:8px;">
+                <button id="edit-password-btn" class="setting-action-button" style="background:#3b3b8f;">Editar</button>
+                <button id="save-password-btn" class="setting-action-button save-button">Salvar</button>
+              </div>
+            </div>
             <div class="setting-item password-item">
               <div class="setting-info password-fields">
                 <div class="password-field-group">
-                  <label for="current-password" class="setting-label small"
-                    >Senha Atual</label
-                  >
+                  <label for="current-password" class="setting-label small">Senha Atual</label>
                   <input
                     type="password"
                     id="current-password"
                     class="setting-input"
                     placeholder="Digite sua senha atual"
+                    disabled
                   />
                 </div>
                 <div class="password-field-group">
-                  <label for="new-password" class="setting-label small"
-                    >Nova Senha</label
-                  >
+                  <label for="new-password" class="setting-label small">Nova Senha</label>
                   <input
                     type="password"
                     id="new-password"
                     class="setting-input"
                     placeholder="Digite a nova senha"
+                    disabled
                   />
                 </div>
                 <div class="password-field-group">
-                  <label for="confirm-password" class="setting-label small"
-                    >Confirmar Nova Senha</label
-                  >
+                  <label for="confirm-password" class="setting-label small">Confirmar Nova Senha</label>
                   <input
                     type="password"
                     id="confirm-password"
                     class="setting-input"
                     placeholder="Confirme a nova senha"
+                    disabled
                   />
                 </div>
               </div>
-              <button class="setting-action-button save-button">
-                Alterar Senha
-              </button>
             </div>
           </section>
 
