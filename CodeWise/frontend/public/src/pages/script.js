@@ -1,52 +1,13 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { 
-  getAuth, 
-  connectAuthEmulator,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword 
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { 
-  getFirestore, 
-  connectFirestoreEmulator, 
-  doc,
-  setDoc 
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+/*
+ * ARQUIVO MODIFICADO - LÓGICA DO FIREBASE REMOVIDA
+ */
 
-// Removi o 'getDatabase' já que você está usando Firestore
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCvHZkIEGnoguHHVN8YY9Gs0ODyDwzeuCk",
-    authDomain: "tcc-codewise.firebaseapp.com",
-    projectId: "tcc-codewise",
-    storageBucket: "tcc-codewise.firebasestorage.app",
-    messagingSenderId: "428907524592",
-    appId: "1:428907524592:web:40c5b59fdb5118a37ded35",
-    measurementId: "G-WSQ8QV713L"
-};
-
-// 1. Inicializa o App
-const app = initializeApp(firebaseConfig);
-
-// 2. Obtém os serviços
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// 3. Conecta aos emuladores (APENAS se estiver em localhost)
-if (window.location.hostname === "localhost") {
-  console.log("Modo de teste: Conectando aos Emuladores Locais...");
-
-  // Conecta o serviço de Autenticação ao emulador
-  connectAuthEmulator(auth, "http://localhost:9099");
-
-  // Conecta o Firestore ao emulador
-  connectFirestoreEmulator(db, "http://localhost:9002");
-}
-
-// 4. Exporta as variáveis para usar em outros scripts
-export { auth, db };
+// 1. Importações e inicialização do Firebase REMOVIDAS.
+// Não há mais 'app', 'auth' ou 'db'.
 
 document.addEventListener("DOMContentLoaded", () => {
   // --- FUNÇÕES GLOBAIS E UTILITÁRIAS ---
+  // (Funções mantidas: isValidEmail, showError, clearError, showSuccess, transitionToPage, goBack, etc.)
 
   // Função para validar email
   function isValidEmail(email) {
@@ -181,26 +142,40 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (!hasError) {
-  signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // Login bem-sucedido!
-      const user = userCredential.user;
-      console.log("Usuário logado:", user.uid);
-      alert("Login realizado com sucesso!");
-      // Redireciona para a página desejada (ex: home ou intro_nivelamento)
-      window.location.href = "intro_nivelamento.html"; // Ou 'home.html'
-    })
-    .catch((error) => {
-      // Erro no login
-      console.error("Erro no login:", error);
-      // Mostra uma mensagem de erro mais amigável
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-         alert("Email ou senha inválidos.");
-      } else {
-         alert("Erro ao fazer login: " + error.message);
+        // LÓGICA DE LOGIN MODIFICADA (sem Firebase)
+        try {
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            // Login bem-sucedido!
+            console.log("Usuário logado:", data.user);
+            alert(data.message || "Login realizado com sucesso!");
+
+            // Opcional: Salvar token/info do usuário no localStorage, se o backend enviar
+            // localStorage.setItem("user", JSON.stringify(data.user));
+
+            // Redireciona para a página desejada
+            window.location.href = "intro_nivelamento.html"; // Ou 'home.html'
+          } else {
+            // Erro vindo do backend
+            console.error("Erro no login:", data.message);
+            alert(data.message || "Email ou senha inválidos.");
+          }
+        } catch (error) {
+          // Erro de rede ou fetch
+          console.error("Erro de rede:", error);
+          alert("Erro ao conectar ao servidor. Tente novamente.");
+        }
       }
-    });
-}
+    }); // Fim do 'submit'
 
     const signupLink = document.getElementById("signupLink");
     if (signupLink) {
@@ -214,61 +189,58 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. PÁGINA DE CADASTRO (signup.html)
   const signupForm = document.getElementById("signupForm");
   if (signupForm) {
-    signupForm.addEventListener('submit', (e) => {
+    signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
 
       // Basic validation
       if (!email || !password || !confirmPassword) {
-          alert('Por favor, preencha todos os campos.');
-          return;
+        alert("Por favor, preencha todos os campos.");
+        return;
       }
 
       if (password !== confirmPassword) {
-          alert('As senhas não coincidem.');
-          return;
+        alert("As senhas não coincidem.");
+        return;
       }
 
-
-      // 1. Cria o usuário no Firebase Authentication
-      createUserWithEmailAndPassword(auth, email, password) // <-- MUDANÇA AQUI
-        .then((userCredential) => {
-          // Usuário criado com sucesso!
-          const user = userCredential.user;
-
-          // 2. Salva os dados extras no Firestore (SINTAXE CORRETA V9)
-
-          // Cria a referência do documento
-          const userDocRef = doc(db, 'users', user.uid); // <-- MUDANÇA AQUI
-
-          // Salva os dados
-          return setDoc(userDocRef, { // <-- MUDANÇA AQUI
-            email: email,
-            pontuacao_total: 0, // Valor inicial
-            moedas: 0,          // Valor inicial
-            avatar: 'macaco.png'  // Valor inicial
-          });
-        })
-        .then(() => {
-          // Tudo salvo! Redireciona para a home
-          console.log('Usuário cadastrado e dados salvos no Firestore!');
-          window.location.href = 'home.html'; // Ou para onde você quer ir após o cadastro
-        })
-        .catch((error) => {
-          // Deu erro
-          console.error("Erro no cadastro Firebase:", error.code, error.message);
-          // Mensagem de erro mais útil
-           if (error.code === 'auth/email-already-in-use') {
-             alert('Este email já está cadastrado.');
-           } else if (error.code === 'auth/weak-password') {
-             alert('A senha é muito fraca. Use pelo menos 6 caracteres.');
-           } else {
-             alert('Erro ao cadastrar: ' + error.message);
-           }
+      // LÓGICA DE CADASTRO MODIFICADA (sem Firebase)
+      try {
+        const response = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
         });
-    });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Cadastro bem-sucedido!
+          console.log("Usuário cadastrado:", data.userId);
+          alert(data.message || "Cadastro realizado com sucesso!");
+
+          // NOTA: A lógica original do Firestore (setDoc) foi removida.
+          // O backend agora é responsável por criar o usuário.
+          // Se precisar salvar (pontuação, moedas), você terá que
+          // criar uma nova rota no backend e chamá-la aqui.
+
+          // Redireciona para a home (ou login)
+          window.location.href = "login.html";
+        } else {
+          // Erro vindo do backend
+          console.error("Erro no cadastro:", data.message);
+          alert(data.message || "Erro ao cadastrar.");
+        }
+      } catch (error) {
+        // Erro de rede ou fetch
+        console.error("Erro de rede:", error);
+        alert("Erro ao conectar ao servidor. Tente novamente.");
+      }
+    }); // Fim do 'submit'
 
     const loginLink = document.getElementById("loginLink");
     if (loginLink) {
@@ -279,18 +251,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // ... (Todo o código anterior, incluindo signup e login, permanece o mesmo) ...
+
   // 4. PÁGINA DE CONFIRMAÇÃO DE EMAIL (email-confirmation.html)
   const confirmationForm = document.getElementById("confirmationForm");
   if (confirmationForm) {
     const emailInput = document.getElementById("email");
-    confirmationForm.addEventListener("submit", (e) => {
+    const submitBtn = confirmationForm.querySelector("button[type='submit']"); // Pega o botão
+
+    confirmationForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (isValidEmail(emailInput.value.trim())) {
-        showSuccess(
-          "Código de confirmação enviado para " + emailInput.value.trim(),
-          confirmationForm
-        );
-        setTimeout(() => transitionToPage("verify-code.html"), 2000);
+      const email = emailInput.value.trim();
+      const originalBtnText = submitBtn.textContent;
+
+      if (isValidEmail(email)) {
+        // Desabilita o botão e mostra loading
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Enviando...";
+
+        try {
+          const response = await fetch("/api/auth/forgot-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+
+          const data = await response.json();
+
+          // Salva o email no localStorage para usar nas próximas etapas
+          localStorage.setItem("resetEmail", email);
+
+          // Mostra a mensagem (seja de sucesso ou erro)
+          showSuccess(data.message || "Solicitação enviada.", confirmationForm);
+
+          // Transiciona para a próxima página
+          setTimeout(() => transitionToPage("verify-code.html"), 2000);
+        } catch (error) {
+          console.error("Erro em forgot-password:", error);
+          showError(emailInput, "Erro ao conectar ao servidor.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
       } else {
         showError(emailInput, "Por favor, digite um email válido");
       }
@@ -301,7 +302,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const verificationForm = document.getElementById("verificationForm");
   if (verificationForm) {
     const codeInputs = document.querySelectorAll(".code-input");
+    const submitBtn = verificationForm.querySelector("button[type='submit']");
 
+    // ... (lógica de inputs de código mantida) ...
     codeInputs.forEach((input, index) => {
       input.addEventListener("input", () => {
         if (input.value && index < codeInputs.length - 1) {
@@ -315,14 +318,50 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    verificationForm.addEventListener("submit", (e) => {
+    verificationForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const code = Array.from(codeInputs)
         .map((input) => input.value)
         .join("");
+
+      // Pega o email salvo
+      const email = localStorage.getItem("resetEmail");
+      const originalBtnText = submitBtn.textContent;
+
+      if (!email) {
+        alert("Erro: Email não encontrado. Por favor, volte ao início.");
+        return;
+      }
+
       if (code.length === 6) {
-        showSuccess("Código verificado com sucesso!", verificationForm);
-        setTimeout(() => transitionToPage("new-password.html"), 1500);
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Verificando...";
+
+        try {
+          const response = await fetch("/api/auth/verify-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, code }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            // Salva o código verificado para usar na última etapa
+            localStorage.setItem("resetCode", code);
+            showSuccess("Código verificado com sucesso!", verificationForm);
+            setTimeout(() => transitionToPage("new-password.html"), 1500);
+          } else {
+            showError(codeInputs[0], data.message || "Código inválido.");
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+          }
+        } catch (error) {
+          console.error("Erro em verify-code:", error);
+          showError(codeInputs[0], "Erro ao conectar ao servidor.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
       } else {
         showError(codeInputs[0], "O código deve ter 6 dígitos.");
       }
@@ -334,32 +373,80 @@ document.addEventListener("DOMContentLoaded", () => {
   if (newPasswordForm) {
     const newPasswordInput = document.getElementById("newPassword");
     const confirmPasswordInput = document.getElementById("confirmPassword");
+    const submitBtn = newPasswordForm.querySelector("button[type='submit']");
 
-    newPasswordForm.addEventListener("submit", (e) => {
+    newPasswordForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      let hasError = false;
+      const newPassword = newPasswordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      const originalBtnText = submitBtn.textContent;
 
-      if (newPasswordInput.value.length < 6) {
+      // Pega dados salvos
+      const email = localStorage.getItem("resetEmail");
+      const code = localStorage.getItem("resetCode");
+
+      if (!email || !code) {
+        alert(
+          "Erro: Sessão de redefinição inválida. Por favor, comece novamente."
+        );
+        return;
+      }
+
+      let hasError = false;
+      if (newPassword.length < 6) {
         showError(
           newPasswordInput,
           "A nova senha deve ter pelo menos 6 caracteres."
         );
         hasError = true;
       }
-
-      if (newPasswordInput.value !== confirmPasswordInput.value) {
+      if (newPassword !== confirmPassword) {
         showError(confirmPasswordInput, "As senhas não coincidem.");
         hasError = true;
       }
 
       if (!hasError) {
-        showSuccess("Senha alterada com sucesso!", newPasswordForm);
-        setTimeout(() => transitionToPage("login.html"), 1500);
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Salvando...";
+
+        try {
+          const response = await fetch("/api/auth/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, code, newPassword }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            // Limpa o localStorage
+            localStorage.removeItem("resetEmail");
+            localStorage.removeItem("resetCode");
+
+            showSuccess("Senha alterada com sucesso!", newPasswordForm);
+            setTimeout(() => transitionToPage("login.html"), 1500);
+          } else {
+            showError(
+              newPasswordInput,
+              data.message || "Não foi possível alterar a senha."
+            );
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+          }
+        } catch (error) {
+          console.error("Erro em reset-password:", error);
+          showError(newPasswordInput, "Erro ao conectar ao servidor.");
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
       }
     });
   }
 
+  // ... (Restante do seu script.js, seções 7 em diante, permanece o mesmo) ...
+
   // 7. PÁGINA DE INTRODUÇÃO DO NIVELAMENTO (intro_nivelamento.html)
+  // ... (lógica mantida)
   const startBtn = document.querySelector(".start-btn");
   if (startBtn) {
     window.startLevelTest = function () {
@@ -381,6 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 8. PÁGINA DE TESTE DE NIVELAMENTO (qst_nivelamento.html)
+  // ... (lógica mantida)
   const testCard = document.querySelector(".test-card");
   if (testCard && !document.querySelector(".result-card")) {
     const testQuestions = [
@@ -619,12 +707,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Inicialização do Teste
-    displayQuestion();
-    updateProgress();
-    updateButtons();
+    if (questionTitle) {
+      // Adiciona verificação para evitar erros em outras páginas
+      displayQuestion();
+      updateProgress();
+      updateButtons();
 
-    nextBtn.addEventListener("click", window.nextQuestion);
-    backBtn.addEventListener("click", window.goBackQuestion);
+      nextBtn.addEventListener("click", window.nextQuestion);
+      backBtn.addEventListener("click", window.goBackQuestion);
+    }
 
     testCard.style.opacity = "0";
     testCard.style.transform = "translateY(30px)";
@@ -636,6 +727,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 9. PÁGINA DE RESULTADO DO NIVELAMENTO (resultado_nivelamento.html)
+  // ... (lógica mantida)
   const resultCard = document.querySelector(".result-card");
   if (resultCard) {
     // Função para calcular percentual
@@ -727,7 +819,7 @@ document.addEventListener("DOMContentLoaded", () => {
         advanceBtn.disabled = false;
       }, 2500);
     };
-    
+
     // Pega os parâmetros da URL
     const params = new URLSearchParams(window.location.search);
     const score = parseInt(params.get("score")) || 4;
@@ -808,6 +900,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 10. PÁGINA DE INTRODUÇÃO À CRIAÇÃO DE AVATAR (intro_criacao-avatar.html)
+  // ... (lógica mantida)
   const avatarBtn = document.querySelector(".avatar-btn");
   if (avatarBtn) {
     avatarBtn.addEventListener("click", () => {
@@ -817,6 +910,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 11. LÓGICA DO BOTÃO PULAR (skipBtn)
+  // ... (lógica mantida)
   const skipBtn = document.getElementById("skipBtn");
   if (skipBtn) {
     skipBtn.addEventListener("click", (e) => {
@@ -837,6 +931,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 12. Pagina home.html
+  // ... (lógica mantida)
   const sendBtn = document.getElementById("send-btn");
   const chatInput = document.getElementById("chat-input");
 

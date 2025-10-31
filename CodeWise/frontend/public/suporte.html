@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Suporte - CodeWise</title>
@@ -9,8 +9,8 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="src/assets/styles/suporte.css" />
-</head>
-<body>
+  </head>
+  <body>
     <header class="header">
       <h1>CodeWise</h1>
     </header>
@@ -32,42 +32,45 @@
         <button class="nav-item active">
           <i class="fas fa-life-ring"></i> <span>Suporte</span>
         </button>
-        <button class="nav-item" onclick="window.location.href='configuracoes.html'">
+        <button
+          class="nav-item"
+          onclick="window.location.href='configuracoes.html'"
+        >
           <i class="fas fa-cog"></i> <span>Configurações</span>
         </button>
       </nav>
 
       <main class="main-content">
         <h2 class="page-title">Suporte</h2>
-        
+
         <form class="support-form">
           <div class="form-group">
             <label for="email" class="form-label">Email:</label>
-            <input 
-              type="email" 
-              id="email" 
-              class="form-input" 
+            <input
+              type="email"
+              id="email"
+              class="form-input"
               placeholder="seu@email.com"
               required
-            >
+            />
           </div>
 
           <div class="form-group">
             <label for="subject" class="form-label">Assunto:</label>
-            <input 
-              type="text" 
-              id="subject" 
-              class="form-input" 
+            <input
+              type="text"
+              id="subject"
+              class="form-input"
               placeholder="Digite o assunto"
               required
-            >
+            />
           </div>
 
           <div class="form-group">
             <label for="description" class="form-label">Descrição:</label>
-            <textarea 
-              id="description" 
-              class="form-textarea" 
+            <textarea
+              id="description"
+              class="form-textarea"
               rows="6"
               placeholder="Descreva seu problema ou dúvida..."
               required
@@ -81,9 +84,7 @@
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-submit">
-              Enviar
-            </button>
+            <button type="submit" class="btn btn-submit">Enviar</button>
           </div>
         </form>
       </main>
@@ -94,7 +95,7 @@
             <i class="fas fa-sliders-h"></i>
             <span>Preferências</span>
           </button>
-          
+
           <button class="sidebar-btn">
             <i class="fas fa-user-circle"></i>
             <span>Conta</span>
@@ -109,14 +110,13 @@
         </div>
       </aside>
     </div>
-<script type="module" defer src="src/pages/script.js"></script>
+    <script src="src/pages/script.js"></script>
     <script>
       function logout() {
-        if(confirm('Deseja realmente sair?')) {
-          window.location.href = 'index.html';
+        if (confirm("Deseja realmente sair?")) {
+          window.location.href = "index.html";
         }
       }
     </script>
-    <script type="module" src="firebase-config.js"></script>
-</body>
+  </body>
 </html>
