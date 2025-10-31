@@ -157,6 +157,8 @@ document.addEventListener("DOMContentLoaded", () => {
           if (response.ok) {
             // Login bem-sucedido!
             console.log("Usuário logado:", data.user);
+            localStorage.setItem("userId", data.user.id);
+            localStorage.setItem("userEmail", data.user.email)
             alert(data.message || "Login realizado com sucesso!");
 
             // Opcional: Salvar token/info do usuário no localStorage, se o backend enviar
@@ -977,3 +979,55 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// 13. PÁGINA DE PERFIL (perfil.html)
+const saveAccountBtn = document.getElementById("save-account-btn");
+if (saveAccountBtn) {
+  const usernameInput = document.getElementById("username");
+  const emailInput = document.getElementById("email");
+
+  // Preenche o email do usuário logado (ele não pode mudar)
+  const userEmail = localStorage.getItem("userEmail");
+  if (emailInput && userEmail) {
+    emailInput.value = userEmail;
+    emailInput.disabled = true; // Impede a edição do email
+  }
+
+  // Adiciona o evento de clique ao botão salvar
+  saveAccountBtn.addEventListener("click", async () => {
+    const newUsername = usernameInput.value.trim();
+    const userId = localStorage.getItem("userId");
+
+    if (!newUsername) {
+      alert("Por favor, digite um nome de usuário.");
+      return;
+    }
+    if (!userId) {
+      alert("Erro: ID do usuário não encontrado. Faça login novamente.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/profile/username", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: userId, username: newUsername }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message || "Nome alterado com sucesso!");
+      } else {
+        alert(data.message || "Erro ao alterar o nome.");
+      }
+    } catch (error) {
+      console.error("Erro ao salvar nome de usuário:", error);
+      alert("Erro de conexão com o servidor. Tente novamente.");
+    }
+  });
+}
+
+// ... (aqui vem o "});" final do seu script)

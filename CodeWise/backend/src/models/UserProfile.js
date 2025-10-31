@@ -9,6 +9,16 @@ const UserProfile = {
       moedas: 0,
       avatar: "macaco.png",
     };
+    updateUsername: (userId, newUsername, callback) => {
+      db.query(
+        "UPDATE user_profiles SET username = ? WHERE user_id = ?",
+        [newUsername, userId],
+        (err, results) => {
+          if (err) return callback(err, null);
+          callback(null, results.affectedRows);
+        }
+      );
+    },
     db.query(
       "INSERT INTO user_profiles SET ?",
       [defaultProfile],
