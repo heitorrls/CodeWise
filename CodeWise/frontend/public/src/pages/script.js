@@ -159,8 +159,10 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Usuário logado:", data.user);
             alert(data.message || "Login realizado com sucesso!");
 
-            // Opcional: Salvar token/info do usuário no localStorage, se o backend enviar
-            // localStorage.setItem("user", JSON.stringify(data.user));
+            // --- ALTERAÇÃO AQUI ---
+            // Salva o usuário no localStorage
+            localStorage.setItem("user", JSON.stringify(data.user));
+            // ---------------------
 
             // Redireciona para a página desejada
             window.location.href = "intro_nivelamento.html"; // Ou 'home.html'
@@ -976,4 +978,58 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // --- 13. NOVA LÓGICA - EXCLUIR CONTA (configuracoes.html) ---
+  const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener("click", async () => {
+      const confirmDelete = confirm(
+        "TEM CERTEZA?\n\nVocê está prestes a excluir sua conta permanentemente. Todos os seus dados (progresso, moedas, avatar) serão perdidos. Esta ação não pode ser desfeita."
+      );
+
+      if (confirmDelete) {
+        // Pega o usuário do localStorage (salvo no login)
+        const userString = localStorage.getItem("user");
+        if (!userString) {
+          alert("Erro: Você não está logado. Faça login novamente.");
+          transitionToPage("login.html");
+          return;
+        }
+
+        const user = JSON.parse(userString);
+
+        if (!user || !user.id || !user.email) {
+          alert("Erro: Informações de usuário inválidas. Faça login novamente.");
+          transitionToPage("login.html");
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/auth/delete-account", {
+            method: "POST", // Deve corresponder à rota no authRoutes.js
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userId: user.id, email: user.email }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            alert("Conta excluída com sucesso. Sentiremos sua falta!");
+            localStorage.clear(); // Limpa todo o localStorage
+            transitionToPage("login.html"); // Redireciona para o login
+          } else {
+            alert(
+              "Erro ao excluir conta: " + (data.message || "Erro desconhecido")
+            );
+          }
+        } catch (error) {
+          console.error("Erro de rede ao excluir conta:", error);
+          alert("Erro de rede. Tente novamente.");
+        }
+      }
+    });
+  }
+  // -----------------------------------------------------------
 });

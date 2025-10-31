@@ -37,6 +37,15 @@ const User = {
       }
     );
   },
+
+  // --- NOVO MÉTODO PARA EXCLUIR USUÁRIO ---
+  deleteById: (userId, callback) => {
+    db.query("DELETE FROM users WHERE id = ?", [userId], (err, results) => {
+      if (err) return callback(err, null);
+      callback(null, results.affectedRows);
+    });
+  },
+  // ----------------------------------------
 };
 
 module.exports = User;

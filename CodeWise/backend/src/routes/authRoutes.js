@@ -6,9 +6,13 @@ const authController = require("../controllers/authController");
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 
-// NOVAS Rotas de recuperação de senha
+// Rotas existentes de recuperação de senha
 router.post("/forgot-password", authController.forgotPassword);
 router.post("/verify-code", authController.verifyCode);
 router.post("/reset-password", authController.resetPassword);
+
+// --- NOVA ROTA DE EXCLUSÃO DE CONTA ---
+router.post("/delete-account", authController.deleteAccount);
+// (Usando POST por simplicidade, para manter o padrão. Poderia ser DELETE)
 
 module.exports = router;

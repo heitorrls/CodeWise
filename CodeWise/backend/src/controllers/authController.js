@@ -2,6 +2,7 @@ const User = require("../models/User");
 const UserProfile = require("../models/UserProfile"); // Importa o novo model
 const PasswordReset = require("../models/PasswordReset"); // Importa o novo model
 const bcrypt = require("bcryptjs");
+const db = require("../config/database"); // <-- IMPORTAR O DB DIRETAMENTE
 
 exports.signup = (req, res) => {
   const { email, password } = req.body;
@@ -141,4 +142,39 @@ exports.resetPassword = (req, res) => {
       res.status(200).json({ message: "Senha alterada com sucesso!" });
     });
   });
+};
+
+// --- NOVA FUNÇÃO PARA EXCLUIR CONTA ---
+exports.deleteAccount = (req, res) => {
+  // ATENÇÃO: Em um app real, o userId deveria vir de uma sessão autenticada (ex: JWT),
+  // não do req.body, para segurança.
+  const { userId, email } = req.body;
+
+  if (!userId || !email) {
+    return res
+      .status(400)
+      .json({ message: "ID do usuário e email são obrigatórios." });
+  }
+
+  // 1. Deleta registros de redefinição de senha
+  db.query(
+    "DELETE FROM password_resets WHERE email = ?",
+    [email],
+    (err, resetResult) => {
+      if (err) {
+        console.error("Erro ao limpar password_resets:", err);
+        // Continua mesmo se falhar, a exclusão do usuário é mais importante.
+      }
+
+      // 2. Deleta o usuário (isso vai acionar o ON DELETE CASCADE para user_profiles)
+      User.deleteById(userId, (err, affectedRows) => {
+        if (err)
+          return res.status(500).json({ message: "Erro ao excluir usuário." });
+        if (affectedRows === 0)
+          return res.status(404).json({ message: "Usuário não encontrado." });
+
+        res.status(200).json({ message: "Conta excluída com sucesso." });
+      });
+    }
+  );
 };

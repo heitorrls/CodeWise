@@ -9,7 +9,17 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="src/assets/styles/configuracoes.css" />
-  </head>
+    
+    <style>
+      .sidebar-btn.btn-danger {
+        color: #e53e3e; /* Vermelho */
+      }
+      .sidebar-btn.btn-danger:hover {
+        background-color: #e53e3e20; /* Fundo vermelho leve no hover */
+        color: #c53030; /* Vermelho mais escuro no hover */
+      }
+    </style>
+    </head>
   <body>
     <header class="header">
       <h1 class="logo">Configurações</h1>
@@ -108,7 +118,12 @@
             <i class="fas fa-life-ring"></i>
             <span>Suporte</span>
           </button>
-        </div>
+
+          <button class="sidebar-btn btn-danger" id="deleteAccountBtn">
+            <i class="fas fa-trash-alt"></i>
+            <span>Excluir Conta</span>
+          </button>
+          </div>
 
         <div class="sidebar-section logout-section">
           <button class="logout-btn" onclick="logout()">
