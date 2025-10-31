@@ -9,13 +9,13 @@ const User = {
     });
   },
 
-  create: (email, password, callback) => {
+  create: (email, username, password, callback) => {
     // Gera o hash da senha
     const hash = bcrypt.hashSync(password, 10);
 
     db.query(
-      "INSERT INTO users (email, password) VALUES (?, ?)",
-      [email, hash],
+      "INSERT INTO users (email, username, password) VALUES (?, ?, ?)",
+      [email, username, hash],
       (err, results) => {
         if (err) return callback(err, null);
         callback(null, results.insertId);

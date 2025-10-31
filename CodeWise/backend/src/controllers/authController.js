@@ -4,8 +4,8 @@ const PasswordReset = require("../models/PasswordReset"); // Importa o novo mode
 const bcrypt = require("bcryptjs");
 
 exports.signup = (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password)
+  const { email, username, password } = req.body;
+  if (!email || !username || !password)
     return res.status(400).json({ message: "Preencha todos os campos." });
 
   User.findByEmail(email, (err, user) => {
@@ -13,7 +13,7 @@ exports.signup = (req, res) => {
     if (user) return res.status(409).json({ message: "Email já cadastrado." });
 
     // 1. Cria o usuário
-    User.create(email, password, (err, userId) => {
+    User.create(email, username, password, (err, userId) => {
       if (err)
         return res.status(500).json({ message: "Erro ao cadastrar usuário." });
 
@@ -25,6 +25,11 @@ exports.signup = (req, res) => {
           return res
             .status(500)
             .json({ message: "Erro ao criar perfil do usuário." });
+        }
+
+        // Atualiza o username no perfil, se a coluna existir
+        if (typeof UserProfile.updateUsername === 'function') {
+          UserProfile.updateUsername(userId, username, () => {});
         }
 
         // 3. Responde com sucesso

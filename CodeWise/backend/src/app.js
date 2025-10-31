@@ -2,11 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const app = express();
-const authRoutes = require('./routes/authRoutes');
-const profileRoutes = require('./routes/profileRoutes'); 
-
-app.use('/api/auth', authRoutes);
-app.use('/api', profileRoutes);
 
 app.use(cors());
 app.use(express.json());
@@ -14,10 +9,19 @@ app.use(express.json());
 // 1. Servindo arquivos estáticos (CSS, JS, Imagens)
 app.use(express.static(path.join(__dirname, '../../frontend/public')));
 
-const authRoutes = require('./routes/authRoutes');
-app.use('/api/auth', authRoutes);
+// --- Rotas ---
+// Importa as rotas de autenticação (APENAS UMA VEZ)
+const authRoutes = require('./routes/authRoutes'); 
 
-// 2. Servindo a página de login na rota principal
+// Importa as rotas de perfil
+const profileRoutes = require('./routes/profileRoutes');
+
+// Registra as rotas
+app.use('/api/auth', authRoutes);
+app.use('/api', profileRoutes); // Registra a nova rota de perfil
+// -------------
+
+// 2. Servindo a página principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../../frontend/public/apresentacao.html'));
 });

@@ -193,54 +193,38 @@ document.addEventListener("DOMContentLoaded", () => {
   if (signupForm) {
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("email").value;
+      const username = document.getElementById("user").value.trim();
+      const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
 
-      // Basic validation
-      if (!email || !password || !confirmPassword) {
+      // Validação básica
+      if (!username || !email || !password || !confirmPassword) {
         alert("Por favor, preencha todos os campos.");
         return;
       }
-
       if (password !== confirmPassword) {
         alert("As senhas não coincidem.");
         return;
       }
 
-      // LÓGICA DE CADASTRO MODIFICADA (sem Firebase)
       try {
         const response = await fetch("/api/auth/signup", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, username, password }),
         });
-
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
 
         if (response.ok) {
-          // Cadastro bem-sucedido!
-          console.log("Usuário cadastrado:", data.userId);
+          // Mensagem de sucesso e redirecionamento
           alert(data.message || "Cadastro realizado com sucesso!");
-
-          // NOTA: A lógica original do Firestore (setDoc) foi removida.
-          // O backend agora é responsável por criar o usuário.
-          // Se precisar salvar (pontuação, moedas), você terá que
-          // criar uma nova rota no backend e chamá-la aqui.
-
-          // Redireciona para a home (ou login)
           window.location.href = "login.html";
         } else {
-          // Erro vindo do backend
-          console.error("Erro no cadastro:", data.message);
           alert(data.message || "Erro ao cadastrar.");
         }
-      } catch (error) {
-        // Erro de rede ou fetch
-        console.error("Erro de rede:", error);
-        alert("Erro ao conectar ao servidor. Tente novamente.");
+      } catch (err) {
+        alert("Erro de conexão. Tente novamente.");
       }
     }); // Fim do 'submit'
 
