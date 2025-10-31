@@ -2,8 +2,9 @@ const User = require("../models/User");
 const UserProfile = require("../models/UserProfile"); // Importa o novo model
 const PasswordReset = require("../models/PasswordReset"); // Importa o novo model
 const bcrypt = require("bcryptjs");
-const db = require("../config/database"); // <-- IMPORTAR O DB DIRETAMENTE
+const db = require("../config/database"); // IMPORTADO PARA deleteAccount
 
+// --- MODIFICADO: exports.signup ---
 exports.signup = (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -18,8 +19,9 @@ exports.signup = (req, res) => {
       if (err)
         return res.status(500).json({ message: "Erro ao cadastrar usuário." });
 
-      // 2. Cria o perfil padrão para o usuário
-      UserProfile.create(userId, (err, profileId) => {
+      // 2. Cria o perfil padrão, usando a parte local do email como username
+      const defaultUsername = email.split("@")[0];
+      UserProfile.create(userId, defaultUsername, (err, profileId) => {
         if (err) {
           // Se falhar aqui, idealmente deveríamos deletar o usuário criado (rollback)
           // Mas por simplicidade, apenas reportamos o erro.
@@ -60,7 +62,7 @@ exports.login = (req, res) => {
   });
 };
 
-// --- NOVAS FUNÇÕES DE REDEFINIÇÃO DE SENHA ---
+// --- FUNÇÕES DE REDEFINIÇÃO DE SENHA ---
 
 exports.forgotPassword = (req, res) => {
   const { email } = req.body;
@@ -80,11 +82,8 @@ exports.forgotPassword = (req, res) => {
     }
 
     // Em um app real, você enviaria o 'code' por email aqui.
-    // Ex: sendEmail(email, 'Seu código de redefinição é: ' + code);
-
     console.log(`Código de redefinição para ${email}: ${code}`); // Log para depuração
 
-    // Por segurança, não confirme se o email existe ou não.
     res
       .status(200)
       .json({
@@ -107,7 +106,6 @@ exports.verifyCode = (req, res) => {
       return res.status(400).json({ message: "Código inválido ou expirado." });
     }
 
-    // O código é válido
     res.status(200).json({ message: "Código verificado com sucesso." });
   });
 };
@@ -136,7 +134,6 @@ exports.resetPassword = (req, res) => {
       // 3. Deleta o código para que não possa ser usado novamente
       PasswordReset.delete(email, code, (err) => {
         if (err) console.error("Erro ao deletar código:", err);
-        // Continua mesmo se falhar em deletar, pois a senha já foi alterada.
       });
 
       res.status(200).json({ message: "Senha alterada com sucesso!" });
@@ -144,7 +141,7 @@ exports.resetPassword = (req, res) => {
   });
 };
 
-// --- NOVA FUNÇÃO PARA EXCLUIR CONTA ---
+// --- FUNÇÃO ADICIONADA NA ETAPA ANTERIOR (Excluir Conta) ---
 exports.deleteAccount = (req, res) => {
   // ATENÇÃO: Em um app real, o userId deveria vir de uma sessão autenticada (ex: JWT),
   // não do req.body, para segurança.
@@ -177,4 +174,97 @@ exports.deleteAccount = (req, res) => {
       });
     }
   );
+};
+
+// --- NOVAS FUNÇÕES: Buscar e Atualizar Perfil ---
+exports.getProfile = (req, res) => {
+  // Em um app real, o ID viria de um token JWT/Sessão.
+  const { userId } = req.query;
+  if (!userId) {
+    return res.status(400).json({ message: "ID do usuário é obrigatório." });
+  }
+
+  let responseData = {};
+
+  // 1. Busca dados do User (email)
+  User.findById(userId, (err, user) => {
+    if (err)
+      return res.status(500).json({ message: "Erro ao buscar usuário." });
+    if (!user)
+      return res.status(404).json({ message: "Usuário não encontrado." });
+
+    responseData.email = user.email;
+
+    // 2. Busca dados do UserProfile (username)
+    UserProfile.findByUserId(userId, (err, profile) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ message: "Erro ao buscar perfil." });
+
+      // Se o perfil existir, usa o username. Senão, fallback.
+      responseData.username = profile
+        ? profile.username
+        : `User${userId}`;
+
+      res.status(200).json(responseData);
+    });
+  });
+};
+
+exports.updateProfile = (req, res) => {
+  // ATENÇÃO: userId deve vir de uma sessão/token seguro.
+  const { userId, username, email } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ message: "ID do usuário é obrigatório." });
+  }
+  if (!username && !email) {
+    return res.status(400).json({ message: "Nenhum dado para atualizar." });
+  }
+
+  const tasks = [];
+
+  // Tarefa 1: Atualizar Username (se fornecido)
+  if (username) {
+    tasks.push(
+      new Promise((resolve, reject) => {
+        UserProfile.updateUsername(userId, username, (err, affectedRows) => {
+          if (err) return reject(new Error("Erro ao atualizar nome de usuário."));
+          if (affectedRows === 0)
+            return reject(new Error("Perfil não encontrado."));
+          resolve();
+        });
+      })
+    );
+  }
+
+  // Tarefa 2: Atualizar Email (se fornecido)
+  if (email) {
+    tasks.push(
+      new Promise((resolve, reject) => {
+        User.updateEmailByUserId(userId, email, (err, affectedRows) => {
+          if (err) {
+            if (err.code === "ER_DUP_ENTRY") {
+              return reject(new Error("Este email já está em uso."));
+            }
+            return reject(new Error("Erro ao atualizar email."));
+          }
+          if (affectedRows === 0)
+            return reject(new Error("Usuário não encontrado."));
+          resolve();
+        });
+      })
+    );
+  }
+
+  // Executa todas as tarefas pendentes
+  Promise.all(tasks)
+    .then(() => {
+      res.status(200).json({ message: "Perfil atualizado com sucesso!" });
+    })
+    .catch((error) => {
+      // Envia a mensagem de erro específica (ex: "Email já em uso")
+      res.status(500).json({ message: error.message });
+    });
 };

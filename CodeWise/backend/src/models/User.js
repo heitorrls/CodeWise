@@ -9,6 +9,19 @@ const User = {
     });
   },
 
+  // --- NOVO MÉTODO: Buscar por ID ---
+  findById: (id, callback) => {
+    // Seleciona apenas dados não sensíveis
+    db.query(
+      "SELECT id, email, created_at FROM users WHERE id = ?",
+      [id],
+      (err, results) => {
+        if (err) return callback(err, null);
+        callback(null, results[0]);
+      }
+    );
+  },
+
   create: (email, password, callback) => {
     // Gera o hash da senha
     const hash = bcrypt.hashSync(password, 10);
@@ -38,14 +51,25 @@ const User = {
     );
   },
 
-  // --- NOVO MÉTODO PARA EXCLUIR USUÁRIO ---
+  // --- NOVO MÉTODO: Atualizar email por ID ---
+  updateEmailByUserId: (userId, newEmail, callback) => {
+    db.query(
+      "UPDATE users SET email = ? WHERE id = ?",
+      [newEmail, userId],
+      (err, results) => {
+        if (err) return callback(err, null);
+        callback(null, results.affectedRows);
+      }
+    );
+  },
+  
+  // --- MÉTODO ADICIONADO NA ETAPA ANTERIOR (Excluir Conta) ---
   deleteById: (userId, callback) => {
     db.query("DELETE FROM users WHERE id = ?", [userId], (err, results) => {
       if (err) return callback(err, null);
       callback(null, results.affectedRows);
     });
   },
-  // ----------------------------------------
 };
 
 module.exports = User;

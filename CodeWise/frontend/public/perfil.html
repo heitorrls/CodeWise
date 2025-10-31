@@ -46,6 +46,7 @@
         <div class="settings-panel">
           <section class="settings-section account-section">
             <h3 class="section-title">Conta</h3>
+            
             <div class="setting-item">
               <div class="setting-info">
                 <label for="username" class="setting-label"
@@ -55,12 +56,16 @@
                   type="text"
                   id="username"
                   class="setting-input"
-                  value="NomeDoUsuario"
+                  value="Carregando..."
                   placeholder="Digite seu nome de usuário"
+                  readonly
                 />
               </div>
-              <button class="setting-action-button save-button">Salvar</button>
+              <button class="setting-action-button save-button" id="editUsernameBtn">
+                Editar
+              </button>
             </div>
+            
             <div class="setting-item">
               <div class="setting-info">
                 <label for="email" class="setting-label"
@@ -70,11 +75,14 @@
                   type="email"
                   id="email"
                   class="setting-input"
-                  value="usuario@email.com"
+                  value="Carregando..."
                   placeholder="Digite seu e-mail"
+                  readonly
                 />
               </div>
-              <button class="setting-action-button save-button">Salvar</button>
+              <button class="setting-action-button save-button" id="editEmailBtn">
+                Editar
+              </button>
             </div>
           </section>
 
@@ -131,7 +139,7 @@
                   conquistas serão permanentemente perdidos.
                 </p>
               </div>
-              <button class="setting-action-button delete-button">
+              <button class="setting-action-button delete-button" id="deleteAccountBtn">
                 Excluir Minha Conta
               </button>
             </div>

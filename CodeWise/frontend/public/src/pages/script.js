@@ -159,10 +159,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Usuário logado:", data.user);
             alert(data.message || "Login realizado com sucesso!");
 
-            // --- ALTERAÇÃO AQUI ---
             // Salva o usuário no localStorage
             localStorage.setItem("user", JSON.stringify(data.user));
-            // ---------------------
 
             // Redireciona para a página desejada
             window.location.href = "intro_nivelamento.html"; // Ou 'home.html'
@@ -224,13 +222,8 @@ document.addEventListener("DOMContentLoaded", () => {
           // Cadastro bem-sucedido!
           console.log("Usuário cadastrado:", data.userId);
           alert(data.message || "Cadastro realizado com sucesso!");
-
-          // NOTA: A lógica original do Firestore (setDoc) foi removida.
-          // O backend agora é responsável por criar o usuário.
-          // Se precisar salvar (pontuação, moedas), você terá que
-          // criar uma nova rota no backend e chamá-la aqui.
-
-          // Redireciona para a home (ou login)
+          
+          // Redireciona para o login
           window.location.href = "login.html";
         } else {
           // Erro vindo do backend
@@ -252,8 +245,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
-
-  // ... (Todo o código anterior, incluindo signup e login, permanece o mesmo) ...
 
   // 4. PÁGINA DE CONFIRMAÇÃO DE EMAIL (email-confirmation.html)
   const confirmationForm = document.getElementById("confirmationForm");
@@ -445,10 +436,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ... (Restante do seu script.js, seções 7 em diante, permanece o mesmo) ...
-
   // 7. PÁGINA DE INTRODUÇÃO DO NIVELAMENTO (intro_nivelamento.html)
-  // ... (lógica mantida)
   const startBtn = document.querySelector(".start-btn");
   if (startBtn) {
     window.startLevelTest = function () {
@@ -470,11 +458,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 8. PÁGINA DE TESTE DE NIVELAMENTO (qst_nivelamento.html)
-  // ... (lógica mantida)
   const testCard = document.querySelector(".test-card");
   if (testCard && !document.querySelector(".result-card")) {
     const testQuestions = [
-      {
+      // ... (suas 10 perguntas de nivelamento aqui) ...
+       {
         question:
           "Qual das alternativas abaixo cria corretamente uma função em JavaScript?",
         options: [
@@ -710,7 +698,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Inicialização do Teste
     if (questionTitle) {
-      // Adiciona verificação para evitar erros em outras páginas
       displayQuestion();
       updateProgress();
       updateButtons();
@@ -729,27 +716,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 9. PÁGINA DE RESULTADO DO NIVELAMENTO (resultado_nivelamento.html)
-  // ... (lógica mantida)
   const resultCard = document.querySelector(".result-card");
   if (resultCard) {
-    // Função para calcular percentual
+    // ... (toda a lógica de resultado_nivelamento) ...
     function calculatePercentage(correct, total) {
       return Math.round((correct / total) * 100);
     }
-
-    // Função para determinar classificação
     function getClassification(percentage) {
       if (percentage >= 80) return { level: "Avançado", class: "avancado" };
       if (percentage >= 60)
         return { level: "Intermediário", class: "intermediario" };
       return { level: "Iniciante", class: "iniciante" };
     }
-
-    // Função para simular categorias baseadas na pontuação
     function generateCategoryScores(score, total) {
       const percentage = calculatePercentage(score, total);
-      const baseScore = Math.floor(score * 0.4); // 40% do score base
-
+      const baseScore = Math.floor(score * 0.4); 
       return [
         {
           name: "Variáveis e Tipos de Dados",
@@ -773,8 +754,6 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       ];
     }
-
-    // Função para encontrar melhor categoria
     function getBestCategory(categories) {
       return categories.reduce((best, current) => {
         const bestPercentage = calculatePercentage(best.correct, best.total);
@@ -785,13 +764,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return currentPercentage > bestPercentage ? current : best;
       });
     }
-
-    // Função para animar contador
     function animateCounter(element, start, end, duration) {
       const range = end - start;
       const increment = range / (duration / 16);
       let current = start;
-
       const timer = setInterval(() => {
         current += increment;
         if (current >= end) {
@@ -801,12 +777,9 @@ document.addEventListener("DOMContentLoaded", () => {
         element.textContent = Math.round(current) + "%";
       }, 16);
     }
-
-    // Função para avançar para próxima etapa
     window.proceedToNextStep = function () {
       const advanceBtn = document.querySelector(".advance-btn");
       const originalText = advanceBtn.textContent;
-
       advanceBtn.innerHTML = `
         <div class="loading">
           <div class="spinner"></div>
@@ -814,35 +787,24 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
       advanceBtn.disabled = true;
-
       setTimeout(() => {
         transitionToPage("intro_criacao-avatar.html");
         advanceBtn.textContent = originalText;
         advanceBtn.disabled = false;
       }, 2500);
     };
-
-    // Pega os parâmetros da URL
     const params = new URLSearchParams(window.location.search);
     const score = parseInt(params.get("score")) || 4;
     const total = parseInt(params.get("total")) || 10;
     const percentage = calculatePercentage(score, total);
-
-    // Gera dados das categorias
     const categories = generateCategoryScores(score, total);
     const bestCategory = getBestCategory(categories);
     const classification = getClassification(percentage);
-
-    // Atualiza elementos na tela
     document.getElementById(
       "resultTitle"
     ).textContent = `Você acertou ${percentage}% do teste!`;
-
-    // Anima o percentual principal
     const scoreElement = document.getElementById("scorePercentage");
     animateCounter(scoreElement, 0, percentage, 2000);
-
-    // Atualiza categorias
     const categoryScoresElement = document.getElementById("categoryScores");
     if (categoryScoresElement) {
       categoryScoresElement.innerHTML = "";
@@ -857,14 +819,10 @@ document.addEventListener("DOMContentLoaded", () => {
         categoryScoresElement.appendChild(categoryItem);
       });
     }
-
-    // Atualiza melhor categoria
     const bestCategoryElement = document.getElementById("bestCategory");
     if (bestCategoryElement) {
       bestCategoryElement.textContent = bestCategory.name;
     }
-
-    // Atualiza classificação
     const classificationElement = document.getElementById(
       "finalClassification"
     );
@@ -872,14 +830,10 @@ document.addEventListener("DOMContentLoaded", () => {
       classificationElement.textContent = classification.level;
       classificationElement.className = `final-classification classification-${classification.class}`;
     }
-
-    // Adiciona evento ao botão avançar
     const advanceBtn = document.querySelector(".advance-btn");
     if (advanceBtn) {
       advanceBtn.addEventListener("click", window.proceedToNextStep);
     }
-
-    // Animação de entrada da página
     resultCard.style.opacity = "0";
     resultCard.style.transform = "translateY(40px)";
     setTimeout(() => {
@@ -887,8 +841,6 @@ document.addEventListener("DOMContentLoaded", () => {
       resultCard.style.opacity = "1";
       resultCard.style.transform = "translateY(0)";
     }, 100);
-
-    // Salva resultado no localStorage
     const resultData = {
       score,
       total,
@@ -902,22 +854,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 10. PÁGINA DE INTRODUÇÃO À CRIAÇÃO DE AVATAR (intro_criacao-avatar.html)
-  // ... (lógica mantida)
   const avatarBtn = document.querySelector(".avatar-btn");
   if (avatarBtn) {
     avatarBtn.addEventListener("click", () => {
-      // Futuramente, redirecionar para a página de criação de avatar
       transitionToPage("home.html"); // Placeholder
     });
   }
 
   // 11. LÓGICA DO BOTÃO PULAR (skipBtn)
-  // ... (lógica mantida)
   const skipBtn = document.getElementById("skipBtn");
   if (skipBtn) {
     skipBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      // Mostra um estado de carregamento
       skipBtn.innerHTML = `
         <div class="loading">
           <div class="spinner"></div>
@@ -925,7 +873,6 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
       skipBtn.disabled = true;
-      // Redireciona para a home após um pequeno atraso
       setTimeout(() => {
         transitionToPage("home.html");
       }, 1500);
@@ -933,19 +880,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 12. Pagina home.html
-  // ... (lógica mantida)
   const sendBtn = document.getElementById("send-btn");
   const chatInput = document.getElementById("chat-input");
 
   if (sendBtn && chatInput) {
     function sendMessage() {
       const message = chatInput.value.trim();
-
       if (!message) return;
-
       addMessage("user", message);
       chatInput.value = "";
-
       setTimeout(() => {
         const responses = [
           "Entendi sua dúvida! Vou te ajudar com isso.",
@@ -958,19 +901,15 @@ document.addEventListener("DOMContentLoaded", () => {
         addMessage("assistant", randomResponse);
       }, 1000);
     }
-
     function addMessage(type, content) {
       const messagesContainer = document.getElementById("chat-messages");
       if (!messagesContainer) return;
       const messageDiv = document.createElement("div");
       messageDiv.className = `message ${type}`;
-
       messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
-
       messagesContainer.appendChild(messageDiv);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
-
     sendBtn.addEventListener("click", sendMessage);
     chatInput.addEventListener("keypress", function (e) {
       if (e.key === "Enter") {
@@ -979,7 +918,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- 13. NOVA LÓGICA - EXCLUIR CONTA (configuracoes.html) ---
+  // --- 13. LÓGICA - EXCLUIR CONTA (configuracoes.html OU perfil.html) ---
   const deleteAccountBtn = document.getElementById("deleteAccountBtn");
   if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener("click", async () => {
@@ -1006,7 +945,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
           const response = await fetch("/api/auth/delete-account", {
-            method: "POST", // Deve corresponder à rota no authRoutes.js
+            method: "POST", 
             headers: {
               "Content-Type": "application/json",
             },
@@ -1031,5 +970,147 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+  
+  // --- 14. NOVA LÓGICA - PÁGINA DE PERFIL (perfil.html) ---
+  const usernameInput = document.getElementById("username");
+  const emailInput = document.getElementById("email");
+  const editUsernameBtn = document.getElementById("editUsernameBtn");
+  const editEmailBtn = document.getElementById("editEmailBtn");
+
+  // Verifica se estamos na página de perfil
+  if (usernameInput && emailInput && editUsernameBtn && editEmailBtn) {
+    
+    // Função para carregar dados do perfil
+    async function loadProfileData() {
+      const userString = localStorage.getItem("user");
+      if (!userString) {
+        alert("Erro: Você não está logado.");
+        transitionToPage("login.html");
+        return;
+      }
+      const user = JSON.parse(userString);
+
+      try {
+        // Busca os dados mais recentes do servidor
+        const response = await fetch(`/api/auth/profile?userId=${user.id}`, {
+          method: "GET",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          usernameInput.value = data.username;
+          emailInput.value = data.email;
+        } else {
+          const data = await response.json();
+          alert("Erro ao carregar perfil: " + data.message);
+          usernameInput.value = "Erro";
+          emailInput.value = user.email; // Fallback para o email do localStorage
+        }
+      } catch (error) {
+        console.error("Erro de rede ao carregar perfil:", error);
+        alert("Erro de rede ao carregar dados.");
+      }
+    }
+
+    // Função helper para alternar o modo de edição
+    function toggleEdit(inputElement, buttonElement) {
+      if (buttonElement.textContent === "Editar") {
+        // Mudar para modo de SALVAR
+        buttonElement.textContent = "Salvar";
+        inputElement.readOnly = false;
+        inputElement.focus();
+        inputElement.select(); // Seleciona o texto para facilitar a edição
+      } else {
+        // Mudar para modo de EDITAR (após salvar)
+        buttonElement.textContent = "Editar";
+        inputElement.readOnly = true;
+      }
+    }
+
+    // Função helper para salvar os dados
+    async function saveProfileData(field, value, inputElement, buttonElement) {
+      const userString = localStorage.getItem("user");
+      const user = JSON.parse(userString);
+
+      const body = {
+        userId: user.id,
+      };
+      // Adiciona o campo específico que estamos salvando (username ou email)
+      body[field] = value;
+
+      // Desabilita botões enquanto salva
+      editUsernameBtn.disabled = true;
+      editEmailBtn.disabled = true;
+      buttonElement.textContent = "Salvando...";
+
+      try {
+        const response = await fetch("/api/auth/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert("Perfil atualizado com sucesso!");
+          
+          // Se atualizou o email, atualiza o localStorage
+          if (field === "email") {
+            user.email = value;
+            localStorage.setItem("user", JSON.stringify(user));
+          }
+          // Volta ao modo "Editar"
+          toggleEdit(inputElement, buttonElement);
+        } else {
+          alert("Erro ao salvar: " + data.message);
+          buttonElement.textContent = "Salvar"; // Volta ao estado 'Salvar' para tentar de novo
+        }
+      } catch (error) {
+        console.error("Erro de rede ao salvar perfil:", error);
+        alert("Erro de rede. Tente novamente.");
+        buttonElement.textContent = "Salvar";
+      } finally {
+        // Reabilita os botões
+        editUsernameBtn.disabled = false;
+        editEmailBtn.disabled = false;
+      }
+    }
+
+    // Adiciona os Event Listeners
+    editUsernameBtn.addEventListener("click", () => {
+      if (editUsernameBtn.textContent === "Salvar") {
+        // Se está em modo "Salvar", salva os dados
+        const newUsername = usernameInput.value.trim();
+        if (newUsername) {
+          saveProfileData("username", newUsername, usernameInput, editUsernameBtn);
+        } else {
+          alert("Nome de usuário não pode ficar em branco.");
+        }
+      } else {
+        // Se está em modo "Editar", apenas alterna
+        toggleEdit(usernameInput, editUsernameBtn);
+      }
+    });
+
+    editEmailBtn.addEventListener("click", () => {
+      if (editEmailBtn.textContent === "Salvar") {
+        // Se está em modo "Salvar", salva os dados
+        const newEmail = emailInput.value.trim();
+        if (newEmail && isValidEmail(newEmail)) { // Reutiliza a função isValidEmail
+          saveProfileData("email", newEmail, emailInput, editEmailBtn);
+        } else {
+          alert("Por favor, insira um email válido.");
+        }
+      } else {
+        // Se está em modo "Editar", apenas alterna
+        toggleEdit(emailInput, editEmailBtn);
+      }
+    });
+
+    // Carrega os dados do perfil ao iniciar a página
+    loadProfileData();
+  }
   // -----------------------------------------------------------
-});
+
+}); // Fim do DOMContentLoaded

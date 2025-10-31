@@ -6,13 +6,16 @@ const authController = require("../controllers/authController");
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 
-// Rotas existentes de recuperação de senha
+// Rotas de recuperação de senha
 router.post("/forgot-password", authController.forgotPassword);
 router.post("/verify-code", authController.verifyCode);
 router.post("/reset-password", authController.resetPassword);
 
-// --- NOVA ROTA DE EXCLUSÃO DE CONTA ---
+// Rota de exclusão de conta (da etapa anterior)
 router.post("/delete-account", authController.deleteAccount);
-// (Usando POST por simplicidade, para manter o padrão. Poderia ser DELETE)
+
+// --- NOVAS ROTAS DE PERFIL ---
+router.get("/profile", authController.getProfile); // Para carregar os dados
+router.post("/profile", authController.updateProfile); // Para salvar os dados
 
 module.exports = router;
