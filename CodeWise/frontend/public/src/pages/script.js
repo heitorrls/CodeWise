@@ -987,7 +987,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const chatInput = document.getElementById("chat-input");
 
   if (sendBtn && chatInput) {
-    function sendMessage() {
+    
+    // 1. TORNAMOS A FUNÇÃO ASYNC (assíncrona)
+    async function sendMessage() {
       const message = chatInput.value.trim();
 
       if (!message) return;
@@ -995,17 +997,46 @@ document.addEventListener("DOMContentLoaded", () => {
       addMessage("user", message);
       chatInput.value = "";
 
-      setTimeout(() => {
-        const responses = [
-          "Entendi sua dúvida! Vou te ajudar com isso.",
-          "Ótima pergunta! Deixe-me explicar...",
-          "Posso te dar algumas dicas sobre isso.",
-          "Vou pesquisar mais informações para você!",
-        ];
-        const randomResponse =
-          responses[Math.floor(Math.random() * responses.length)];
-        addMessage("assistant", randomResponse);
-      }, 1000);
+      // 2. ADICIONAMOS UM INDICADOR DE "DIGITANDO..."
+      const loadingMessage = addMessage("assistant", "Digitando...");
+
+      try {
+        // 3. CHAMADA PARA O SEU BACKEND (O ENDPOINT QUE CRIAMOS)
+        const response = await fetch("/api/chat", { 
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prompt: message }), // Enviamos a mensagem do usuário
+        });
+
+        if (!response.ok) {
+          throw new Error("Erro ao contatar o assistente.");
+        }
+
+        const data = await response.json();
+        const geminiReply = data.reply; // Pegamos a resposta do backend
+
+        // 4. REMOVEMOS O "DIGITANDO..."
+        if (loadingMessage) {
+          loadingMessage.remove(); 
+        }
+        
+        if (geminiReply) {
+            // 5. Adiciona a resposta real do Gemini
+            addMessage("assistant", geminiReply); 
+        } else {
+            addMessage("assistant", "Recebi uma resposta vazia.");
+        }
+
+      } catch (error) {
+        console.error("Erro no chat:", error);
+        // 6. TRATAMENTO DE ERRO
+        if (loadingMessage) {
+          loadingMessage.remove();
+        }
+        addMessage("assistant", "Desculpe, estou com problemas para conectar. Tente novamente.");
+      }
     }
 
     function addMessage(type, content) {
@@ -1014,10 +1045,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const messageDiv = document.createElement("div");
       messageDiv.className = `message ${type}`;
 
-      messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
-
+      // Usamos textContent para segurança (evita que a IA injete HTML)
+      const messageContent = document.createElement('div');
+      messageContent.className = "message-content";
+      messageContent.textContent = content; 
+      
+      messageDiv.appendChild(messageContent);
       messagesContainer.appendChild(messageDiv);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      // 7. RETORNAR O ELEMENTO (para podermos remover o "Digitando...")
+      return messageDiv;
     }
 
     sendBtn.addEventListener("click", sendMessage);
