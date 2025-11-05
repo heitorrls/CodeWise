@@ -1015,7 +1015,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const data = await response.json();
-        const geminiReply = data.reply; // Pegamos a resposta do backend
+        const geminiReply = data.response; // Pegamos a resposta do backend
 
         // 4. REMOVEMOS O "DIGITANDO..."
         if (loadingMessage) {
