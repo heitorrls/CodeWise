@@ -1,0 +1,60 @@
+:root {
+  /* Dark theme (default) */
+  --bg: #0f1222;
+  --bg-elevated: #1a1f35;
+  --card: #222743;
+  --muted: #9aa0c3;
+  --text: #f3f4ff;
+  --text-muted: #c8cbee;
+  --primary: #9c83ff;
+  --primary-contrast: #160f2a;
+  --accent: #ff6b6b;
+  --border: #2a3154;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="light"] {
+  /* Light theme */
+  --bg: #f7f8fc;
+  --bg-elevated: #ffffff;
+  --card: #ffffff;
+  --muted: #60657a;
+  --text: #141824;
+  --text-muted: #3d4256;
+  --primary: #5b6cff;
+  --primary-contrast: #ffffff;
+  --accent: #d9534f;
+  --border: #e3e6ef;
+  --shadow: rgba(0, 0, 0, 0.08);
+}
+
+/* Base usage */
+html, body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Generic containers */
+.card, .panel, .container-elevated, .box, .content, .sidebar, .header {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+.text-muted { color: var(--text-muted); }
+
+/* Buttons */
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-contrast);
+  border: 1px solid transparent;
+}
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+/* Switch example (if present) */
+.switch input:checked + .slider { background-color: var(--primary); }

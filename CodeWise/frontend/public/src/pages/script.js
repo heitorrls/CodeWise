@@ -1065,6 +1065,31 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+// THEME: Toggle Claro/Escuro com persistência
+  (function () {
+    const THEME_KEY = 'cw_theme';
+    const root = document.documentElement;
+    const lightSwitch = document.querySelector('[data-setting="theme-light"], #lightTheme');
+
+    // Set the switch state based on the current theme
+    if (lightSwitch) {
+        lightSwitch.checked = root.getAttribute('data-theme') === 'light';
+    }
+
+    // Toggle no change
+    if (lightSwitch) {
+      lightSwitch.addEventListener('change', (e) => {
+        const enabled = e.target.checked;
+        if (enabled) {
+          root.setAttribute('data-theme', 'light');
+          localStorage.setItem(THEME_KEY, 'light');
+        } else {
+          root.removeAttribute('data-theme');
+          localStorage.setItem(THEME_KEY, 'dark');
+        }
+      });
+    }
+  })();
 });
 
 // 13. PÁGINA DE PERFIL (perfil.html)
