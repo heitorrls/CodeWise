@@ -164,8 +164,18 @@ document.addEventListener("DOMContentLoaded", () => {
             // Opcional: Salvar token/info do usuário no localStorage, se o backend enviar
             // localStorage.setItem("user", JSON.stringify(data.user));
 
-            // Redireciona para a página desejada
-            window.location.href = "intro_nivelamento.html"; // Ou 'home.html'
+            // Redireciona dependendo se o usuário já completou o nivelamento
+            try {
+              const completed = data.user && data.user.leveling_completed;
+              if (completed) {
+                window.location.href = "home.html";
+              } else {
+                window.location.href = "intro_nivelamento.html";
+              }
+            } catch (e) {
+              // Em caso de erro, fallback para intro de nivelamento
+              window.location.href = "intro_nivelamento.html";
+            }
           } else {
             // Erro vindo do backend
             console.error("Erro no login:", data.message);
@@ -790,20 +800,38 @@ document.addEventListener("DOMContentLoaded", () => {
     window.proceedToNextStep = function () {
       const advanceBtn = document.querySelector(".advance-btn");
       const originalText = advanceBtn.textContent;
+        advanceBtn.innerHTML = `
+          <div class="loading">
+            <div class="spinner"></div>
+            Avançando para a criação de avatar...
+          </div>
+        `;
+        advanceBtn.disabled = true;
 
-      advanceBtn.innerHTML = `
-        <div class="loading">
-          <div class="spinner"></div>
-          Avançando para a criação de avatar...
-        </div>
-      `;
-      advanceBtn.disabled = true;
-
-      setTimeout(() => {
-        transitionToPage("intro_criacao-avatar.html");
-        advanceBtn.textContent = originalText;
-        advanceBtn.disabled = false;
-      }, 2500);
+        (async function () {
+          try {
+            // Tenta marcar o nivelamento como concluído no backend
+            const userId = localStorage.getItem("userId");
+            const level = (window && window.getComputedStyle && typeof classification !== 'undefined') ? classification.level : null;
+            if (userId) {
+              await fetch('/api/leveling/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: userId, level: level })
+              });
+            }
+          } catch (err) {
+            console.error('Erro ao marcar nivelamento concluído:', err);
+            // Não impede o fluxo do usuário caso a chamada falhe
+          } finally {
+            // Redireciona independentemente do resultado da chamada
+            setTimeout(() => {
+              transitionToPage("intro_criacao-avatar.html");
+              advanceBtn.textContent = originalText;
+              advanceBtn.disabled = false;
+            }, 1200);
+          }
+        })();
     };
 
     // Pega os parâmetros da URL

@@ -39,9 +39,15 @@ exports.login = (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: "Email ou senha inválidos." }); // Mensagem genérica
 
+    // Inclui informação se o usuário já completou o nivelamento
     res.json({
       message: "Login realizado com sucesso!",
-      user: { id: user.id, email: user.email },
+      user: {
+        id: user.id,
+        email: user.email,
+        leveling_completed: user.leveling_completed,
+        level: user.level,
+      },
     });
   });
 };

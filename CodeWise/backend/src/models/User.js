@@ -14,7 +14,7 @@ const User = {
     const hash = bcrypt.hashSync(password, 10);
 
     db.query(
-      "INSERT INTO users (email, username, password) VALUES (?, ?, ?)",
+      "INSERT INTO users (email, username, password, leveling_completed, level) VALUES (?, ?, ?, 0, NULL)",
       [email, username, hash],
       (err, results) => {
         if (err) return callback(err, null);
@@ -53,6 +53,18 @@ const User = {
     db.query(
       "UPDATE users SET password = ? WHERE email = ?",
       [hash, email],
+      (err, results) => {
+        if (err) return callback(err, null);
+        callback(null, results.affectedRows);
+      }
+    );
+  },
+
+  // Marca o nivelamento como concluído (por id)
+  markLevelingById: (id, level, callback) => {
+    db.query(
+      "UPDATE users SET leveling_completed = 1, level = ? WHERE id = ?",
+      [level || null, id],
       (err, results) => {
         if (err) return callback(err, null);
         callback(null, results.affectedRows);

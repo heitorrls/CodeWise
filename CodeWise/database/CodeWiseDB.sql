@@ -84,6 +84,8 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `username` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `leveling_completed` tinyint(1) DEFAULT 0,
+  `level` varchar(50) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
@@ -98,9 +100,10 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 -- Ajuste os dados de exemplo para incluir username
-INSERT INTO `users` (`id`,`email`,`username`,`password`,`created_at`) VALUES 
-(4,'bia@gmail.com','bia','$2a$10$enQsGtg8ebvgvNgcxMD58.szHYwPfga5pPwdBhhjgeKcq6NKEdENC','2025-10-31 13:14:11'),
-(6,'professor@gmail.com','professor','$2a$10$yslsQ31q2gjobuA/FVax0OhdgIq2VmWdTNPbWQJbjgcPyZV/K8Pg.','2025-10-31 13:24:37');
+-- Ajuste os dados de exemplo para incluir campos de nivelamento
+INSERT INTO `users` (`id`,`email`,`username`,`password`,`leveling_completed`,`level`,`created_at`) VALUES 
+(4,'bia@gmail.com','bia','$2a$10$enQsGtg8ebvgvNgcxMD58.szHYwPfga5pPwdBhhjgeKcq6NKEdENC',1,'Intermediário','2025-10-31 13:14:11'),
+(6,'professor@gmail.com','professor','$2a$10$yslsQ31q2gjobuA/FVax0OhdgIq2VmWdTNPbWQJbjgcPyZV/K8Pg.',0,NULL,'2025-10-31 13:24:37');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

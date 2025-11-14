@@ -21,6 +21,8 @@ const userRoutes = require('./routes/userRoutes');
 
 // ADICIONADO - PASSO 2: Importa as novas rotas do chat
 const chatRoutes = require('./routes/codeBuddyRoutes');
+// Rotas de nivelamento
+const levelingRoutes = require('./routes/levelingRoutes');
 
 // Registra as rotas
 app.use('/api/auth', authRoutes);
@@ -28,6 +30,8 @@ app.use('/api/user', userRoutes);
 
 // ADICIONADO - PASSO 3: Registra a nova rota do chat
 app.use('/api/chat', chatRoutes);
+// Registra rota de nivelamento
+app.use('/api/leveling', levelingRoutes);
 // -------------\
 
 // 2. Servindo a página principal
