@@ -9,8 +9,9 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="src/assets/styles/home.css" />
-        <script src="src/assets/js/theme-loader.js"></script>
+    <script src="src/assets/js/theme-loader.js"></script>
     <link rel="stylesheet" href="src/assets/styles/theme.css" />
+
   </head>
   <body>
     <div class="container">
@@ -121,29 +122,54 @@
           </div>
         </div>
 
-        <div class="chat-container">
-          <div class="chat-header">
-            <h3 class="chat-title">Assistente Virtual</h3>
-          </div>
-          <div id="chat-messages" class="chat-messages">
-            <div class="message assistant">
-              <div class="message-content">
-                Olá! Como posso te ajudar a programar hoje?
-              </div>
+        </aside>
+    </div>
+
+    <div class="chat-float-button" id="chatFloatBtn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path
+          d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"
+        />
+      </svg>
+    </div>
+
+    <div class="chat-modal-overlay" id="chatModalOverlay">
+      <div class="chat-modal">
+        <div class="chat-modal-header">
+          <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"
+              />
+            </svg>
+            Assistente Virtual
+          </h2>
+          <button class="chat-close-btn" id="chatCloseBtn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="chat-modal-body" id="chatMessages">
+          <div class="message assistant">
+            <div class="message-content">
+              Olá! Sou seu assistente virtual. Como posso te ajudar a programar
+              hoje?
             </div>
           </div>
-          <div class="chat-input-container">
-            <input
-              type="text"
-              id="chat-input"
-              placeholder="Digite sua dúvida..."
-            />
-            <button id="send-btn" class="send-btn">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-          </div>
         </div>
-      </aside>
+
+        <div class="chat-modal-footer">
+          <input
+            type="text"
+            id="chatInput"
+            placeholder="Digite sua dúvida..."
+            autocomplete="off"
+          />
+          <button class="chat-send-btn" id="chatSendBtn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="src/pages/script.js"></script>

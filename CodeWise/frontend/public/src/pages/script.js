@@ -981,90 +981,147 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 12. Pagina home.html
-  // ... (lógica mantida)
-  const sendBtn = document.getElementById("send-btn");
-  const chatInput = document.getElementById("chat-input");
+ // 12. Pagina home.html (LÓGICA DO MODAL E CHAT ATUALIZADA)
 
-  if (sendBtn && chatInput) {
+  // --- LÓGICA DO MODAL (ABRIR/FECHAR) ---
+  const chatFloatBtn = document.getElementById('chatFloatBtn');
+  const chatModalOverlay = document.getElementById('chatModalOverlay');
+  const chatCloseBtn = document.getElementById('chatCloseBtn');
+  const chatInput = document.getElementById('chatInput'); // ID do novo modal
     
-    // 1. TORNAMOS A FUNÇÃO ASYNC (assíncrona)
-    async function sendMessage() {
-      const message = chatInput.value.trim();
+  if (chatFloatBtn && chatModalOverlay && chatCloseBtn && chatInput) {
+      // Abrir
+      chatFloatBtn.addEventListener('click', () => {
+          chatModalOverlay.classList.add('active');
+          chatInput.focus();
+          document.body.style.overflow = 'hidden'; // Previne scroll do body
+      });
 
-      if (!message) return;
-
-      addMessage("user", message);
-      chatInput.value = "";
-
-      // 2. ADICIONAMOS UM INDICADOR DE "DIGITANDO..."
-      const loadingMessage = addMessage("assistant", "Digitando...");
-
-      try {
-        // 3. CHAMADA PARA O SEU BACKEND (O ENDPOINT QUE CRIAMOS)
-        const response = await fetch("/api/chat", { 
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt: message }), // Enviamos a mensagem do usuário
-        });
-
-        if (!response.ok) {
-          throw new Error("Erro ao contatar o assistente.");
-        }
-
-        const data = await response.json();
-        const geminiReply = data.response; // Pegamos a resposta do backend
-
-        // 4. REMOVEMOS O "DIGITANDO..."
-        if (loadingMessage) {
-          loadingMessage.remove(); 
-        }
-        
-        if (geminiReply) {
-            // 5. Adiciona a resposta real do Gemini
-            addMessage("assistant", geminiReply); 
-        } else {
-            addMessage("assistant", "Recebi uma resposta vazia.");
-        }
-
-      } catch (error) {
-        console.error("Erro no chat:", error);
-        // 6. TRATAMENTO DE ERRO
-        if (loadingMessage) {
-          loadingMessage.remove();
-        }
-        addMessage("assistant", "Desculpe, estou com problemas para conectar. Tente novamente.");
+      // Função para fechar o modal
+      function closeModal() {
+          chatModalOverlay.classList.remove('active');
+          document.body.style.overflow = 'auto'; // Restaura scroll
       }
-    }
 
-    function addMessage(type, content) {
-      const messagesContainer = document.getElementById("chat-messages");
-      if (!messagesContainer) return;
-      const messageDiv = document.createElement("div");
-      messageDiv.className = `message ${type}`;
+      // Fechar pelo botão X
+      chatCloseBtn.addEventListener('click', closeModal);
 
-      // Usamos textContent para segurança (evita que a IA injete HTML)
-      const messageContent = document.createElement('div');
-      messageContent.className = "message-content";
-      messageContent.textContent = content; 
-      
-      messageDiv.appendChild(messageContent);
-      messagesContainer.appendChild(messageDiv);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      // Fechar clicando fora (no overlay)
+      chatModalOverlay.addEventListener('click', (e) => {
+          if (e.target === chatModalOverlay) {
+              closeModal();
+          }
+      });
 
-      // 7. RETORNAR O ELEMENTO (para podermos remover o "Digitando...")
-      return messageDiv;
-    }
-
-    sendBtn.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keypress", function (e) {
-      if (e.key === "Enter") {
-        sendMessage();
-      }
-    });
+      // Fechar com a tecla ESC
+      document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && chatModalOverlay.classList.contains('active')) {
+              closeModal();
+          }
+      });
   }
+    
+  // --- LÓGICA DE ENVIO DE MENSAGEM (MERGE DA SUA API + NOVO MODAL) ---
+  const chatSendBtn = document.getElementById('chatSendBtn'); // ID do novo modal
+  const chatMessages = document.getElementById('chatMessages'); // ID do novo modal
+  // O chatInput já foi selecionado ali em cima
+    
+  if (chatSendBtn && chatInput && chatMessages) {
+        
+      // Esta função 'sendMessage' AGORA usa sua API real
+      async function sendMessage() {
+          const message = chatInput.value.trim();
+          if (!message) return;
+
+          // Adiciona mensagem do usuário
+          addMessage('user', message);
+          chatInput.value = '';
+
+          // Adiciona o indicador de "digitando"
+          const typingMsg = addTypingIndicator();
+
+          try {
+              // **AQUI ESTÁ A SUA LÓGICA DE API REAL**
+              const response = await fetch("/api/chat", { 
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ prompt: message }), 
+              });
+
+              if (!response.ok) {
+                  throw new Error("Erro ao contatar o assistente.");
+              }
+
+              const data = await response.json();
+              const geminiReply = data.response; 
+
+              // Remove o indicador de "digitando"
+              typingMsg.remove();
+                
+              if (geminiReply) {
+                  // Adiciona a resposta real do Gemini
+                  addMessage('assistant', geminiReply); 
+              } else {
+                  addMessage('assistant', "Recebi uma resposta vazia.");
+              }
+
+          } catch (error) {
+              console.error("Erro no chat:", error);
+              // Remove o indicador de "digitando" mesmo se der erro
+              if (typingMsg) {
+                typingMsg.remove();
+              }
+              addMessage('assistant', "Desculpe, estou com problemas para conectar. Tente novamente.");
+          }
+      }
+
+      // Função para adicionar mensagem (do novo modal)
+      function addMessage(type, content) {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${type}`;
+            
+          const messageContent = document.createElement('div');
+          messageContent.className = 'message-content';
+          messageContent.textContent = content; // Usar textContent é mais seguro
+            
+          messageDiv.appendChild(messageContent);
+          chatMessages.appendChild(messageDiv);
+            
+          // Scroll automático para o final
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+          return messageDiv;
+      }
+
+      // Função de indicador de digitação (do novo modal)
+      function addTypingIndicator() {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = 'message assistant';
+            
+          const typingDiv = document.createElement('div');
+          typingDiv.className = 'message-content typing-indicator';
+          typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            
+          messageDiv.appendChild(typingDiv);
+          chatMessages.appendChild(messageDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+          return messageDiv;
+      }
+
+      // Eventos de envio (Botão e Enter)
+      chatSendBtn.addEventListener('click', sendMessage);
+
+      chatInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault(); // Evita que o 'Enter' pule linha no input
+            sendMessage();
+          }
+      });
+  }
+  
 // THEME: Toggle Claro/Escuro com persistência
   (function () {
     const THEME_KEY = 'cw_theme';
@@ -1090,9 +1147,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   })();
-});
-
-// 13. PÁGINA DE PERFIL (perfil.html)
+  
+// 13. PÁGINA DE PERFIL (perfil.html) // <-- MUDOU PARA DENTRO
 const saveAccountBtn = document.getElementById("save-account-btn");
 const editAccountBtn = document.getElementById("edit-account-btn");
 if (saveAccountBtn) {
@@ -1158,5 +1214,5 @@ if (saveAccountBtn) {
     }
   });
 }
-
+});
 // ... (aqui vem o "});" final do seu script)
