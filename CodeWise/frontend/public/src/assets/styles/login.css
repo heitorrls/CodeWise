@@ -15,6 +15,64 @@ body {
   overflow: hidden;
 }
 
+/* Toggle Tema */
+.theme-toggle-auth {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+  color: #e6e6f5;
+}
+.theme-toggle-auth .toggle-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.theme-toggle-auth .toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+.theme-toggle-auth .toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.theme-toggle-auth .toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.35);
+  transition: 0.2s;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+.theme-toggle-auth .toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 2px;
+  background-color: #ffffff;
+  transition: 0.2s;
+  border-radius: 50%;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+}
+.theme-toggle-auth input:checked + .toggle-slider {
+  background-color: #8b7cc8;
+  border-color: #8b7cc8;
+}
+.theme-toggle-auth input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
 /* Efeito de estrelas no fundo */
 body::before {
   content: "";
@@ -348,4 +406,68 @@ body::before {
   .form-title {
     font-size: 1.8rem;
   }
+}
+
+/* ---------------- LIGHT THEME OVERRIDES ---------------- */
+:root[data-theme="light"] body {
+  background: var(--background);
+  color: var(--text);
+}
+:root[data-theme="light"] body::before {
+  opacity: 0;
+}
+:root[data-theme="light"] .theme-toggle-auth {
+  color: var(--text);
+}
+:root[data-theme="light"] .theme-toggle-auth .toggle-slider {
+  background: var(--surface-elev-2);
+  border-color: var(--border-subtle);
+}
+:root[data-theme="light"] .theme-toggle-auth input:checked + .toggle-slider {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+:root[data-theme="light"] .theme-toggle-auth .toggle-slider:before {
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .logo {
+  color: var(--primary);
+  text-shadow: none;
+}
+:root[data-theme="light"] .login-form {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+}
+:root[data-theme="light"] .form-title {
+  background: none;
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+:root[data-theme="light"] .input-group label {
+  color: var(--text);
+}
+:root[data-theme="light"] .input-group input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  box-shadow: none;
+}
+:root[data-theme="light"] .input-group input::placeholder {
+  color: var(--text-muted);
+}
+:root[data-theme="light"] .input-group input:focus {
+  border-color: var(--input-focus);
+  background: #ffffff;
+  box-shadow: var(--focus-ring);
+}
+:root[data-theme="light"] .forgot-password a {
+  color: var(--primary);
+}
+:root[data-theme="light"] .login-btn {
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .signup-link a {
+  color: var(--text-muted);
 }

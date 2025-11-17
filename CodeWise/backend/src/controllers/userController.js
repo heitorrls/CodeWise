@@ -59,3 +59,22 @@ exports.changePassword = (req, res) => {
     });
   });
 };
+
+// Exclui usuário por ID
+exports.deleteUser = (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ message: "ID do usuário é obrigatório." });
+  }
+
+  User.deleteById(id, (err, affectedRows) => {
+    if (err) {
+      console.error("Erro ao excluir usuário:", err);
+      return res.status(500).json({ message: "Erro ao excluir o usuário." });
+    }
+    if (affectedRows === 0) {
+      return res.status(404).json({ message: "Usuário não encontrado." });
+    }
+    return res.status(200).json({ message: "Usuário excluído com sucesso." });
+  });
+};

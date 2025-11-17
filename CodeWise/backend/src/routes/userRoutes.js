@@ -8,4 +8,7 @@ router.put('/user', userController.updateUserProfile);
 // Altera a senha do usuário
 router.put('/password', userController.changePassword);
 
+// Exclui usuário por ID
+router.delete('/:id', userController.deleteUser);
+
 module.exports = router;

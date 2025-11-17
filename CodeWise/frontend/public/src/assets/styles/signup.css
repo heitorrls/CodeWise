@@ -215,6 +215,55 @@ body::before {
   }
 }
 
+/* ---------------- LIGHT THEME OVERRIDES ---------------- */
+:root[data-theme="light"] body {
+  background: var(--background);
+  color: var(--text);
+}
+:root[data-theme="light"] body::before {
+  opacity: 0;
+}
+
+:root[data-theme="light"] .signup-form {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+}
+:root[data-theme="light"] .form-title {
+  background: none;
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+:root[data-theme="light"] .input-group label {
+  color: var(--text);
+}
+:root[data-theme="light"] .input-group input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  box-shadow: none;
+}
+:root[data-theme="light"] .input-group input::placeholder {
+  color: var(--text-muted);
+}
+:root[data-theme="light"] .input-group input:focus {
+  border-color: var(--input-focus);
+  background: #ffffff;
+  box-shadow: var(--focus-ring);
+}
+:root[data-theme="light"] .signup-btn {
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .login-link {
+  color: var(--text-muted);
+}
+:root[data-theme="light"] .login-link a {
+  color: var(--primary);
+}
+:root[data-theme="light"] .login-link a:hover {
+  color: var(--primary-hover);
+}
+
 .mascot-container img {
   width: 100%;
   height: 100%;

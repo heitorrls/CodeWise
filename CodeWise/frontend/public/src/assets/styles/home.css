@@ -1076,3 +1076,193 @@ background: #8b7cc8; /* Cor principal */
           height: 45px;
         }
       }
+
+/* ---------------- LIGHT THEME OVERRIDES ---------------- */
+:root[data-theme="light"] body {
+  background: var(--background);
+  color: var(--text);
+}
+:root[data-theme="light"] body::before {
+  opacity: 0;
+}
+
+:root[data-theme="light"] .header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .header h1 {
+  color: var(--primary);
+  text-shadow: none;
+}
+
+:root[data-theme="light"] .sidebar,
+:root[data-theme="light"] .main-content,
+:root[data-theme="light"] .right-sidebar,
+:root[data-theme="light"] .stats-missions-container {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+}
+
+:root[data-theme="light"] .nav-item {
+  background: var(--surface-elev-1);
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
+}
+:root[data-theme="light"] .nav-item:hover {
+  background: var(--surface-elev-2);
+  border-color: var(--primary-soft);
+  color: var(--text);
+}
+:root[data-theme="light"] .nav-item.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+:root[data-theme="light"] .knowledge-trail h2,
+:root[data-theme="light"] .trail-progress span {
+  background: none;
+  -webkit-text-fill-color: var(--text);
+  color: var(--text);
+}
+
+:root[data-theme="light"] .progress-bar-container {
+  background: var(--surface-elev-2);
+  border: 1px solid var(--border-subtle);
+  box-shadow: none;
+}
+
+:root[data-theme="light"] .exercise-tree {
+  scrollbar-color: var(--primary) var(--surface-elev-2);
+}
+:root[data-theme="light"] .exercise-tree::-webkit-scrollbar-track {
+  background: var(--surface-elev-2);
+}
+
+:root[data-theme="light"] .exercise-node {
+  background: var(--surface);
+  border-color: var(--border-subtle);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .exercise-node.locked {
+  background: var(--surface-elev-1);
+  border-color: var(--border-subtle);
+  color: var(--text-muted);
+}
+:root[data-theme="light"] .exercise-node.completed {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+:root[data-theme="light"] .stats {
+  border-bottom-color: var(--border-subtle);
+}
+:root[data-theme="light"] .stat-value {
+  color: var(--text);
+}
+:root[data-theme="light"] .mission-item {
+  color: var(--text);
+}
+:root[data-theme="light"] .mission-item i {
+  color: var(--primary);
+}
+:root[data-theme="light"] .mission-item.completed span {
+  color: var(--text-muted);
+}
+
+:root[data-theme="light"] #chat-box {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+}
+:root[data-theme="light"] .chat-header {
+  background: var(--surface-elev-1);
+  border-bottom: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .chat-title {
+  color: var(--text);
+}
+:root[data-theme="light"] .chat-messages {
+  scrollbar-color: var(--primary) var(--surface-elev-2);
+}
+:root[data-theme="light"] .chat-messages::-webkit-scrollbar-track {
+  background: var(--surface-elev-2);
+}
+:root[data-theme="light"] .message.assistant .message-content {
+  background: var(--surface-elev-2);
+  color: var(--text);
+  border-color: var(--border-subtle);
+}
+
+:root[data-theme="light"] .chat-modal-overlay {
+  background: rgba(15, 16, 32, 0.3);
+}
+:root[data-theme="light"] .chat-modal {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-lg);
+}
+:root[data-theme="light"] .chat-modal-header {
+  background: var(--surface-elev-1);
+  border-bottom: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .chat-modal-header h2 {
+  color: var(--text);
+}
+:root[data-theme="light"] .chat-modal-header h2 svg {
+  fill: var(--primary);
+}
+:root[data-theme="light"] .chat-close-btn {
+  background: var(--surface-elev-2);
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
+}
+:root[data-theme="light"] .chat-modal-body {
+  scrollbar-color: var(--primary) var(--surface-elev-2);
+}
+:root[data-theme="light"] .chat-modal-body::-webkit-scrollbar-track {
+  background: var(--surface-elev-2);
+}
+:root[data-theme="light"] .message.user .message-content {
+  color: #ffffff;
+}
+:root[data-theme="light"] .message.assistant .message-content {
+  background: var(--surface-elev-2);
+  color: var(--text);
+  border-color: var(--border-subtle);
+}
+:root[data-theme="light"] .chat-modal-footer {
+  background: var(--surface-elev-1);
+  border-top: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .chat-modal-footer input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+}
+:root[data-theme="light"] .chat-modal-footer input::placeholder {
+  color: var(--text-muted);
+}
+:root[data-theme="light"] .chat-modal-footer input:focus {
+  border-color: var(--input-focus);
+  box-shadow: var(--focus-ring);
+}
+
+:root[data-theme="light"] .chat-input-container {
+  background: var(--surface-elev-1);
+  border-top: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] #chat-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+}
+:root[data-theme="light"] #chat-input:focus {
+  border-color: var(--input-focus);
+  box-shadow: var(--focus-ring);
+}

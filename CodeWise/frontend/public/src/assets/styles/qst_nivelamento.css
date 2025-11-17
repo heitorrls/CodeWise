@@ -207,12 +207,12 @@ body::before {
 
 .option-text {
   color: white;
-  font-size: 0.95rem;
-  line-height: 1.4;
+  font-size: 1.05rem;
+  line-height: 1.5;
   font-family: "Courier New", monospace;
   background: rgba(0, 0, 0, 0.2);
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
   flex: 1;
   white-space: pre-wrap;
 }
@@ -382,4 +382,84 @@ body::before {
   .progress-bar {
     height: 6px;
   }
+}
+
+/* ---------------- LIGHT THEME OVERRIDES ---------------- */
+:root[data-theme="light"] body {
+  background: var(--background);
+  color: var(--text);
+}
+:root[data-theme="light"] body::before {
+  opacity: 0;
+}
+:root[data-theme="light"] .header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .header-title {
+  color: var(--text-muted);
+}
+:root[data-theme="light"] .test-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+}
+:root[data-theme="light"] .question-title {
+  color: var(--text);
+}
+:root[data-theme="light"] .option {
+  background: var(--surface-elev-1);
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .option:hover {
+  background: var(--surface-elev-2);
+  border-color: var(--primary-soft);
+}
+:root[data-theme="light"] .option.selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .option-letter {
+  color: var(--primary);
+  text-shadow: none;
+}
+:root[data-theme="light"] .option-text {
+  color: var(--text);
+  background: var(--surface-elev-2);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+:root[data-theme="light"] .option.correct {
+  border-color: var(--success);
+  background: rgba(46, 175, 125, 0.12);
+}
+:root[data-theme="light"] .option.incorrect {
+  border-color: var(--danger);
+  background: rgba(232, 92, 92, 0.12);
+}
+:root[data-theme="light"] .nav-buttons button {
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .nav-buttons button:first-child {
+  background: var(--surface-elev-1);
+  color: var(--text);
+  border: 1px solid var(--border-subtle);
+}
+:root[data-theme="light"] .nav-buttons button:first-child:hover {
+  background: var(--surface-elev-2);
+}
+:root[data-theme="light"] .progress-container {
+  background: var(--surface-elev-2);
+  border: 1px solid var(--border-subtle);
+  box-shadow: none;
+}
+:root[data-theme="light"] .progress-bar {
+  background: var(--primary);
+}
+:root[data-theme="light"] .progress-text {
+  color: var(--text-muted);
 }

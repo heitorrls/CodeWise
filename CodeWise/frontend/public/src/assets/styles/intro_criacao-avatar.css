@@ -295,3 +295,35 @@ body::before {
     margin-left: 0;
   }
 }
+
+/* ---------------- LIGHT THEME OVERRIDES ---------------- */
+:root[data-theme="light"] body {
+  background: var(--background);
+  color: var(--text);
+}
+:root[data-theme="light"] body::before {
+  opacity: 0;
+}
+:root[data-theme="light"] .intro-text {
+  color: var(--text);
+}
+:root[data-theme="light"] .highlight {
+  color: var(--success);
+  text-shadow: none;
+}
+:root[data-theme="light"] .sub-text {
+  color: var(--text);
+}
+:root[data-theme="light"] .avatar-btn {
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .skip-avatar-btn {
+  color: var(--primary);
+  border-color: var(--primary);
+  box-shadow: none;
+}
+:root[data-theme="light"] .skip-avatar-btn:hover {
+  background: var(--primary-soft);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}

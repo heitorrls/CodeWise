@@ -71,6 +71,13 @@ const User = {
       }
     );
   },
+
+  deleteById: (id, callback) => {
+    db.query("DELETE FROM users WHERE id = ?", [id], (err, results) => {
+      if (err) return callback(err, null);
+      callback(null, results.affectedRows);
+    });
+  },
 };
 
 module.exports = User;

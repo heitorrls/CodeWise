@@ -5,6 +5,37 @@
 // 1. Importações e inicialização do Firebase REMOVIDAS.
 // Não há mais 'app', 'auth' ou 'db'.
 
+// Controle de sessão simples para páginas protegidas
+(function enforceAuthGuard() {
+  const protectedPages = [
+    "home.html",
+    "perfil.html",
+    "loja.html",
+    "rank.html",
+    "configuracoes.html",
+    "calendario.html",
+    "suporte.html",
+    "intro_nivelamento.html",
+    "qst_nivelamento.html",
+    "resultado_nivelamento.html",
+    "intro_criacao-avatar.html",
+  ];
+  const currentPage = window.location.pathname.split("/").pop();
+  const userId = localStorage.getItem("userId");
+
+  if (!userId && protectedPages.includes(currentPage)) {
+    window.location.replace("login.html");
+  }
+})();
+
+// Logout global (limpa sessão e evita retornar logado)
+window.logout = function logout(showConfirm = true) {
+  if (showConfirm && !confirm("Deseja realmente sair?")) return;
+  localStorage.removeItem("userId");
+  localStorage.removeItem("userEmail");
+  window.location.replace("login.html");
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   // --- FUNÇÕES GLOBAIS E UTILITÁRIAS ---
   // (Funções mantidas: isValidEmail, showError, clearError, showSuccess, transitionToPage, goBack, etc.)
@@ -1154,17 +1185,21 @@ document.addEventListener("DOMContentLoaded", () => {
   (function () {
     const THEME_KEY = 'cw_theme';
     const root = document.documentElement;
-    const lightSwitch = document.querySelector('[data-setting="theme-light"], #lightTheme');
+    const switches = document.querySelectorAll('[data-setting="theme-light"], #lightTheme');
+    const isLight = root.getAttribute('data-theme') === 'light';
 
-    // Set the switch state based on the current theme
-    if (lightSwitch) {
-        lightSwitch.checked = root.getAttribute('data-theme') === 'light';
-    }
+    if (switches.length) {
+      switches.forEach((sw) => {
+        sw.checked = isLight;
+      });
 
-    // Toggle no change
-    if (lightSwitch) {
-      lightSwitch.addEventListener('change', (e) => {
-        const enabled = e.target.checked;
+      const syncSwitches = (checked) => {
+        switches.forEach((sw) => {
+          if (sw.checked !== checked) sw.checked = checked;
+        });
+      };
+
+      const applyTheme = (enabled) => {
         if (enabled) {
           root.setAttribute('data-theme', 'light');
           localStorage.setItem(THEME_KEY, 'light');
@@ -1172,6 +1207,13 @@ document.addEventListener("DOMContentLoaded", () => {
           root.removeAttribute('data-theme');
           localStorage.setItem(THEME_KEY, 'dark');
         }
+        syncSwitches(enabled);
+      };
+
+      switches.forEach((sw) => {
+        sw.addEventListener('change', (e) => {
+          applyTheme(e.target.checked);
+        });
       });
     }
   })();
@@ -1179,6 +1221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // 13. PÁGINA DE PERFIL (perfil.html) // <-- MUDOU PARA DENTRO
 const saveAccountBtn = document.getElementById("save-account-btn");
 const editAccountBtn = document.getElementById("edit-account-btn");
+const deleteAccountBtn = document.querySelector(".delete-button");
 if (saveAccountBtn) {
   const usernameInput = document.getElementById("username");
   const emailInput = document.getElementById("email");
@@ -1238,6 +1281,35 @@ if (saveAccountBtn) {
       }
     } catch (error) {
       console.error("Erro ao atualizar dados:", error);
+      alert("Erro de conexão com o servidor. Tente novamente.");
+    }
+  });
+}
+
+// Botão Excluir Conta
+if (deleteAccountBtn) {
+  deleteAccountBtn.addEventListener("click", async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("Erro: ID do usuário não encontrado. Faça login novamente.");
+      return;
+    }
+    const confirmed = confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível.");
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`/api/user/${userId}`, {
+        method: "DELETE"
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok) {
+        alert(data.message || "Conta excluída com sucesso.");
+        window.logout(false);
+      } else {
+        alert(data.message || "Não foi possível excluir a conta.");
+      }
+    } catch (error) {
+      console.error("Erro ao excluir conta:", error);
       alert("Erro de conexão com o servidor. Tente novamente.");
     }
   });

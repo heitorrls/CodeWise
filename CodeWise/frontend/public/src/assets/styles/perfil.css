@@ -451,3 +451,131 @@ body::before {
   .setting-description { font-size: 0.8rem; }
   .setting-input { padding: 11px 13px; font-size: 0.95rem; }
 }
+
+/* ---------------- LIGHT THEME OVERRIDES ---------------- */
+:root[data-theme="light"] body {
+  background: var(--background);
+  color: var(--text);
+}
+:root[data-theme="light"] body::before {
+  opacity: 0;
+}
+
+:root[data-theme="light"] .header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .header h1 {
+  color: var(--primary);
+  text-shadow: none;
+}
+
+:root[data-theme="light"] .sidebar,
+:root[data-theme="light"] .main-content {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+}
+
+:root[data-theme="light"] .nav-item {
+  background: var(--surface-elev-1);
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
+}
+:root[data-theme="light"] .nav-item:hover {
+  background: var(--surface-elev-2);
+  border-color: var(--primary-soft);
+  color: var(--text);
+}
+:root[data-theme="light"] .nav-item.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+:root[data-theme="light"] .page-title {
+  background: none;
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+
+:root[data-theme="light"] .settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .section-title {
+  color: var(--text);
+  border-bottom-color: var(--border-subtle);
+}
+:root[data-theme="light"] .setting-item {
+  border-bottom-color: var(--border-subtle);
+}
+
+:root[data-theme="light"] .setting-label {
+  color: var(--text);
+}
+:root[data-theme="light"] .setting-label.small,
+:root[data-theme="light"] .setting-description {
+  color: var(--text-muted);
+}
+
+:root[data-theme="light"] .setting-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+}
+:root[data-theme="light"] .setting-input:focus {
+  border-color: var(--input-focus);
+  background: #ffffff;
+  box-shadow: var(--focus-ring);
+}
+:root[data-theme="light"] .setting-input::placeholder {
+  color: var(--text-muted);
+}
+
+:root[data-theme="light"] .setting-action-button {
+  background: var(--surface-elev-1);
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
+}
+:root[data-theme="light"] .setting-action-button.edit-button {
+  color: #ffffff;
+}
+:root[data-theme="light"] .setting-action-button:hover {
+  background: var(--surface-elev-2);
+  border-color: var(--primary-soft);
+}
+:root[data-theme="light"] .setting-action-button:active {
+  filter: brightness(0.98);
+}
+:root[data-theme="light"] .save-button {
+  background: var(--primary-gradient);
+  color: #ffffff;
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+:root[data-theme="light"] .delete-section {
+  background: rgba(232, 92, 92, 0.08);
+  border-color: rgba(232, 92, 92, 0.2);
+}
+:root[data-theme="light"] .danger-title {
+  color: var(--danger);
+  border-bottom-color: rgba(232, 92, 92, 0.3);
+}
+:root[data-theme="light"] .danger-text {
+  color: rgba(232, 92, 92, 0.9);
+}
+:root[data-theme="light"] .delete-button {
+  background: rgba(232, 92, 92, 0.12);
+  border-color: rgba(232, 92, 92, 0.3);
+  color: var(--danger);
+}
+:root[data-theme="light"] .delete-button:hover {
+  background: rgba(232, 92, 92, 0.2);
+  border-color: rgba(232, 92, 92, 0.5);
+  color: var(--danger);
+}

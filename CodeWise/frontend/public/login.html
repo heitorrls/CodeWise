@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-default-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,7 +8,14 @@
         <script src="src/assets/js/theme-loader.js"></script>
     <link rel="stylesheet" href="src/assets/styles/theme.css" />
   </head>
-  <body>
+  <body data-default-theme="dark">
+    <div class="theme-toggle-auth">
+      <label class="toggle-switch">
+        <input type="checkbox" id="authThemeToggle" data-setting="theme-light" />
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label">Tema claro</span>
+    </div>
     <div class="container">
       <div class="left-section">
         <div class="logo">CodeWise</div>

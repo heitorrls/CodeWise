@@ -352,8 +352,36 @@ body::before {
     font-size: 3rem;
   }
 
-  .start-btn {
-    padding: 18px 40px;
-    font-size: 1.2rem;
-  }
+.start-btn {
+  padding: 18px 40px;
+  font-size: 1.2rem;
+}
+}
+
+/* ---------------- LIGHT THEME OVERRIDES ---------------- */
+:root[data-theme="light"] body {
+  background: var(--background);
+  color: var(--text);
+}
+:root[data-theme="light"] body::before {
+  opacity: 0;
+}
+:root[data-theme="light"] .header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+:root[data-theme="light"] .header-title {
+  color: var(--text-muted);
+}
+:root[data-theme="light"] .intro-title {
+  background: none;
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+:root[data-theme="light"] .intro-text {
+  color: var(--text);
+}
+:root[data-theme="light"] .start-btn {
+  box-shadow: var(--shadow-sm);
 }
