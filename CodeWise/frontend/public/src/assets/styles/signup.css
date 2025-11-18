@@ -359,6 +359,24 @@ body::before {
   color: #4caf50;
 }
 
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+    gap: 40px;
+    padding: 30px;
+  }
+
+  .left-section,
+  .right-section {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .signup-form {
+    max-width: 500px;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
@@ -383,5 +401,34 @@ body::before {
   .form-title {
     font-size: 1.8rem;
     text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .signup-form {
+    padding: 30px 20px;
+  }
+
+  .form-title {
+    font-size: 1.6rem;
+    margin-bottom: 30px;
+  }
+
+  .input-group input {
+    padding: 12px 15px;
+  }
+
+  .signup-btn {
+    padding: 15px;
+    font-size: 1.1rem;
+  }
+
+  .mascot-container {
+    width: 200px;
+    height: 200px;
   }
 }
