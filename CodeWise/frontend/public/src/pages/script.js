@@ -36,7 +36,14 @@ window.logout = function logout(showConfirm = true) {
   window.location.replace("login.html");
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+// Fallback global for buttons that use inline `onclick="continuar()"` before the script initializes.
+window.continuar = function () {
+  // Safe fallback: direct navigation to login (will be overridden when DOM loads)
+  window.location.href = "login.html";
+};
+
+// Make the DOMContentLoaded handler async so we can use `await` inside it.
+document.addEventListener("DOMContentLoaded", async () => {
   // --- FUNÇÕES GLOBAIS E UTILITÁRIAS ---
   // (Funções mantidas: isValidEmail, showError, clearError, showSuccess, transitionToPage, goBack, etc.)
 
@@ -189,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Login bem-sucedido!
             console.log("Usuário logado:", data.user);
             localStorage.setItem("userId", data.user.id);
-            localStorage.setItem("userEmail", data.user.email)
+            localStorage.setItem("userEmail", data.user.email);
             alert(data.message || "Login realizado com sucesso!");
 
             // Opcional: Salvar token/info do usuário no localStorage, se o backend enviar
@@ -498,7 +505,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // ... (lógica mantida)
   const testCard = document.querySelector(".test-card");
   if (testCard && !document.querySelector(".result-card")) {
-    const testQuestions = [
+    // Tenta carregar as perguntas do backend; se falhar, usa um fallback local
+    let testQuestions = [];
+
+    const fallbackQuestions = [
       {
         question:
           "Qual das alternativas abaixo cria corretamente uma função em JavaScript?",
@@ -535,90 +545,39 @@ document.addEventListener("DOMContentLoaded", () => {
           { letter: "D", text: "final minhaVariavel = 10;", correct: false },
         ],
       },
-      {
-        question:
-          "Qual método é usado para adicionar um elemento ao final de um array?",
-        options: [
-          { letter: "A", text: "array.add(elemento)", correct: false },
-          { letter: "B", text: "array.push(elemento)", correct: true },
-          { letter: "C", text: "array.append(elemento)", correct: false },
-          { letter: "D", text: "array.insert(elemento)", correct: false },
-        ],
-      },
-      {
-        question:
-          "Como você acessa o primeiro elemento de um array chamado 'numeros'?",
-        options: [
-          { letter: "A", text: "numeros[1]", correct: false },
-          { letter: "B", text: "numeros.first()", correct: false },
-          { letter: "C", text: "numeros[0]", correct: true },
-          { letter: "D", text: "numeros.get(0)", correct: false },
-        ],
-      },
-      {
-        question: "Qual é a saída de: console.log(typeof null)?",
-        options: [
-          { letter: "A", text: '"null"', correct: false },
-          { letter: "B", text: '"undefined"', correct: false },
-          { letter: "C", text: '"object"', correct: true },
-          { letter: "D", text: '"boolean"', correct: false },
-        ],
-      },
-      {
-        question:
-          "Qual operador é usado para comparar valor e tipo em JavaScript?",
-        options: [
-          { letter: "A", text: "==", correct: false },
-          { letter: "B", text: "===", correct: true },
-          { letter: "C", text: "=", correct: false },
-          { letter: "D", text: "!=", correct: false },
-        ],
-      },
-      {
-        question: "Como você cria um loop que executa 5 vezes?",
-        options: [
-          { letter: "A", text: "for (i = 0; i <= 5; i++) { }", correct: false },
-          { letter: "B", text: "for (i = 1; i <= 5; i++) { }", correct: false },
-          {
-            letter: "C",
-            text: "for (let i = 0; i < 5; i++) { }",
-            correct: true,
-          },
-          {
-            letter: "D",
-            text: "for (let i = 1; i < 5; i++) { }",
-            correct: false,
-          },
-        ],
-      },
-      {
-        question: "Qual método converte uma string em número inteiro?",
-        options: [
-          { letter: "A", text: "Number.parseInt()", correct: false },
-          { letter: "B", text: "parseInt()", correct: true },
-          { letter: "C", text: "toInteger()", correct: false },
-          { letter: "D", text: "convertInt()", correct: false },
-        ],
-      },
-      {
-        question: "Como você verifica se uma variável é um array?",
-        options: [
-          { letter: "A", text: "typeof variavel === 'array'", correct: false },
-          { letter: "B", text: "variavel instanceof Array", correct: false },
-          { letter: "C", text: "Array.isArray(variavel)", correct: true },
-          { letter: "D", text: "variavel.isArray()", correct: false },
-        ],
-      },
-      {
-        question: "Qual é o resultado de: '5' + 3 em JavaScript?",
-        options: [
-          { letter: "A", text: "8", correct: false },
-          { letter: "B", text: '"53"', correct: true },
-          { letter: "C", text: '"8"', correct: false },
-          { letter: "D", text: "Erro", correct: false },
-        ],
-      },
+      // ... mantenha um menor conjunto de fallback se necessário ...
     ];
+
+    async function loadQuestions() {
+      try {
+        const resp = await fetch("/api/leveling/questions");
+        if (resp.ok) {
+          const data = await resp.json();
+          // data deve vir no formato: [{ question: '...', options: [{ letter, text, correct, id }, ...]}, ...]
+          testQuestions = data.map((q) => ({
+            question: q.question || q.question_text || "",
+            options: (q.options || []).map((opt) => ({
+              letter: opt.letter || "",
+              text: opt.text || opt.option_text || "",
+              correct: !!opt.correct,
+            })),
+          }));
+          if (!testQuestions.length)
+            throw new Error("Sem perguntas retornadas");
+        } else {
+          console.warn(
+            "Falha ao carregar perguntas do servidor, usando fallback. Status:",
+            resp.status
+          );
+          testQuestions = fallbackQuestions;
+        }
+      } catch (err) {
+        console.error("Erro ao buscar perguntas:", err);
+        testQuestions = fallbackQuestions;
+      }
+    }
+
+    await loadQuestions();
 
     let currentQuestion = 0;
     let selectedAnswer = null;
@@ -674,7 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (selectedAnswer === index) {
           optionElement.classList.add("selected");
         }
-        optionElement.innerHTML = `<span class="option-letter">${option.letter}-</span> <span class="option-text">${option.text}</span>`;
+        optionElement.innerHTML = `<span class=\"option-letter\">${option.letter}-</span> <span class=\"option-text\">${option.text}</span>`;
         optionElement.addEventListener("click", () =>
           selectOption(index, optionElement)
         );
@@ -735,7 +694,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Inicialização do Teste
     if (questionTitle) {
-      // Adiciona verificação para evitar erros em outras páginas
       displayQuestion();
       updateProgress();
       updateButtons();
@@ -831,38 +789,43 @@ document.addEventListener("DOMContentLoaded", () => {
     window.proceedToNextStep = function () {
       const advanceBtn = document.querySelector(".advance-btn");
       const originalText = advanceBtn.textContent;
-        advanceBtn.innerHTML = `
+      advanceBtn.innerHTML = `
           <div class="loading">
             <div class="spinner"></div>
             Avançando para a criação de avatar...
           </div>
         `;
-        advanceBtn.disabled = true;
+      advanceBtn.disabled = true;
 
-        (async function () {
-          try {
-            // Tenta marcar o nivelamento como concluído no backend
-            const userId = localStorage.getItem("userId");
-            const level = (window && window.getComputedStyle && typeof classification !== 'undefined') ? classification.level : null;
-            if (userId) {
-              await fetch('/api/leveling/complete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: userId, level: level })
-              });
-            }
-          } catch (err) {
-            console.error('Erro ao marcar nivelamento concluído:', err);
-            // Não impede o fluxo do usuário caso a chamada falhe
-          } finally {
-            // Redireciona independentemente do resultado da chamada
-            setTimeout(() => {
-              transitionToPage("intro_criacao-avatar.html");
-              advanceBtn.textContent = originalText;
-              advanceBtn.disabled = false;
-            }, 1200);
+      (async function () {
+        try {
+          // Tenta marcar o nivelamento como concluído no backend
+          const userId = localStorage.getItem("userId");
+          const level =
+            window &&
+            window.getComputedStyle &&
+            typeof classification !== "undefined"
+              ? classification.level
+              : null;
+          if (userId) {
+            await fetch("/api/leveling/complete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: userId, level: level }),
+            });
           }
-        })();
+        } catch (err) {
+          console.error("Erro ao marcar nivelamento concluído:", err);
+          // Não impede o fluxo do usuário caso a chamada falhe
+        } finally {
+          // Redireciona independentemente do resultado da chamada
+          setTimeout(() => {
+            transitionToPage("intro_criacao-avatar.html");
+            advanceBtn.textContent = originalText;
+            advanceBtn.disabled = false;
+          }, 1200);
+        }
+      })();
     };
 
     // Pega os parâmetros da URL
@@ -992,9 +955,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     savePasswordBtn.addEventListener("click", async () => {
-      const currentPassword = currentPasswordInput ? currentPasswordInput.value : "";
+      const currentPassword = currentPasswordInput
+        ? currentPasswordInput.value
+        : "";
       const newPassword = newPasswordInput ? newPasswordInput.value : "";
-      const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : "";
+      const confirmPassword = confirmPasswordInput
+        ? confirmPasswordInput.value
+        : "";
       const email = localStorage.getItem("userEmail");
 
       if (!email) {
@@ -1018,7 +985,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const response = await fetch("/api/user/password", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, currentPassword, newPassword })
+          body: JSON.stringify({ email, currentPassword, newPassword }),
         });
         const data = await response.json().catch(() => ({}));
         if (response.ok) {
@@ -1040,153 +1007,156 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
- // 12. Pagina home.html (LÓGICA DO MODAL E CHAT ATUALIZADA)
+  // 12. Pagina home.html (LÓGICA DO MODAL E CHAT ATUALIZADA)
 
   // --- LÓGICA DO MODAL (ABRIR/FECHAR) ---
-  const chatFloatBtn = document.getElementById('chatFloatBtn');
-  const chatModalOverlay = document.getElementById('chatModalOverlay');
-  const chatCloseBtn = document.getElementById('chatCloseBtn');
-  const chatInput = document.getElementById('chatInput'); // ID do novo modal
-    
+  const chatFloatBtn = document.getElementById("chatFloatBtn");
+  const chatModalOverlay = document.getElementById("chatModalOverlay");
+  const chatCloseBtn = document.getElementById("chatCloseBtn");
+  const chatInput = document.getElementById("chatInput"); // ID do novo modal
+
   if (chatFloatBtn && chatModalOverlay && chatCloseBtn && chatInput) {
-      // Abrir
-      chatFloatBtn.addEventListener('click', () => {
-          chatModalOverlay.classList.add('active');
-          chatInput.focus();
-          document.body.style.overflow = 'hidden'; // Previne scroll do body
-      });
+    // Abrir
+    chatFloatBtn.addEventListener("click", () => {
+      chatModalOverlay.classList.add("active");
+      chatInput.focus();
+      document.body.style.overflow = "hidden"; // Previne scroll do body
+    });
 
-      // Função para fechar o modal
-      function closeModal() {
-          chatModalOverlay.classList.remove('active');
-          document.body.style.overflow = 'auto'; // Restaura scroll
+    // Função para fechar o modal
+    function closeModal() {
+      chatModalOverlay.classList.remove("active");
+      document.body.style.overflow = "auto"; // Restaura scroll
+    }
+
+    // Fechar pelo botão X
+    chatCloseBtn.addEventListener("click", closeModal);
+
+    // Fechar clicando fora (no overlay)
+    chatModalOverlay.addEventListener("click", (e) => {
+      if (e.target === chatModalOverlay) {
+        closeModal();
       }
+    });
 
-      // Fechar pelo botão X
-      chatCloseBtn.addEventListener('click', closeModal);
-
-      // Fechar clicando fora (no overlay)
-      chatModalOverlay.addEventListener('click', (e) => {
-          if (e.target === chatModalOverlay) {
-              closeModal();
-          }
-      });
-
-      // Fechar com a tecla ESC
-      document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && chatModalOverlay.classList.contains('active')) {
-              closeModal();
-          }
-      });
+    // Fechar com a tecla ESC
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && chatModalOverlay.classList.contains("active")) {
+        closeModal();
+      }
+    });
   }
-    
+
   // --- LÓGICA DE ENVIO DE MENSAGEM (MERGE DA SUA API + NOVO MODAL) ---
-  const chatSendBtn = document.getElementById('chatSendBtn'); // ID do novo modal
-  const chatMessages = document.getElementById('chatMessages'); // ID do novo modal
+  const chatSendBtn = document.getElementById("chatSendBtn"); // ID do novo modal
+  const chatMessages = document.getElementById("chatMessages"); // ID do novo modal
   // O chatInput já foi selecionado ali em cima
-    
+
   if (chatSendBtn && chatInput && chatMessages) {
-        
-      // Esta função 'sendMessage' AGORA usa sua API real
-      async function sendMessage() {
-          const message = chatInput.value.trim();
-          if (!message) return;
+    // Esta função 'sendMessage' AGORA usa sua API real
+    async function sendMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
 
-          // Adiciona mensagem do usuário
-          addMessage('user', message);
-          chatInput.value = '';
+      // Adiciona mensagem do usuário
+      addMessage("user", message);
+      chatInput.value = "";
 
-          // Adiciona o indicador de "digitando"
-          const typingMsg = addTypingIndicator();
+      // Adiciona o indicador de "digitando"
+      const typingMsg = addTypingIndicator();
 
-          try {
-              // **AQUI ESTÁ A SUA LÓGICA DE API REAL**
-              const response = await fetch("/api/chat", { 
-                  method: "POST",
-                  headers: {
-                      "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ prompt: message }), 
-              });
+      try {
+        // **AQUI ESTÁ A SUA LÓGICA DE API REAL**
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prompt: message }),
+        });
 
-              if (!response.ok) {
-                  throw new Error("Erro ao contatar o assistente.");
-              }
+        if (!response.ok) {
+          throw new Error("Erro ao contatar o assistente.");
+        }
 
-              const data = await response.json();
-              const geminiReply = data.response; 
+        const data = await response.json();
+        const geminiReply = data.response;
 
-              // Remove o indicador de "digitando"
-              typingMsg.remove();
-                
-              if (geminiReply) {
-                  // Adiciona a resposta real do Gemini
-                  addMessage('assistant', geminiReply); 
-              } else {
-                  addMessage('assistant', "Recebi uma resposta vazia.");
-              }
+        // Remove o indicador de "digitando"
+        typingMsg.remove();
 
-          } catch (error) {
-              console.error("Erro no chat:", error);
-              // Remove o indicador de "digitando" mesmo se der erro
-              if (typingMsg) {
-                typingMsg.remove();
-              }
-              addMessage('assistant', "Desculpe, estou com problemas para conectar. Tente novamente.");
-          }
+        if (geminiReply) {
+          // Adiciona a resposta real do Gemini
+          addMessage("assistant", geminiReply);
+        } else {
+          addMessage("assistant", "Recebi uma resposta vazia.");
+        }
+      } catch (error) {
+        console.error("Erro no chat:", error);
+        // Remove o indicador de "digitando" mesmo se der erro
+        if (typingMsg) {
+          typingMsg.remove();
+        }
+        addMessage(
+          "assistant",
+          "Desculpe, estou com problemas para conectar. Tente novamente."
+        );
       }
+    }
 
-      // Função para adicionar mensagem (do novo modal)
-      function addMessage(type, content) {
-          const messageDiv = document.createElement('div');
-          messageDiv.className = `message ${type}`;
-            
-          const messageContent = document.createElement('div');
-          messageContent.className = 'message-content';
-          messageContent.textContent = content; // Usar textContent é mais seguro
-            
-          messageDiv.appendChild(messageContent);
-          chatMessages.appendChild(messageDiv);
-            
-          // Scroll automático para o final
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-          return messageDiv;
+    // Função para adicionar mensagem (do novo modal)
+    function addMessage(type, content) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${type}`;
+
+      const messageContent = document.createElement("div");
+      messageContent.className = "message-content";
+      messageContent.textContent = content; // Usar textContent é mais seguro
+
+      messageDiv.appendChild(messageContent);
+      chatMessages.appendChild(messageDiv);
+
+      // Scroll automático para o final
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      return messageDiv;
+    }
+
+    // Função de indicador de digitação (do novo modal)
+    function addTypingIndicator() {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = "message assistant";
+
+      const typingDiv = document.createElement("div");
+      typingDiv.className = "message-content typing-indicator";
+      typingDiv.innerHTML = "<span></span><span></span><span></span>";
+
+      messageDiv.appendChild(typingDiv);
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      return messageDiv;
+    }
+
+    // Eventos de envio (Botão e Enter)
+    chatSendBtn.addEventListener("click", sendMessage);
+
+    chatInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault(); // Evita que o 'Enter' pule linha no input
+        sendMessage();
       }
-
-      // Função de indicador de digitação (do novo modal)
-      function addTypingIndicator() {
-          const messageDiv = document.createElement('div');
-          messageDiv.className = 'message assistant';
-            
-          const typingDiv = document.createElement('div');
-          typingDiv.className = 'message-content typing-indicator';
-          typingDiv.innerHTML = '<span></span><span></span><span></span>';
-            
-          messageDiv.appendChild(typingDiv);
-          chatMessages.appendChild(messageDiv);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-          return messageDiv;
-      }
-
-      // Eventos de envio (Botão e Enter)
-      chatSendBtn.addEventListener('click', sendMessage);
-
-      chatInput.addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault(); // Evita que o 'Enter' pule linha no input
-            sendMessage();
-          }
-      });
+    });
   }
-  
-// THEME: Toggle Claro/Escuro com persistência
+
+  // THEME: Toggle Claro/Escuro com persistência
   (function () {
-    const THEME_KEY = 'cw_theme';
+    const THEME_KEY = "cw_theme";
     const root = document.documentElement;
-    const switches = document.querySelectorAll('[data-setting="theme-light"], #lightTheme');
-    const isLight = root.getAttribute('data-theme') === 'light';
+    const switches = document.querySelectorAll(
+      '[data-setting="theme-light"], #lightTheme'
+    );
+    const isLight = root.getAttribute("data-theme") === "light";
 
     if (switches.length) {
       switches.forEach((sw) => {
@@ -1201,118 +1171,124 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const applyTheme = (enabled) => {
         if (enabled) {
-          root.setAttribute('data-theme', 'light');
-          localStorage.setItem(THEME_KEY, 'light');
+          root.setAttribute("data-theme", "light");
+          localStorage.setItem(THEME_KEY, "light");
         } else {
-          root.removeAttribute('data-theme');
-          localStorage.setItem(THEME_KEY, 'dark');
+          root.removeAttribute("data-theme");
+          localStorage.setItem(THEME_KEY, "dark");
         }
         syncSwitches(enabled);
       };
 
       switches.forEach((sw) => {
-        sw.addEventListener('change', (e) => {
+        sw.addEventListener("change", (e) => {
           applyTheme(e.target.checked);
         });
       });
     }
   })();
-  
-// 13. PÁGINA DE PERFIL (perfil.html) // <-- MUDOU PARA DENTRO
-const saveAccountBtn = document.getElementById("save-account-btn");
-const editAccountBtn = document.getElementById("edit-account-btn");
-const deleteAccountBtn = document.querySelector(".delete-button");
-if (saveAccountBtn) {
-  const usernameInput = document.getElementById("username");
-  const emailInput = document.getElementById("email");
 
-  // Preenche o email do usuário logado e bloqueia por padrão
-  const userEmail = localStorage.getItem("userEmail");
-  if (emailInput && userEmail) {
-    emailInput.value = userEmail;
-  }
-  // Bloqueia os campos por padrão
-  if (usernameInput) usernameInput.disabled = true;
-  if (emailInput) emailInput.disabled = true;
+  // 13. PÁGINA DE PERFIL (perfil.html) // <-- MUDOU PARA DENTRO
+  const saveAccountBtn = document.getElementById("save-account-btn");
+  const editAccountBtn = document.getElementById("edit-account-btn");
+  const deleteAccountBtn = document.querySelector(".delete-button");
+  if (saveAccountBtn) {
+    const usernameInput = document.getElementById("username");
+    const emailInput = document.getElementById("email");
 
-  // Botão Editar habilita os campos para edição
-  if (editAccountBtn) {
-    editAccountBtn.addEventListener("click", () => {
-      if (usernameInput) usernameInput.disabled = false;
-      if (emailInput) emailInput.disabled = false;
-      if (usernameInput) usernameInput.focus();
+    // Preenche o email do usuário logado e bloqueia por padrão
+    const userEmail = localStorage.getItem("userEmail");
+    if (emailInput && userEmail) {
+      emailInput.value = userEmail;
+    }
+    // Bloqueia os campos por padrão
+    if (usernameInput) usernameInput.disabled = true;
+    if (emailInput) emailInput.disabled = true;
+
+    // Botão Editar habilita os campos para edição
+    if (editAccountBtn) {
+      editAccountBtn.addEventListener("click", () => {
+        if (usernameInput) usernameInput.disabled = false;
+        if (emailInput) emailInput.disabled = false;
+        if (usernameInput) usernameInput.focus();
+      });
+    }
+
+    // Botão Salvar envia as alterações
+    saveAccountBtn.addEventListener("click", async () => {
+      const newUsername = usernameInput ? usernameInput.value.trim() : "";
+      const newEmail = emailInput ? emailInput.value.trim() : "";
+      const userId = localStorage.getItem("userId");
+
+      if (!userId) {
+        alert("Erro: ID do usuário não encontrado. Faça login novamente.");
+        return;
+      }
+      if (!newUsername && !newEmail) {
+        alert("Nada para atualizar.");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/user", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: userId,
+            username: newUsername,
+            email: newEmail,
+          }),
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (response.ok) {
+          // Atualiza localStorage do email se alterado
+          if (newEmail) {
+            localStorage.setItem("userEmail", newEmail);
+          }
+          alert(data.message || "Dados atualizados com sucesso.");
+          // Rebloqueia os campos após salvar
+          if (usernameInput) usernameInput.disabled = true;
+          if (emailInput) emailInput.disabled = true;
+        } else {
+          alert(data.message || "Erro ao atualizar dados.");
+        }
+      } catch (error) {
+        console.error("Erro ao atualizar dados:", error);
+        alert("Erro de conexão com o servidor. Tente novamente.");
+      }
     });
   }
 
-  // Botão Salvar envia as alterações
-  saveAccountBtn.addEventListener("click", async () => {
-    const newUsername = usernameInput ? usernameInput.value.trim() : "";
-    const newEmail = emailInput ? emailInput.value.trim() : "";
-    const userId = localStorage.getItem("userId");
+  // Botão Excluir Conta
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener("click", async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        alert("Erro: ID do usuário não encontrado. Faça login novamente.");
+        return;
+      }
+      const confirmed = confirm(
+        "Tem certeza que deseja excluir sua conta? Esta ação é irreversível."
+      );
+      if (!confirmed) return;
 
-    if (!userId) {
-      alert("Erro: ID do usuário não encontrado. Faça login novamente.");
-      return;
-    }
-    if (!newUsername && !newEmail) {
-      alert("Nada para atualizar.");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/user", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: userId, username: newUsername, email: newEmail }),
-      });
-
-      const data = await response.json().catch(() => ({}));
-      if (response.ok) {
-        // Atualiza localStorage do email se alterado
-        if (newEmail) {
-          localStorage.setItem("userEmail", newEmail);
+      try {
+        const response = await fetch(`/api/user/${userId}`, {
+          method: "DELETE",
+        });
+        const data = await response.json().catch(() => ({}));
+        if (response.ok) {
+          alert(data.message || "Conta excluída com sucesso.");
+          window.logout(false);
+        } else {
+          alert(data.message || "Não foi possível excluir a conta.");
         }
-        alert(data.message || "Dados atualizados com sucesso.");
-        // Rebloqueia os campos após salvar
-        if (usernameInput) usernameInput.disabled = true;
-        if (emailInput) emailInput.disabled = true;
-      } else {
-        alert(data.message || "Erro ao atualizar dados.");
+      } catch (error) {
+        console.error("Erro ao excluir conta:", error);
+        alert("Erro de conexão com o servidor. Tente novamente.");
       }
-    } catch (error) {
-      console.error("Erro ao atualizar dados:", error);
-      alert("Erro de conexão com o servidor. Tente novamente.");
-    }
-  });
-}
-
-// Botão Excluir Conta
-if (deleteAccountBtn) {
-  deleteAccountBtn.addEventListener("click", async () => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      alert("Erro: ID do usuário não encontrado. Faça login novamente.");
-      return;
-    }
-    const confirmed = confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível.");
-    if (!confirmed) return;
-
-    try {
-      const response = await fetch(`/api/user/${userId}`, {
-        method: "DELETE"
-      });
-      const data = await response.json().catch(() => ({}));
-      if (response.ok) {
-        alert(data.message || "Conta excluída com sucesso.");
-        window.logout(false);
-      } else {
-        alert(data.message || "Não foi possível excluir a conta.");
-      }
-    } catch (error) {
-      console.error("Erro ao excluir conta:", error);
-      alert("Erro de conexão com o servidor. Tente novamente.");
-    }
-  });
-}
+    });
+  }
 });
 // ... (aqui vem o "});" final do seu script)

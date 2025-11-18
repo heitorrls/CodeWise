@@ -9,6 +9,17 @@ const User = {
     });
   },
 
+  findByUsername: (username, callback) => {
+    db.query(
+      "SELECT * FROM users WHERE username = ?",
+      [username],
+      (err, results) => {
+        if (err) return callback(err, null);
+        callback(null, results[0]);
+      }
+    );
+  },
+
   create: (email, username, password, callback) => {
     // Gera o hash da senha
     const hash = bcrypt.hashSync(password, 10);

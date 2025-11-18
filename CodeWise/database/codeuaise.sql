@@ -423,3 +423,153 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-11-06 10:50:53
+ALTER TABLE users 
+ADD COLUMN leveling_completed TINYINT(1) DEFAULT 0,
+ADD COLUMN level VARCHAR(50) DEFAULT NULL;
+
+DROP TABLE IF EXISTS respostas_nivelamento;
+DROP TABLE IF EXISTS alternativas_nivelamento;
+DROP TABLE IF EXISTS perguntas_nivelamento;
+DROP TABLE IF EXISTS teste_nivelamento;
+DROP TABLE IF EXISTS resultado_nivelamento;
+
+-- 1. Tabela das PERGUNTAS
+CREATE TABLE teste_nivelamento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    enunciado TEXT NOT NULL
+);
+
+-- 2. Tabela das ALTERNATIVAS (Opções de cada pergunta)
+CREATE TABLE alternativas_nivelamento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pergunta_id INT NOT NULL,
+    texto TEXT NOT NULL,
+    correta TINYINT(1) DEFAULT 0,
+    FOREIGN KEY (pergunta_id) REFERENCES teste_nivelamento(id) ON DELETE CASCADE
+);
+
+-- 3. Tabela das RESPOSTAS DO USUÁRIO (Histórico)
+CREATE TABLE respostas_nivelamento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    pergunta_id INT NOT NULL,
+    alternativa_escolhida_id INT NOT NULL,
+    data_resposta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (pergunta_id) REFERENCES teste_nivelamento(id) ON DELETE CASCADE,
+    FOREIGN KEY (alternativa_escolhida_id) REFERENCES alternativas_nivelamento(id) ON DELETE CASCADE
+);
+
+-- === INSERINDO AS QUESTÕES ===
+
+-- Questão 1
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (1, 'Qual das opções declara corretamente uma função em JavaScript?');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(1, 'function = minhaFunc() {}', 0),
+(1, 'minhaFunc function() {}', 0),
+(1, 'function minhaFunc() {}', 1),
+(1, 'func minhaFunc() {}', 0);
+
+-- Questão 2
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (2, 'O método usado para adicionar um elemento ao final de um array é:');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(2, 'append()', 0),
+(2, 'add()', 0),
+(2, 'push()', 1),
+(2, 'concat()', 0);
+
+-- Questão 3
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (3, 'A estrutura switch é usada como alternativa ao if/else quando há múltiplos casos baseados em um mesmo valor.');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(3, 'Verdadeiro', 1),
+(3, 'Falso', 0);
+
+-- Questão 4
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (4, 'O que o código "console.log(10 == \'10\', 10 === \'10\')" imprime?');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(4, 'true false', 1),
+(4, 'false true', 0),
+(4, 'true true', 0),
+(4, 'false false', 0);
+
+-- Questão 5
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (5, 'Para converter uma string em número inteiro, usamos parse__________().');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(5, 'Text', 0),
+(5, 'Float', 0),
+(5, 'Int', 1),
+(5, 'Number', 0);
+
+-- Questão 6
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (6, 'O método map() percorre um array e retorna um novo array transformado.');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(6, 'Verdadeiro', 1),
+(6, 'Falso', 0);
+
+-- Questão 7
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (7, 'Qual saída o código a seguir gera? function teste(a = 5, b = 10) { return a + b; } console.log(teste(2));');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(7, '7', 0),
+(7, '12', 1),
+(7, '15', 0),
+(7, 'undefined', 0);
+
+-- Questão 8
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (8, 'O operador __________ é usado para verificar tanto o valor quanto o tipo de uma variável.');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(8, '==', 0),
+(8, '=', 0),
+(8, '===', 1),
+(8, ':=', 0);
+
+-- Questão 9
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (9, 'O que o código imprime? let a = [1, 2, 3]; let b = a; b.push(4); console.log(a);');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(9, '[1, 2, 3]', 0),
+(9, '[1, 2, 3, 4]', 1),
+(9, '[4, 3, 2, 1]', 0),
+(9, 'Erro de referência', 0);
+
+-- Questão 10
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (10, 'O operador typeof pode ser usado para identificar o tipo de uma variável em tempo de execução.');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(10, 'Verdadeiro', 1),
+(10, 'Falso', 0);
+
+-- Questão 11
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (11, 'Sobre arrow functions, é correto afirmar que:');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(11, 'São funções que sempre precisam de return', 0),
+(11, 'Criam um novo this', 0),
+(11, 'Herdam o this do escopo onde foram criadas', 1),
+(11, 'Só funcionam em classes', 0);
+
+-- Questão 12
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (12, 'O método __________ é usado para remover o último elemento de um array.');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(12, 'pop()', 1),
+(12, 'remove()', 0),
+(12, 'delete()', 0),
+(12, 'drop()', 0);
+
+-- Questão 13
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (13, 'O que acontece ao tentar alterar uma propriedade de um objeto declarado com const?');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(13, 'Gera erro por reatribuição', 0),
+(13, 'Muda o valor da variável usuario', 0),
+(13, 'Altera a propriedade nome normalmente', 1),
+(13, 'Deleta o objeto', 0);
+
+-- Questão 14
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (14, 'Para aguardar a execução de uma Promise dentro de uma função assíncrona, usamos a palavra-chave:');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(14, 'wait', 0),
+(14, 'hold', 0),
+(14, 'await', 1),
+(14, 'defer', 0);
+
+-- Questão 15
+INSERT INTO teste_nivelamento (id, enunciado) VALUES (15, 'Em JavaScript, funções podem ser passadas como parâmetros para outras funções.');
+INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
+(15, 'Verdadeiro', 1),
+(15, 'Falso', 0);
