@@ -232,26 +232,53 @@ body::before {
     opacity: 0.7;
 }
 
-@media (max-width: 768px) {
+/* ---------------- Media Queries for Responsiveness ---------------- */
+
+@media (max-width: 992px) {
     .container {
         flex-direction: column;
         text-align: center;
         gap: 40px;
-        padding: 20px;
+        padding: 30px;
     }
 
-    .right-section {
+    .left-section, .right-section {
+        align-items: center;
         padding-left: 0;
     }
 
     .logo {
-        font-size: 2.5rem;
-        text-align: center;
+        font-size: 3rem;
         margin-bottom: 20px;
     }
 
     .welcome-title {
-        font-size: 2rem;
+        font-size: 2.5rem;
+    }
+
+    .welcome-text {
+        font-size: 1.2rem;
+    }
+
+    .mascot {
+        width: 250px;
+        height: 250px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        gap: 30px;
+    }
+
+    .logo {
+        font-size: 2.5rem;
+    }
+
+    .welcome-title {
+        font-size: 2.2rem;
     }
 
     .welcome-text {
@@ -261,9 +288,64 @@ body::before {
     .mascot {
         width: 220px;
         height: 220px;
-        margin: 0 auto;
+    }
+
+    .continue-btn {
+        padding: 16px 35px;
+        font-size: 1.1rem;
     }
 }
+
+@media (max-width: 480px) {
+    body {
+        padding-top: 60px; /* Space for theme toggle */
+    }
+
+    .theme-toggle-auth {
+        top: 15px;
+        right: 15px;
+    }
+
+    .container {
+        padding: 15px;
+        gap: 20px;
+    }
+
+    .logo {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+
+    .welcome-title {
+        font-size: 1.8rem;
+    }
+
+    .welcome-text {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .mascot {
+        width: 180px;
+        height: 180px;
+    }
+
+    .continue-btn {
+        width: 100%;
+        padding: 15px 30px;
+        font-size: 1rem;
+    }
+
+    .footer-text {
+        position: relative;
+        text-align: center;
+        bottom: auto;
+        right: auto;
+        margin-top: 20px;
+        font-size: 0.8rem;
+    }
+}
+
 
 /* ---------------- LIGHT THEME OVERRIDES ---------------- */
 :root[data-theme="light"] body {
