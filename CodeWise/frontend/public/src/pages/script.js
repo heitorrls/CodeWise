@@ -1106,21 +1106,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Função para adicionar mensagem (do novo modal)
     function addMessage(type, content) {
-      const messageDiv = document.createElement("div");
-      messageDiv.className = `message ${type}`;
-
-      const messageContent = document.createElement("div");
-      messageContent.className = "message-content";
-      messageContent.textContent = content; // Usar textContent é mais seguro
-
-      messageDiv.appendChild(messageContent);
-      chatMessages.appendChild(messageDiv);
-
-      // Scroll automático para o final
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      return messageDiv;
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`; // 'user' ou 'assistant'
+      
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    
+    // SE FOR O ROBÔ (assistant), CONVERTE O MARKDOWN EM HTML
+    if (type === 'assistant') {
+        // marked.parse converte **texto** em <b>texto</b>, etc.
+        messageContent.innerHTML = marked.parse(content); 
+    } else {
+        // Se for o usuário, mantém texto puro por segurança
+        messageContent.textContent = content; 
     }
+      
+    messageDiv.appendChild(messageContent);
+    chatMessages.appendChild(messageDiv);
+      
+    // Scroll automático para o final
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+    return messageDiv;
+}
 
     // Função de indicador de digitação (do novo modal)
     function addTypingIndicator() {

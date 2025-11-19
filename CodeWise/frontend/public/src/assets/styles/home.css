@@ -1266,3 +1266,73 @@ background: #8b7cc8; /* Cor principal */
   border-color: var(--input-focus);
   box-shadow: var(--focus-ring);
 }
+/* --- ESTILOS MARKDOWN PARA RESPOSTAS DO CODEBUDDY --- */
+
+/* Ajuste do conteúdo principal para melhor legibilidade */
+.message-content {
+    line-height: 1.6;
+    font-size: 0.95rem;
+    /* Incluindo estilos para o modal fullscreen */
+}
+.chat-modal-overlay .message-content {
+    font-size: 1rem;
+}
+
+
+/* 1. Títulos de Seção (### Título) */
+.message-content h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #c7a9ff; /* Roxo claro para destaque */
+    font-size: 1.3rem; /* Título um pouco maior */
+    font-weight: bold;
+    border-bottom: 1px solid rgba(139, 124, 200, 0.4);
+    padding-bottom: 5px;
+}
+
+/* 2. Negrito (**Texto**) */
+.message-content strong {
+    color: #FFFFFF; /* Destaque máximo em branco */
+    font-weight: 700;
+}
+
+/* 3. Blocos de Código (```javascript) */
+.message-content pre {
+    background-color: rgba(0, 0, 0, 0.4); /* Fundo bem escuro e semi-transparente */
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+    overflow-x: auto; /* Garante scroll em códigos longos */
+    border: 1px solid rgba(139, 124, 200, 0.4);
+    box-shadow: 0 0 5px rgba(139, 124, 200, 0.1);
+}
+
+/* 4. Conteúdo do Código */
+.message-content code {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #98e8a0; /* Verde suave para código, fácil de ler */
+    white-space: pre; 
+}
+
+/* 5. Código Inline (`texto`) */
+.message-content p code, 
+.message-content li code {
+    background-color: rgba(139, 124, 200, 0.25); /* Fundo roxo suave para inline */
+    padding: 3px 6px;
+    border-radius: 4px;
+    color: #c7a9ff;
+}
+
+/* 6. Listas */
+.message-content ul, 
+.message-content ol {
+    margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    color: #d0c8e8; /* Cor suave para texto da lista */
+}
+.message-content li {
+    margin-bottom: 5px;
+}
