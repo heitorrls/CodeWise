@@ -422,3 +422,179 @@ body::before {
         font-size: 0.9rem;
     }
 }
+/* =========================================
+   TEMA CLARO (LIGHT MODE)
+   Inspirado em home.css
+   ========================================= */
+
+:root[data-theme="light"] body {
+  background: var(--background);
+  color: var(--text);
+}
+
+/* Remove o efeito de estrelas no fundo claro */
+:root[data-theme="light"] body::before {
+  opacity: 0;
+}
+
+/* --- HEADER E SIDEBAR (Padrão CodeWise) --- */
+:root[data-theme="light"] .header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+:root[data-theme="light"] .header h1 {
+  color: var(--primary);
+  text-shadow: none;
+}
+
+:root[data-theme="light"] .sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+}
+
+:root[data-theme="light"] .nav-item {
+  background: var(--surface-elev-1);
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
+}
+
+:root[data-theme="light"] .nav-item:hover {
+  background: var(--surface-elev-2);
+  border-color: var(--primary-soft);
+  color: var(--text);
+}
+
+:root[data-theme="light"] .nav-item.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+/* --- ÁREA PRINCIPAL --- */
+:root[data-theme="light"] .main-content {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  border-radius: 25px;
+}
+
+/* Wrapper Interno do Calendário */
+:root[data-theme="light"] .calendar-wrapper {
+background: transparent; /* Remove o fundo para usar o do main-content */
+  border: none; /* Remove a borda */
+  box-shadow: none; /* Remove a sombra */
+  max-width: 100%; /* Ocupa toda a largura do main-content */
+  padding: 30px; /* Remove o espaçamento interno extra */
+}
+
+/* --- ELEMENTOS DO CALENDÁRIO --- */
+
+/* Título do Mês e Navegação */
+:root[data-theme="light"] .calendar-header h2 {
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .calendar-header button {
+  background: var(--surface-elev-2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+:root[data-theme="light"] .calendar-header button:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Dias da Semana */
+:root[data-theme="light"] .weekday {
+  color: var(--text-secondary);
+}
+
+/* Células dos Dias */
+:root[data-theme="light"] .day {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+:root[data-theme="light"] .day:hover {
+  background: var(--surface-elev-2);
+  border-color: var(--primary-soft);
+  transform: translateY(-2px);
+}
+
+/* Dia Realizado (Verde) */
+:root[data-theme="light"] .day.active-day {
+  background: var(--success) !important; /* Usa o verde do seu tema */
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 10px rgba(46, 175, 125, 0.3);
+}
+
+/* Dia de Hoje */
+:root[data-theme="light"] .day.today {
+  border: 2px solid var(--primary);
+}
+
+/* Banner de Streak (Ofensiva) */
+:root[data-theme="light"] .streak-banner {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+:root[data-theme="light"] .streak-count {
+  color: var(--primary);
+}
+
+:root[data-theme="light"] .streak-label {
+  color: var(--text-secondary);
+}
+
+/* --- SIDEBAR DIREITA E LEGENDA (TEMA CLARO) --- */
+
+/* Estilo do container da sidebar (se estiver visível) */
+:root[data-theme="light"] .right-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  background: transparent;
+}
+
+/* Estilo do container da legenda (que está dentro ou fora da sidebar) */
+:root[data-theme="light"] .stats-missions-container {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+  border-radius: 20px;
+}
+
+/* Título "Legenda" */
+:root[data-theme="light"] .stats-missions-container h3 {
+  color: var(--primary); /* Roxo do tema para destaque */
+  border-bottom: 1px solid var(--border-subtle); /* Linha separadora sutil */
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+/* Texto dos itens da legenda */
+:root[data-theme="light"] .legend-item span {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Bolinhas da legenda no tema claro */
+:root[data-theme="light"] .circle.gray {
+  background: var(--surface-elev-2);
+  border: 1px solid var(--border-subtle);
+}
+
+:root[data-theme="light"] .circle.green {
+  background: var(--success);
+  box-shadow: 0 2px 6px rgba(46, 175, 125, 0.25); /* Sombra suave verde */
+}
