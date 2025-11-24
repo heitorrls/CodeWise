@@ -1300,3 +1300,92 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 // ... (aqui vem o "});" final do seu script)
+
+// 14 Pagina do calendario.html
+document.addEventListener('DOMContentLoaded', async () => {
+        const userId = localStorage.getItem('userId');
+        if(!userId) return;
+
+        const monthYearElement = document.getElementById('monthYear');
+        const calendarDaysElement = document.getElementById('calendarDays');
+        const streakCountElement = document.getElementById('streakCount');
+        const prevBtn = document.getElementById('prevMonth');
+        const nextBtn = document.getElementById('nextMonth');
+
+        let currentDate = new Date();
+        let loginDates = [];
+
+        // 1. Buscar dados do Backend
+        try {
+            const response = await fetch(`/api/calendar/${userId}`);
+            const data = await response.json();
+            loginDates = data.dates; // Array de strings 'YYYY-MM-DD'
+            streakCountElement.textContent = data.streak || 0;
+            renderCalendar();
+        } catch (error) {
+            console.error("Erro ao carregar calendário:", error);
+        }
+
+        // 2. Função de Renderização
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            // Nomes dos meses
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+                              "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            
+            monthYearElement.textContent = `${monthNames[month]} ${year}`;
+            calendarDaysElement.innerHTML = "";
+
+            // Primeiro dia do mês e total de dias
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const lastDay = new Date(year, month + 1, 0).getDate();
+
+            // Dias em branco antes do dia 1
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyDiv = document.createElement('div');
+                calendarDaysElement.appendChild(emptyDiv);
+            }
+
+            // Preencher dias
+            for (let i = 1; i <= lastDay; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('day');
+                dayDiv.textContent = i;
+
+                // Formata a data atual do loop para YYYY-MM-DD para comparar
+                const checkDate = new Date(year, month, i);
+                // Ajuste de timezone para garantir que a string bata corretamente
+                // Uma forma simples é formatar manualmente:
+                const yyyy = checkDate.getFullYear();
+                const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(checkDate.getDate()).padStart(2, '0');
+                const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+                // Verifica se esta data está no histórico de logins
+                if (loginDates.includes(formattedDate)) {
+                    dayDiv.classList.add('active-day'); // VERDE
+                }
+
+                // Marca o dia de "hoje" com uma borda ou cor diferente se quiser
+                const today = new Date();
+                if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    dayDiv.classList.add('today');
+                }
+
+                calendarDaysElement.appendChild(dayDiv);
+            }
+        }
+
+        // Controles de navegação
+        prevBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+      });

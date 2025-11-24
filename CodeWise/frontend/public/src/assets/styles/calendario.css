@@ -78,14 +78,17 @@ body::before {
 /* Container Principal */
 .container {
   display: grid;
-  grid-template-columns: 250px 1fr;
+  grid-template-columns: 280px 1fr; /* Aumentei um pouco a sidebar para equilibrar */
   grid-template-rows: 70px 1fr;
   grid-template-areas:
     "header header"
     "sidebar main";
-  gap: 20px;
-  padding: 85px 20px 20px;
-  max-width: 1400px;
+  gap: 30px; /* Aumentado de 20px para 30px */
+  padding: 90px 40px 40px; /* Mais espaçamento nas laterais */
+  
+  /* AQUI ESTÁ A MUDANÇA PRINCIPAL */
+  max-width: 2000px; 
+  
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
@@ -158,10 +161,15 @@ body::before {
 .calendar-container {
   background: rgba(26, 27, 58, 0.7);
   border: 1px solid rgba(139, 124, 200, 0.2);
-  border-radius: 15px;
-  padding: 30px;
+  border-radius: 25px; /* Arredondamento maior */
+  padding: 50px; /* Padding aumentado de 30px para 50px */
   position: relative;
   animation: fadeInUp 0.6s ease;
+  
+  /* Garante que ele use o espaço mas centralize se ficar excessivamente largo */
+  width: 100%; 
+  max-width: 1600px; /* Limite de segurança interno */
+  margin: 0 auto;
 }
 
 @keyframes fadeInUp {
@@ -254,24 +262,27 @@ body::before {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
-  margin-bottom: 30px;
+  gap: 20px; /* Aumentado de 12px para 20px para preencher mais espaço */
+  margin-bottom: 40px;
 }
 
 .calendar-day {
-  aspect-ratio: 1;
-  border-radius: 50%;
+  aspect-ratio: 1.2; /* Mudado de 1 para 1.2 para ficar levemente retangular/largo */
+  border-radius: 20px; /* Bordas menos arredondadas (mais quadrado arredondado) */
   background: rgba(26, 27, 58, 0.8);
   border: 2px solid rgba(139, 124, 200, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  
+  /* Fontes maiores para acompanhar a largura */
+  font-size: 1.6rem; 
   font-weight: 600;
+  
   color: #b8b0d0;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 55px;
+  min-height: 80px; /* Altura mínima maior */
 }
 
 .calendar-day:hover {
@@ -634,4 +645,161 @@ body::before {
   .stat-value {
     font-size: 1.6rem;
   }
+}
+/* Estilos específicos para o container do calendário */
+.calendar-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: rgba(26, 27, 58, 0.6);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Banner de Ofensiva */
+.streak-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    background: linear-gradient(135deg, #ff9966, #ff5e62);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    color: white;
+    box-shadow: 0 5px 15px rgba(255, 94, 98, 0.4);
+}
+
+.streak-banner i {
+    font-size: 2.5rem;
+    animation: burn 1s infinite alternate;
+}
+
+@keyframes burn {
+    from { transform: scale(1); text-shadow: 0 0 10px orange; }
+    to { transform: scale(1.1); text-shadow: 0 0 20px yellow; }
+}
+
+.streak-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.streak-count {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Cabeçalho do Calendário */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    color: #a89bd1;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.calendar-header button:hover {
+    color: white;
+}
+
+.calendar-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Grid do Calendário */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 colunas (dias da semana) */
+    gap: 10px;
+    text-align: center;
+}
+
+/* Dias da semana (Cabeçalho) */
+.weekday {
+    color: #a89bd1;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Dias ficam dentro deste container para manter o grid */
+.days-container {
+    display: contents; /* Faz os filhos (div.day) obedecerem ao grid pai (.calendar-grid) */
+}
+
+.day {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.day:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- O SEGREDO DO VERDE --- */
+.day.active-day {
+    background: #2ecc71 !important; /* Verde */
+    color: white;
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+    font-weight: bold;
+}
+
+/* Dia atual (Hoje) */
+.day.today {
+    border: 2px solid #a89bd1;
+}
+
+/* Legenda na sidebar direita */
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #d0c8e8;
+}
+
+.circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.circle.green {
+    background: #2ecc71;
+    box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
+}
+
+.circle.gray {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .day {
+        height: 40px;
+        font-size: 0.9rem;
+    }
+    .streak-banner {
+        flex-direction: column;
+        text-align: center;
+    }
 }

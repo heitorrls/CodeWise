@@ -47,6 +47,13 @@
         </button>
         <button
           class="nav-item"
+          data-route="/calendario"
+          onclick="window.location.href='calendario.html'"
+        >
+          <i class="fas fa-calendar-alt"></i> Calendário
+        </button>
+        <button
+          class="nav-item"
           data-route="/configuracoes"
           onclick="window.location.href='configuracoes.html'"
         >
@@ -143,7 +150,7 @@
                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"
               />
             </svg>
-            Assistente Virtual
+            CodeBuddy
           </h2>
           <button class="chat-close-btn" id="chatCloseBtn">
             <i class="fas fa-times"></i>
@@ -153,7 +160,7 @@
         <div class="chat-modal-body" id="chatMessages">
           <div class="message assistant">
             <div class="message-content">
-              Olá! Sou seu assistente virtual. Como posso te ajudar a programar
+              Olá! Sou seu assistente virtual, o CodeBuddy! Como posso te ajudar a programar
               hoje?
             </div>
           </div>

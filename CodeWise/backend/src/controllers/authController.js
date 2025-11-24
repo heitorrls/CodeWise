@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const LoginHistory = require("../models/LoginHistory");
 const PasswordReset = require("../models/PasswordReset");
 const bcrypt = require("bcryptjs");
 
@@ -64,6 +65,10 @@ exports.login = (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: "Email ou senha inválidos." });
 
+    LoginHistory.logVisit(user.id, (err) => {
+        if (err) console.error("Erro ao registrar histórico de login:", err);
+        // Não impedimos o login se der erro no log, apenas avisamos no console
+    });
     // Retorna sucesso e dados do usuário (incluindo nivelamento e tipo se houver)
     res.json({
       message: "Login realizado com sucesso!",

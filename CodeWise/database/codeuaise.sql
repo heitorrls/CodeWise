@@ -573,3 +573,12 @@ INSERT INTO teste_nivelamento (id, enunciado) VALUES (15, 'Em JavaScript, funç�
 INSERT INTO alternativas_nivelamento (pergunta_id, texto, correta) VALUES 
 (15, 'Verdadeiro', 1),
 (15, 'Falso', 0);
+
+CREATE TABLE IF NOT EXISTS user_logins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    login_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_login (user_id, login_date) -- Garante apenas um registro por dia por usuário
+);
