@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeWise - Estatísticas</title>
+    
+    <script src="src/assets/js/theme-loader.js"></script>
+    <link rel="stylesheet" href="src/assets/styles/theme.css" />
+    
+    <link rel="stylesheet" href="src/assets/styles/estatisticas.css" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Minhas Estatísticas</h1>
+      </div>
+      
+      <nav class="sidebar">
+        <button class="nav-item" onclick="window.location.href='home.html'">
+          <i class="fas fa-book"></i> Lições
+        </button>
+        <button
+          class="nav-item"
+          onclick="window.location.href='perfil.html'"
+        >
+          <i class="fas fa-user"></i> Perfil
+        </button>
+        <button
+          class="nav-item"
+          onclick="window.location.href='loja.html'"
+        >
+          <i class="fas fa-store"></i> Loja
+        </button>
+        <button
+          class="nav-item"
+          onclick="window.location.href='rank.html'"
+        >
+          <i class="fas fa-trophy"></i> Rank
+        </button>
+        <button
+          class="nav-item"
+          onclick="window.location.href='calendario.html'"
+        >
+          <i class="fas fa-calendar-alt"></i> Calendário
+        </button>
+        <button class="nav-item active" onclick="window.location.href='estatisticas.html'">
+            <i class="fas fa-chart-pie"></i> <span>Estatísticas</span>
+          </button>
+        <button
+          class="nav-item"
+          onclick="window.location.href='configuracoes.html'"
+        >
+          <i class="fas fa-cog"></i> Configurações
+        </button>
+      </nav>
+
+      <div class="main-content">
+        
+        <div class="stats-overview">
+            <div class="stat-card total">
+                <div class="icon-bg"><i class="fas fa-tasks"></i></div>
+                <div class="stat-info">
+                    <span class="label">Total Respondidas</span>
+                    <span class="value" id="totalQuestions">0</span>
+                </div>
+            </div>
+
+            <div class="stat-card correct">
+                <div class="icon-bg"><i class="fas fa-check"></i></div>
+                <div class="stat-info">
+                    <span class="label">Acertos</span>
+                    <span class="value" id="totalCorrect">0</span>
+                </div>
+            </div>
+
+            <div class="stat-card incorrect">
+                <div class="icon-bg"><i class="fas fa-times"></i></div>
+                <div class="stat-info">
+                    <span class="label">Erros</span>
+                    <span class="value" id="totalIncorrect">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-wrapper">
+            <div class="chart-container">
+                <h2>Desempenho Geral</h2>
+                <div class="chart-box">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="details-container">
+                <h2>Taxa de Precisão</h2>
+                <div class="accuracy-circle">
+                    <div class="percentage" id="accuracyPercent">0%</div>
+                    <svg>
+                        <circle cx="70" cy="70" r="70"></circle>
+                        <circle cx="70" cy="70" r="70" id="progressCircle"></circle>
+                    </svg>
+                </div>
+                <p class="motivation-text" id="motivationText">Continue praticando!</p>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script src="src/pages/script.js"></script>
+  </body>
+</html>
