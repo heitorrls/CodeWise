@@ -6,9 +6,7 @@
 
 body {
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  background: radial-gradient(110% 140% at 20% 20%, rgba(156, 131, 255, 0.12), transparent),
-    radial-gradient(90% 120% at 80% 0%, rgba(255, 255, 255, 0.05), transparent),
-    var(--bg);
+  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   padding: 32px 16px 48px;
@@ -19,11 +17,11 @@ body {
 
 .result-card {
   width: min(900px, 100%);
-  background: rgba(30, 32, 62, 0.9);
-  border: 1px solid rgba(156, 131, 255, 0.25);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: clamp(18px, 3vw, 30px);
-  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 26px 60px var(--shadow);
   text-align: center;
 }
 

@@ -6,7 +6,7 @@
 
 body {
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  background: linear-gradient(135deg, #0e0f24 0%, #141736 60%, #0e0f24 100%);
+  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   padding: 28px 18px 42px;
@@ -25,11 +25,11 @@ body {
   justify-content: space-between;
   gap: 16px;
   align-items: center;
-  background: rgba(30, 33, 65, 0.7);
-  border: 1px solid rgba(156, 131, 255, 0.2);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 16px 18px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 30px var(--shadow);
 }
 
 .module {
@@ -81,11 +81,11 @@ body {
 }
 
 .quiz-card {
-  background: rgba(33, 35, 70, 0.9);
-  border: 1px solid rgba(156, 131, 255, 0.2);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: clamp(18px, 3vw, 30px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 20px 60px var(--shadow);
 }
 
 .question-head {
@@ -200,7 +200,7 @@ body {
 
 .primary {
   background: linear-gradient(135deg, #8b7cc8 0%, #6f5ac8 100%);
-  color: #0e0a1f;
+  color: #ffffff;
   box-shadow: 0 12px 28px rgba(156, 131, 255, 0.3);
 }
 

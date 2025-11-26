@@ -6,7 +6,7 @@
 
 body {
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  background: linear-gradient(135deg, #0f1022 0%, #1a1b3a 50%, #0f1022 100%);
+  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   padding: 28px 18px 46px;
@@ -21,12 +21,12 @@ body {
 
 .reward-card {
   width: min(760px, 100%);
-  background: rgba(33, 35, 70, 0.92);
-  border: 1px solid rgba(156, 131, 255, 0.25);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: clamp(18px, 3vw, 28px);
   text-align: center;
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 22px 60px var(--shadow);
   margin: 0 auto;
 }
 

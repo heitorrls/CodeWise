@@ -1250,40 +1250,42 @@ document.addEventListener("DOMContentLoaded", async () => {
   const chatInput = document.getElementById("chatInput"); // ID do novo modal
 
   if (chatFloatBtn && chatModalOverlay && chatCloseBtn && chatInput) {
+    const DEFAULT_CHAT_WIDTH = 420;
+
     // Abrir
     chatFloatBtn.addEventListener("click", () => {
+      document.documentElement.style.setProperty(
+        "--chat-width",
+        `${DEFAULT_CHAT_WIDTH}px`
+      );
       chatModalOverlay.classList.add("active");
       chatInput.focus();
-      document.body.style.overflow = "hidden"; // Previne scroll do body
+      // Mantemos o scroll normal e interação com o quiz
+      document.body.classList.add("chat-open");
     });
 
     // Função para fechar o modal
     function closeModal() {
       chatModalOverlay.classList.remove("active");
       document.body.style.overflow = "auto"; // Restaura scroll
+      document.body.classList.remove("chat-open");
+      document.documentElement.style.setProperty(
+        "--chat-width",
+        `${DEFAULT_CHAT_WIDTH}px`
+      );
     }
 
     // Fechar pelo botão X
     chatCloseBtn.addEventListener("click", closeModal);
 
-    // Fechar clicando fora (no overlay)
-    chatModalOverlay.addEventListener("click", (e) => {
-      if (e.target === chatModalOverlay) {
-        closeModal();
-      }
-    });
-
-    // Fechar com a tecla ESC
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && chatModalOverlay.classList.contains("active")) {
-        closeModal();
-      }
-    });
+    // Fecha apenas pelo botão (overlay não fecha; ESC desabilitado)
   }
 
   // --- LÓGICA DE ENVIO DE MENSAGEM (MERGE DA SUA API + NOVO MODAL) ---
   const chatSendBtn = document.getElementById("chatSendBtn"); // ID do novo modal
   const chatMessages = document.getElementById("chatMessages"); // ID do novo modal
+  const chatModal = document.querySelector(".chat-modal");
+  const chatResizeHandle = document.getElementById("chatResizeHandle");
   // O chatInput já foi selecionado ali em cima
 
   if (chatSendBtn && chatInput && chatMessages) {
@@ -1346,10 +1348,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const messageContent = document.createElement('div');
     messageContent.className = 'message-content';
     
-    // SE FOR O ROBÔ (assistant), CONVERTE O MARKDOWN EM HTML
-    if (type === 'assistant') {
-        // marked.parse converte **texto** em <b>texto</b>, etc.
+    // SE FOR O ROBÔ (assistant), CONVERTE O MARKDOWN EM HTML SE MARKED EXISTIR
+    if (type === 'assistant' && typeof marked !== 'undefined') {
         messageContent.innerHTML = marked.parse(content); 
+    } else if (type === 'assistant') {
+        messageContent.textContent = content;
     } else {
         // Se for o usuário, mantém texto puro por segurança
         messageContent.textContent = content; 
@@ -1380,15 +1383,55 @@ document.addEventListener("DOMContentLoaded", async () => {
       return messageDiv;
     }
 
-    // Eventos de envio (Botão e Enter)
-    chatSendBtn.addEventListener("click", sendMessage);
+  // Eventos de envio (Botão e Enter)
+  chatSendBtn.addEventListener("click", sendMessage);
 
-    chatInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault(); // Evita que o 'Enter' pule linha no input
-        sendMessage();
+  chatInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Evita que o 'Enter' pule linha no input
+      sendMessage();
+    }
+  });
+
+  // Redimensionamento horizontal do chat (arrastando a borda esquerda)
+  if (chatModal && chatResizeHandle) {
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+    const MIN_WIDTH = 320;
+    const MAX_WIDTH = 900;
+
+    const applyChatWidthVar = () => {
+      const w = chatModal.getBoundingClientRect().width;
+      document.documentElement.style.setProperty("--chat-width", `${w}px`);
+    };
+
+    chatResizeHandle.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      isResizing = true;
+      startX = e.clientX;
+      startWidth = chatModal.getBoundingClientRect().width;
+      applyChatWidthVar();
+      document.body.style.userSelect = "none";
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isResizing) return;
+      const delta = startX - e.clientX; // arrastar para a esquerda aumenta largura
+      let newWidth = startWidth + delta;
+      newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
+      chatModal.style.width = `${newWidth}px`;
+      document.documentElement.style.setProperty("--chat-width", `${newWidth}px`);
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (isResizing) {
+        isResizing = false;
+        document.body.style.userSelect = "";
+        applyChatWidthVar();
       }
     });
+  }
   }
 
   // 15. Página calendario.html (executa apenas se os elementos existirem)
