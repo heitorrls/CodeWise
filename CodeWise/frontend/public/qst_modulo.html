@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeWise - Questionário do Módulo</title>
+    <link rel="stylesheet" href="src/assets/styles/qst_modulo.css" />
+    <script src="src/assets/js/theme-loader.js"></script>
+    <link rel="stylesheet" href="src/assets/styles/theme.css" />
+  </head>
+  <body>
+    <div class="quiz-page">
+      <header class="quiz-header">
+        <div class="module">
+          <span class="badge">JavaScript</span>
+          <div>
+            <p class="label">Lição</p>
+            <strong id="lessonTitle">Variáveis e Tipos</strong>
+          </div>
+        </div>
+
+        <div class="progress">
+          <p id="questionIndicator">Questão 1 de 5</p>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+          </div>
+        </div>
+      </header>
+
+      <main class="quiz-card">
+        <div class="question-head">
+          <span class="question-pill">Questão 1</span>
+          <span class="hint">Tempo sugerido: 1 min</span>
+        </div>
+
+        <h1 class="question-text" id="questionText">
+          Qual símbolo é usado para fazer um comentário de linha em JavaScript?
+        </h1>
+
+        <div class="options" id="optionsList">
+          <button class="option selected" type="button">
+            <span class="option-letter">A)</span>
+            <span class="option-text">// Comentário</span>
+          </button>
+          <button class="option" type="button">
+            <span class="option-letter">B)</span>
+            <span class="option-text">-- Comentário</span>
+          </button>
+          <button class="option" type="button">
+            <span class="option-letter">C)</span>
+            <span class="option-text">/* Comentário */</span>
+          </button>
+          <button class="option" type="button">
+            <span class="option-letter">D)</span>
+            <span class="option-text">&lt;&gt; Comentário</span>
+          </button>
+        </div>
+
+        <div class="actions">
+          <button class="ghost" type="button" id="lessonBackBtn">Voltar</button>
+          <div class="actions-right">
+            <button class="ghost" type="button" id="lessonSkipBtn">Pular</button>
+            <button class="primary" type="button" id="lessonNextBtn">
+              Avançar
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <footer class="helper">
+        <p>
+          As questões reais serão carregadas do banco com base no nível do
+          usuário. Use os IDs `lessonTitle`, `questionText`, `optionsList` e
+          `questionIndicator` para preencher dinamicamente.
+        </p>
+      </footer>
+    </div>
+    <script src="src/pages/script.js"></script>
+  </body>
+</html>

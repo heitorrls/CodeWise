@@ -19,6 +19,10 @@
     "qst_nivelamento.html",
     "resultado_nivelamento.html",
     "intro_criacao-avatar.html",
+    "intro_modulo.html",
+    "qst_modulo.html",
+    "resultado_modulo.html",
+    "recompensa_modulo.html",
   ];
   const currentPage = window.location.pathname.split("/").pop();
   const userId = localStorage.getItem("userId");
@@ -713,7 +717,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 9. PÁGINA DE RESULTADO DO NIVELAMENTO (resultado_nivelamento.html)
   // ... (lógica mantida)
-  const resultCard = document.querySelector(".result-card");
+  const resultCard = document.querySelector(".result-card:not(.lesson)");
   if (resultCard) {
     // Função para calcular percentual
     function calculatePercentage(correct, total) {
@@ -938,7 +942,237 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // 12. Ações de senha em perfil.html
+  // 12. QUESTIONÁRIO DO MÓDULO (qst_modulo.html) - fluxo inspirado no nivelamento
+  const lessonQuizPage = document.querySelector(".quiz-page");
+  if (lessonQuizPage) {
+    const questionText = document.getElementById("questionText");
+    const optionsList = document.getElementById("optionsList");
+    const progressFill = document.getElementById("progressFill");
+    const questionIndicator = document.getElementById("questionIndicator");
+    const questionPill = document.querySelector(".question-pill");
+    const backBtn = document.getElementById("lessonBackBtn");
+    const skipBtnLesson = document.getElementById("lessonSkipBtn");
+    const nextBtnLesson = document.getElementById("lessonNextBtn");
+
+    if (
+      questionText &&
+      optionsList &&
+      progressFill &&
+      questionIndicator &&
+      questionPill &&
+      backBtn &&
+      skipBtnLesson &&
+      nextBtnLesson
+    ) {
+      const lessonQuestions = [
+        {
+          question:
+            "Qual símbolo é usado para fazer um comentário de linha em JavaScript?",
+          options: [
+            { letter: "A", text: "// Comentário", correct: true },
+            { letter: "B", text: "-- Comentário", correct: false },
+            { letter: "C", text: "/* Comentário */", correct: false },
+            { letter: "D", text: "<> Comentário", correct: false },
+          ],
+        },
+        {
+          question: "Qual palavra-chave cria uma variável com escopo de bloco?",
+          options: [
+            { letter: "A", text: "var", correct: false },
+            { letter: "B", text: "let", correct: true },
+            { letter: "C", text: "const", correct: false },
+            { letter: "D", text: "static", correct: false },
+          ],
+        },
+        {
+          question:
+            "Qual é o valor padrão de uma variável declarada mas não inicializada?",
+          options: [
+            { letter: "A", text: "null", correct: false },
+            { letter: "B", text: "undefined", correct: true },
+            { letter: "C", text: "0", correct: false },
+            { letter: "D", text: '""', correct: false },
+          ],
+        },
+        {
+          question: "Como declarar uma constante chamada PI com valor 3.14?",
+          options: [
+            { letter: "A", text: "var PI = 3.14;", correct: false },
+            { letter: "B", text: "let PI = 3.14;", correct: false },
+            { letter: "C", text: "const PI = 3.14;", correct: true },
+            { letter: "D", text: "static PI = 3.14;", correct: false },
+          ],
+        },
+        {
+          question: "Qual tipo é retornado por typeof [] em JavaScript?",
+          options: [
+            { letter: "A", text: '"array"', correct: false },
+            { letter: "B", text: '"object"', correct: true },
+            { letter: "C", text: '"list"', correct: false },
+            { letter: "D", text: '"undefined"', correct: false },
+          ],
+        },
+      ];
+
+      let currentQuestion = 0;
+      let selectedAnswer = null;
+      let userAnswers = [];
+      let score = 0;
+
+      function displayQuestion() {
+        const data = lessonQuestions[currentQuestion];
+        questionText.textContent = data.question;
+        questionPill.textContent = `Questão ${currentQuestion + 1}`;
+        optionsList.innerHTML = "";
+        data.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "option";
+          if (selectedAnswer === idx) btn.classList.add("selected");
+          btn.innerHTML = `<strong>${opt.letter})</strong> ${opt.text}`;
+          btn.addEventListener("click", () => selectOption(idx));
+          optionsList.appendChild(btn);
+        });
+      }
+
+      function selectOption(idx) {
+        selectedAnswer = idx;
+        const buttons = optionsList.querySelectorAll(".option");
+        buttons.forEach((btn, i) => {
+          btn.classList.toggle("selected", i === idx);
+        });
+        nextBtnLesson.disabled = false;
+      }
+
+      function showAnswerFeedback(isCorrect) {
+        const buttons = optionsList.querySelectorAll(".option");
+        buttons.forEach((btn, i) => {
+          btn.style.pointerEvents = "none";
+          if (lessonQuestions[currentQuestion].options[i].correct) {
+            btn.classList.add("correct");
+          }
+          if (i === selectedAnswer && !isCorrect) {
+            btn.classList.add("incorrect");
+          }
+        });
+        nextBtnLesson.disabled = true;
+      }
+
+      function updateProgress() {
+        const progress = ((currentQuestion + 1) / lessonQuestions.length) * 100;
+        progressFill.style.width = `${progress}%`;
+        questionIndicator.textContent = `Questão ${
+          currentQuestion + 1
+        } de ${lessonQuestions.length}`;
+        nextBtnLesson.textContent =
+          currentQuestion < lessonQuestions.length - 1 ? "Avançar" : "Finalizar";
+        backBtn.disabled = currentQuestion === 0;
+        backBtn.style.opacity = currentQuestion === 0 ? "0.6" : "1";
+        nextBtnLesson.disabled = selectedAnswer === null;
+      }
+
+      function goToNext() {
+        if (selectedAnswer === null) return;
+        userAnswers[currentQuestion] = selectedAnswer;
+        showAnswerFeedback(
+          lessonQuestions[currentQuestion].options[selectedAnswer].correct
+        );
+        setTimeout(() => {
+          if (currentQuestion < lessonQuestions.length - 1) {
+            currentQuestion++;
+            selectedAnswer = userAnswers[currentQuestion] ?? null;
+            displayQuestion();
+            updateProgress();
+          } else {
+            finishQuiz();
+          }
+        }, 700);
+      }
+
+      function goBack() {
+        if (currentQuestion === 0) return;
+        currentQuestion--;
+        selectedAnswer = userAnswers[currentQuestion] ?? null;
+        displayQuestion();
+        updateProgress();
+      }
+
+      function skipQuestion() {
+        userAnswers[currentQuestion] = null;
+        selectedAnswer = null;
+        if (currentQuestion < lessonQuestions.length - 1) {
+          currentQuestion++;
+          displayQuestion();
+          updateProgress();
+        } else {
+          finishQuiz();
+        }
+      }
+
+      function finishQuiz() {
+        // Recalcula o score com base em todas as respostas marcadas
+        score = userAnswers.reduce((total, answer, idx) => {
+          const question = lessonQuestions[idx];
+          if (
+            typeof answer === "number" &&
+            question?.options?.[answer] &&
+            question.options[answer].correct
+          ) {
+            return total + 1;
+          }
+          return total;
+        }, 0);
+        transitionToPage(
+          `resultado_modulo.html?score=${score}&total=${lessonQuestions.length}`
+        );
+      }
+
+      backBtn.addEventListener("click", goBack);
+      skipBtnLesson.addEventListener("click", skipQuestion);
+      nextBtnLesson.addEventListener("click", goToNext);
+
+      displayQuestion();
+      updateProgress();
+    } else {
+      console.warn("Elementos do questionário do módulo não encontrados.");
+    }
+  }
+
+  // 13. RESULTADO DO MÓDULO (resultado_modulo.html)
+  const lessonResultCard = document.querySelector(".result-card.lesson");
+  if (lessonResultCard) {
+    const params = new URLSearchParams(window.location.search);
+    const score = parseInt(params.get("score"), 10);
+    const total = parseInt(params.get("total"), 10);
+    const hasValidScore =
+      Number.isFinite(score) && Number.isFinite(total) && total > 0;
+    const percentage = hasValidScore ? Math.round((score / total) * 100) : 0;
+
+    const scoreValue = document.getElementById("scoreValue");
+    const motivationMessage = document.getElementById("motivationMessage");
+    const rewardBtn = document.getElementById("rewardBtn");
+
+    const messages = {
+      high: "Excelente! Você dominou este conteúdo e está pronto para avançar.",
+      mid: "Ótimo progresso! Continue praticando e refine os pontos que faltam.",
+      low: "Cada tentativa conta. Reveja os conceitos e tente novamente, você consegue!",
+    };
+
+    if (hasValidScore) {
+      scoreValue.textContent = `${percentage}%`;
+      if (percentage >= 85) {
+        motivationMessage.textContent = messages.high;
+      } else if (percentage >= 70) {
+        motivationMessage.textContent = messages.mid;
+      } else {
+        motivationMessage.textContent = messages.low;
+        rewardBtn.textContent = "Tentar de novo";
+        rewardBtn.href = "qst_modulo.html";
+      }
+    }
+  }
+
+  // 14. Ações de senha em perfil.html
   const editPasswordBtn = document.getElementById("edit-password-btn");
   const savePasswordBtn = document.getElementById("save-password-btn");
   if (editPasswordBtn && savePasswordBtn) {
@@ -1157,6 +1391,98 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // 15. Página calendario.html (executa apenas se os elementos existirem)
+  const monthYearElement = document.getElementById("monthYear");
+  const calendarDaysElement = document.getElementById("calendarDays");
+  const streakCountElement = document.getElementById("streakCount");
+  const prevBtn = document.getElementById("prevMonth");
+  const nextBtn = document.getElementById("nextMonth");
+
+  if (
+    monthYearElement &&
+    calendarDaysElement &&
+    streakCountElement &&
+    prevBtn &&
+    nextBtn
+  ) {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
+    let currentDate = new Date();
+    let loginDates = [];
+
+    try {
+      const response = await fetch(`/api/calendar/${userId}`);
+      if (!response.ok) throw new Error(`Status ${response.status}`);
+      const data = await response.json();
+      loginDates = Array.isArray(data?.dates) ? data.dates : [];
+      streakCountElement.textContent = data?.streak || 0;
+      renderCalendar();
+    } catch (error) {
+      console.error("Erro ao carregar calendário:", error);
+      loginDates = [];
+      streakCountElement.textContent = 0;
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const monthNames = [
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro",
+      ];
+
+      monthYearElement.textContent = `${monthNames[month]} ${year}`;
+      calendarDaysElement.innerHTML = "";
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const lastDay = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyDiv = document.createElement("div");
+        calendarDaysElement.appendChild(emptyDiv);
+      }
+
+      for (let i = 1; i <= lastDay; i++) {
+        const dayDiv = document.createElement("div");
+        dayDiv.classList.add("day");
+        dayDiv.textContent = i;
+
+        const checkDate = new Date(year, month, i);
+        const yyyy = checkDate.getFullYear();
+        const mm = String(checkDate.getMonth() + 1).padStart(2, "0");
+        const dd = String(checkDate.getDate()).padStart(2, "0");
+        const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+        if (loginDates.includes(formattedDate)) {
+          dayDiv.classList.add("active-day");
+        }
+
+        const today = new Date();
+        if (
+          i === today.getDate() &&
+          month === today.getMonth() &&
+          year === today.getFullYear()
+        ) {
+          dayDiv.classList.add("today");
+        }
+
+        calendarDaysElement.appendChild(dayDiv);
+      }
+    }
+  }
+
   // THEME: Toggle Claro/Escuro com persistência
   (function () {
     const THEME_KEY = "cw_theme";
@@ -1299,93 +1625,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 });
-// ... (aqui vem o "});" final do seu script)
-
-// 14 Pagina do calendario.html
-document.addEventListener('DOMContentLoaded', async () => {
-        const userId = localStorage.getItem('userId');
-        if(!userId) return;
-
-        const monthYearElement = document.getElementById('monthYear');
-        const calendarDaysElement = document.getElementById('calendarDays');
-        const streakCountElement = document.getElementById('streakCount');
-        const prevBtn = document.getElementById('prevMonth');
-        const nextBtn = document.getElementById('nextMonth');
-
-        let currentDate = new Date();
-        let loginDates = [];
-
-        // 1. Buscar dados do Backend
-        try {
-            const response = await fetch(`/api/calendar/${userId}`);
-            const data = await response.json();
-            loginDates = data.dates; // Array de strings 'YYYY-MM-DD'
-            streakCountElement.textContent = data.streak || 0;
-            renderCalendar();
-        } catch (error) {
-            console.error("Erro ao carregar calendário:", error);
-        }
-
-        // 2. Função de Renderização
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-
-            // Nomes dos meses
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
-                              "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            
-            monthYearElement.textContent = `${monthNames[month]} ${year}`;
-            calendarDaysElement.innerHTML = "";
-
-            // Primeiro dia do mês e total de dias
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const lastDay = new Date(year, month + 1, 0).getDate();
-
-            // Dias em branco antes do dia 1
-            for (let i = 0; i < firstDayIndex; i++) {
-                const emptyDiv = document.createElement('div');
-                calendarDaysElement.appendChild(emptyDiv);
-            }
-
-            // Preencher dias
-            for (let i = 1; i <= lastDay; i++) {
-                const dayDiv = document.createElement('div');
-                dayDiv.classList.add('day');
-                dayDiv.textContent = i;
-
-                // Formata a data atual do loop para YYYY-MM-DD para comparar
-                const checkDate = new Date(year, month, i);
-                // Ajuste de timezone para garantir que a string bata corretamente
-                // Uma forma simples é formatar manualmente:
-                const yyyy = checkDate.getFullYear();
-                const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
-                const dd = String(checkDate.getDate()).padStart(2, '0');
-                const formattedDate = `${yyyy}-${mm}-${dd}`;
-
-                // Verifica se esta data está no histórico de logins
-                if (loginDates.includes(formattedDate)) {
-                    dayDiv.classList.add('active-day'); // VERDE
-                }
-
-                // Marca o dia de "hoje" com uma borda ou cor diferente se quiser
-                const today = new Date();
-                if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-                    dayDiv.classList.add('today');
-                }
-
-                calendarDaysElement.appendChild(dayDiv);
-            }
-        }
-
-        // Controles de navegação
-        prevBtn.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        });
-
-        nextBtn.addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        });
-      });

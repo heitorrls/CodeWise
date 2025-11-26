@@ -1,0 +1,120 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #0f1022 0%, #1a1b3a 50%, #0f1022 100%);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 28px 18px 46px;
+}
+
+.reward-page {
+  min-height: calc(100vh - 74px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reward-card {
+  width: min(760px, 100%);
+  background: rgba(33, 35, 70, 0.92);
+  border: 1px solid rgba(156, 131, 255, 0.25);
+  border-radius: 20px;
+  padding: clamp(18px, 3vw, 28px);
+  text-align: center;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+  margin: 0 auto;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(76, 187, 115, 0.18);
+  border: 1px solid rgba(76, 187, 115, 0.35);
+  color: #b5f5c6;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  margin-bottom: 12px;
+  color: #f5f3ff;
+}
+
+.subtitle {
+  color: var(--text);
+  font-size: clamp(1rem, 2.6vw, 1.2rem);
+  margin-bottom: 20px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.ghost,
+.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  min-width: 170px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  border: 1px solid transparent;
+  color: var(--text);
+}
+
+.ghost {
+  border-color: rgba(156, 131, 255, 0.35);
+  background: transparent;
+}
+
+.primary {
+  background: linear-gradient(135deg, #8b7cc8 0%, #6f5ac8 100%);
+  color: #0e0a1f;
+  box-shadow: 0 12px 28px rgba(156, 131, 255, 0.3);
+}
+
+.ghost:hover,
+.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+}
+
+.ghost:active,
+.primary:active {
+  transform: translateY(0);
+  opacity: 0.9;
+}
+
+.helper {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+code {
+  background: rgba(156, 131, 255, 0.12);
+  border-radius: 6px;
+  padding: 3px 6px;
+}
+
+@media (max-width: 560px) {
+  body {
+    padding: 20px 12px 32px;
+  }
+}
