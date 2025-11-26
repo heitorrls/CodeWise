@@ -1,0 +1,270 @@
+/* Variáveis de escala para consistência entre páginas */
+:root{
+  --space-xs: 6px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 30px;
+
+  --sidebar-width: 220px;     /* reduzida para harmonizar */
+  --right-col-width: 240px;
+
+  --font-base: 14px;          /* padrão coerente com outras páginas */
+  --font-large: 18px;
+
+  --card-padding: 20px;
+  --icon-size: 48px;
+  --accuracy-size: 140px;
+
+  --container-gap: 20px;
+  --border-radius-lg: 18px;
+  --border-radius-md: 14px;
+}
+
+/* Reset básico */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Arial", sans-serif;
+  background: linear-gradient(135deg, #1a1b3a 0%, #0f1020 50%, #1a1b3a 100%);
+  min-height: 100vh;
+  color: white;
+  overflow-x: hidden;
+  position: relative;
+  font-size: var(--font-base);
+}
+
+/* Efeito de estrelas (Mantido dos outros CSS) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.3), transparent),
+                    radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.2), transparent);
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: twinkle 4s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
+
+/* Header Fixo */
+.header {
+  background: rgba(26, 27, 58, 0.95);
+  border-bottom: 2px solid rgba(139, 124, 200, 0.3);
+  padding: 12px 28px;
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center; height: 70px;
+}
+
+.header h1 { font-size: 1.6rem; font-weight: bold; color: #8b7cc8; text-align: center; }
+
+/* Container Principal */
+.container {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr var(--right-col-width);
+  grid-template-rows: 70px 1fr;
+  grid-template-areas: "header header" "sidebar main";
+  gap: var(--container-gap);
+  padding: 2px 10px 10px;
+  max-width: 2000px;
+  width: 100%;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* Sidebar */
+.sidebar {
+  grid-area: sidebar;
+  background: rgba(40, 42, 70, 0.6);
+  border: 1px solid rgba(139, 124, 200, 0.15);
+  border-radius: var(--border-radius-md);
+  padding: 16px;
+  height: fit-content; backdrop-filter: blur(8px);
+  display: flex; flex-direction: column; gap: var(--space-sm);
+}
+
+.nav-item {
+  background: rgba(139, 124, 200, 0.06);
+  border: 1px solid rgba(139, 124, 200, 0.16);
+  border-radius: 12px; padding: 12px 14px;
+  color: white; font-size: var(--font-base); font-weight: 600;
+  cursor: pointer; transition: all 0.18s ease;
+  text-align: left; display: flex; align-items: center; gap: 10px;
+}
+
+.nav-item:hover { background: rgba(139, 124, 200, 0.12); transform: translateX(4px); }
+.nav-item.active { background: linear-gradient(135deg, #8b7cc8, #a89bd1); border-color: transparent; color: #fff; }
+.nav-item i { font-size: 1.1rem; min-width: 22px; text-align: center; }
+
+/* --- CONTEÚDO PRINCIPAL --- */
+.main-content {
+  grid-area: main;
+  background: rgba(40, 42, 70, 0.6);
+  border: 1px solid rgba(139, 124, 200, 0.12);
+  border-radius: var(--border-radius-lg); padding: 22px;
+  backdrop-filter: blur(8px);
+  display: flex; flex-direction: column; gap: var(--space-lg);
+}
+
+/* Cards de Resumo (Topo) */
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.stat-card {
+    background: rgba(26, 27, 58, 0.7);
+    border: 1px solid rgba(139, 124, 200, 0.12);
+    border-radius: var(--border-radius-md); padding: var(--card-padding);
+    display: flex; align-items: center; gap: 14px;
+    transition: transform 0.18s ease;
+}
+.stat-card:hover { transform: translateY(-4px); }
+
+.icon-bg {
+    width: var(--icon-size); height: var(--icon-size);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+}
+
+.stat-card.total .icon-bg { background: rgba(139, 124, 200, 0.12); color: #c7a9ff; }
+.stat-card.correct .icon-bg { background: rgba(74, 222, 128, 0.12); color: #4ade80; }
+.stat-card.incorrect .icon-bg { background: rgba(248, 113, 113, 0.12); color: #f87171; }
+
+.stat-info { display: flex; flex-direction: column; }
+.stat-info .label { font-size: 0.85rem; color: #b8b0d0; margin-bottom: 6px; }
+.stat-info .value { font-size: 1.8rem; font-weight: bold; color: white; }
+
+/* Wrapper dos Gráficos */
+.charts-wrapper {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr; /* Gráfico maior à esquerda */
+    gap: 20px;
+    flex: 1;
+}
+
+.chart-container, .details-container {
+    background: rgba(26, 27, 58, 0.7);
+    border: 1px solid rgba(139, 124, 200, 0.12);
+    border-radius: var(--border-radius-lg);
+    padding: 40px;
+    display: flex; flex-direction: column; align-items: center;
+}
+
+.chart-container h2, .details-container h2 {
+    color: #c7a9ff; margin-bottom: 16px; font-size: 1.25rem;
+}
+
+.chart-box {
+    width: 100%; height: 400px;
+    position: relative;
+}
+
+/* Círculo de Precisão (SVG) */
+.accuracy-circle {
+    position: relative;
+    width: var(--accuracy-size); height: var(--accuracy-size);
+    margin-bottom: 16px;
+}
+.accuracy-circle svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+}
+.accuracy-circle circle {
+    width: 90%; height: 90%;
+    fill: none; stroke-width: 12;
+    stroke-linecap: round;
+}
+.accuracy-circle circle:nth-child(1) { stroke: rgba(139, 124, 200, 0.1); }
+.accuracy-circle circle:nth-child(2) {
+    stroke: #4ade80;
+    stroke-dasharray: 440; stroke-dashoffset: 440;
+    transition: stroke-dashoffset 1.2s ease-in-out;
+}
+.accuracy-circle .percentage {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.6rem; font-weight: bold; color: white;
+}
+.motivation-text {
+    text-align: center; color: #b8b0d0; font-size: 1rem; font-style: italic;
+}
+
+/* =================== LIGHT THEME =================== */
+:root[data-theme="light"] body { background: var(--background); color: var(--text); }
+:root[data-theme="light"] body::before { opacity: 0; }
+
+:root[data-theme="light"] .header,
+:root[data-theme="light"] .sidebar,
+:root[data-theme="light"] .main-content {
+    background: var(--surface);
+    border-color: var(--border-subtle);
+    box-shadow: var(--shadow-md);
+}
+:root[data-theme="light"] .header h1 { color: var(--primary); text-shadow: none; }
+
+:root[data-theme="light"] .nav-item {
+    background: var(--surface-elev-1); color: var(--text); border-color: var(--border-subtle);
+}
+:root[data-theme="light"] .nav-item:hover {
+    background: var(--surface-elev-2); color: var(--primary); border-color: var(--primary-soft);
+}
+:root[data-theme="light"] .nav-item.active {
+    background: var(--primary); color: white;
+}
+
+:root[data-theme="light"] .stat-card,
+:root[data-theme="light"] .chart-container,
+:root[data-theme="light"] .details-container {
+    background: var(--surface);
+    border-color: var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+}
+
+:root[data-theme="light"] .stat-info .value,
+:root[data-theme="light"] .accuracy-circle .percentage {
+    color: var(--text-primary);
+}
+:root[data-theme="light"] .stat-info .label,
+:root[data-theme="light"] .motivation-text {
+    color: var(--text-secondary);
+}
+:root[data-theme="light"] .chart-container h2,
+:root[data-theme="light"] .details-container h2 {
+    color: var(--primary);
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+    .charts-wrapper { grid-template-columns: 1fr; }
+    .chart-box { height: 250px; }
+}
+@media (max-width: 992px) {
+    .container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 70px 1fr 70px;
+        grid-template-areas: "header" "main" "sidebar";
+        padding: 70px 12px 80px;
+    }
+    .sidebar {
+        position: fixed; bottom: 0; left: 0; right: 0;
+        flex-direction: row; justify-content: space-around;
+        height: 66px; border-radius: 14px 14px 0 0;
+        z-index: 1000; padding: 6px;
+    }
+    .nav-item { flex-direction: column; font-size: 0.85rem; padding: 6px; border: none; justify-content: center; }
+    .nav-item:hover { transform: none; }
+}
+@media (max-width: 768px) {
+    .header h1 { font-size: 1.4rem; }
+    .stats-overview { grid-template-columns: 1fr; }
+}

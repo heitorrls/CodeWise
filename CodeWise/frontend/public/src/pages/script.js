@@ -1625,3 +1625,82 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 });
+
+
+// 15 página de estatisticas.html
+  // Lógica Frontend (Mockada por enquanto)
+        document.addEventListener('DOMContentLoaded', () => {
+            // DADOS FICTÍCIOS (Simulando o que viria do banco)
+            // Quando fizermos o backend, substituiremos isso por um fetch()
+            const statsData = {
+                correct: 42,
+                incorrect: 12,
+                total: 54
+            };
+
+            // 1. Atualiza os Cards
+            document.getElementById('totalQuestions').textContent = statsData.total;
+            document.getElementById('totalCorrect').textContent = statsData.correct;
+            document.getElementById('totalIncorrect').textContent = statsData.incorrect;
+
+            // 2. Configura o Gráfico (Chart.js)
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Acertos', 'Erros'],
+                    datasets: [{
+                        data: [statsData.correct, statsData.incorrect],
+                        backgroundColor: [
+                            '#4ade80', // Verde (Acertos)
+                            '#f87171'  // Vermelho (Erros)
+                        ],
+                        borderColor: [
+                            'rgba(74, 222, 128, 0.2)',
+                            'rgba(248, 113, 113, 0.2)'
+                        ],
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#b8b0d0', // Cor do texto da legenda
+                                font: { size: 14 }
+                            }
+                        }
+                    },
+                    cutout: '70%' // Espessura da rosca
+                }
+            });
+
+            // 3. Calcula e Anima a Taxa de Precisão
+            const accuracy = Math.round((statsData.correct / statsData.total) * 100) || 0;
+            document.getElementById('accuracyPercent').textContent = `${accuracy}%`;
+            
+            // Animação do círculo SVG (Stroke Dashoffset)
+            const circle = document.getElementById('progressCircle');
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = circumference;
+
+            const offset = circumference - (accuracy / 100) * circumference;
+            
+            // Pequeno delay para a animação ocorrer
+            setTimeout(() => {
+                circle.style.strokeDashoffset = offset;
+            }, 100);
+
+            // Texto Motivacional
+            const motivation = document.getElementById('motivationText');
+            if(accuracy >= 80) motivation.textContent = "Excelente! Você é um mestre.";
+            else if(accuracy >= 50) motivation.textContent = "Muito bom! Continue assim.";
+            else motivation.textContent = "Não desista! A prática leva à perfeição.";
+        });
