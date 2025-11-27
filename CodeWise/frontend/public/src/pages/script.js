@@ -5,6 +5,137 @@
 // 1. Importações e inicialização do Firebase REMOVIDAS.
 // Não há mais 'app', 'auth' ou 'db'.
 
+// Toast global (substitui alert por card)
+(function setupGlobalToast() {
+  const style = document.createElement("style");
+  style.textContent = `
+    .cw-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translate(-50%, -8px);
+      background: var(--card, #222743);
+      color: var(--text, #fff);
+      border: 1px solid var(--border, rgba(255,255,255,0.08));
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      z-index: 9999;
+      min-width: 240px;
+      max-width: 420px;
+      opacity: 0;
+      transition: opacity .2s ease, transform .2s ease;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .cw-toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .cw-toast .dot { width: 10px; height: 10px; border-radius: 50%; background: #8b7cc8; box-shadow: 0 0 8px rgba(139,124,200,0.6); }
+    .cw-toast .msg { flex: 1; font-weight: 600; }
+  `;
+  document.head.appendChild(style);
+
+  function showToast(message) {
+    const toast = document.createElement("div");
+    toast.className = "cw-toast";
+    toast.innerHTML = `<span class="dot"></span><span class="msg">${message}</span>`;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add("show"));
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 200);
+    }, 3000);
+  }
+
+  window.alert = function (msg) {
+    showToast(msg);
+  };
+  window.showToast = showToast;
+})();
+
+// Modal de conquista
+(function setupAchievementModal() {
+  const style = document.createElement("style");
+  style.textContent = `
+    .cw-achievement-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .cw-achievement-overlay.show { opacity: 1; pointer-events: all; }
+    .cw-achievement-card {
+      background: var(--card, #222743);
+      color: var(--text, #fff);
+      border: 1px solid var(--border, rgba(255,255,255,0.1));
+      border-radius: 16px;
+      padding: 18px 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      transform: translateY(12px);
+      transition: transform .2s ease;
+    }
+    .cw-achievement-overlay.show .cw-achievement-card { transform: translateY(0); }
+    .cw-achievement-card h3 { margin-bottom: 8px; font-size: 1.1rem; }
+    .cw-achievement-card p { margin-bottom: 14px; color: var(--text-muted, #c8cbee); }
+    .cw-achievement-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .cw-achievement-actions button {
+      border: 1px solid var(--border, rgba(255,255,255,0.2));
+      background: rgba(139,124,200,0.12);
+      color: var(--text, #fff);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .cw-achievement-actions .primary {
+      background: linear-gradient(135deg, #8b7cc8, #6f5ac8);
+      color: #fff;
+      border: none;
+      box-shadow: 0 8px 20px rgba(139,124,200,0.35);
+    }
+  `;
+  document.head.appendChild(style);
+
+  window.showAchievementModal = function (title) {
+    const overlay = document.createElement("div");
+    overlay.className = "cw-achievement-overlay";
+    overlay.innerHTML = `
+      <div class="cw-achievement-card">
+        <h3>Você alcançou uma conquista!</h3>
+        <p>Conquista desbloqueada: <strong>${title}</strong></p>
+        <div class="cw-achievement-actions">
+          <button class="close-btn">Fechar</button>
+          <button class="primary view-btn">Ver conquistas</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add("show"));
+
+    const close = () => {
+      overlay.classList.remove("show");
+      setTimeout(() => overlay.remove(), 200);
+    };
+
+    overlay.querySelector(".close-btn").addEventListener("click", close);
+    overlay.querySelector(".view-btn").addEventListener("click", () => {
+      window.location.href = "conquistas.html";
+    });
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) close();
+    });
+  };
+})();
+
 // Controle de sessão simples para páginas protegidas
 (function enforceAuthGuard() {
   const protectedPages = [
@@ -1122,6 +1253,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           return total;
         }, 0);
+        // Marca primeira lição concluída (para conquistas) e agenda modal ao voltar à home
+        localStorage.setItem("lessonComplete", "true");
+        localStorage.setItem(
+          "pendingAchievement",
+          JSON.stringify({ title: "Primeira Lição" })
+        );
         transitionToPage(
           `resultado_modulo.html?score=${score}&total=${lessonQuestions.length}`
         );
@@ -1279,6 +1416,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     chatCloseBtn.addEventListener("click", closeModal);
 
     // Fecha apenas pelo botão (overlay não fecha; ESC desabilitado)
+  }
+
+  // Checa conquista pendente ao abrir a home
+  if (window.location.pathname.endsWith("home.html")) {
+    const pending = localStorage.getItem("pendingAchievement");
+    if (pending) {
+      try {
+        const data = JSON.parse(pending);
+        if (data?.title && window.showAchievementModal) {
+          window.showAchievementModal(data.title);
+        } else if (data?.title && window.showToast) {
+          window.showToast(`Conquista desbloqueada: ${data.title}`);
+        }
+      } catch (e) {
+        // ignore parse errors
+      }
+      localStorage.removeItem("pendingAchievement");
+    }
   }
 
   // --- LÓGICA DE ENVIO DE MENSAGEM (MERGE DA SUA API + NOVO MODAL) ---
@@ -1607,11 +1762,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       try {
-        const response = await fetch("/api/user", {
+        const response = await fetch(`/api/user/${userId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            id: userId,
             username: newUsername,
             email: newEmail,
           }),

@@ -30,6 +30,26 @@ const UserProfile = {
       }
     );
   },
+  updateAvatar: (userId, avatar, callback) => {
+    db.query(
+      "UPDATE user_profiles SET avatar = ? WHERE user_id = ?",
+      [avatar, userId],
+      (err, results) => {
+        if (err) return callback(err, null);
+        callback(null, results.affectedRows);
+      }
+    );
+  },
+  findByUserId: (userId, callback) => {
+    db.query(
+      "SELECT user_id, username, avatar FROM user_profiles WHERE user_id = ?",
+      [userId],
+      (err, results) => {
+        if (err) return callback(err, null);
+        callback(null, results[0]);
+      }
+    );
+  },
   // Você pode adicionar métodos findById, update, etc. aqui
 };
 

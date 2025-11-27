@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeWise - Conquistas</title>
+    <link rel="stylesheet" href="src/assets/styles/theme.css" />
+    <link rel="stylesheet" href="src/assets/styles/home.css" />
+    <link rel="stylesheet" href="src/assets/styles/perfil_novo.css" />
+    <script src="src/assets/js/theme-loader.js"></script>
+  </head>
+  <body>
+    <header class="header">
+      <h1 class="logo">Conquistas</h1>
+      <button class="nav-btn" onclick="window.location.href='perfil.html'">← Perfil</button>
+    </header>
+
+    <div class="container perfil-container">
+      <nav class="sidebar">
+        <button class="nav-item" onclick="window.location.href='home.html'">
+          <i class="fas fa-book"></i> Lições
+        </button>
+        <button class="nav-item" onclick="window.location.href='perfil.html'">
+          <i class="fas fa-user"></i> Perfil
+        </button>
+        <button class="nav-item" onclick="window.location.href='loja.html'">
+          <i class="fas fa-store"></i> Loja
+        </button>
+        <button class="nav-item" onclick="window.location.href='rank.html'">
+          <i class="fas fa-trophy"></i> Rank
+        </button>
+        <button class="nav-item" onclick="window.location.href='calendario.html'">
+          <i class="fas fa-calendar-alt"></i> Calendário
+        </button>
+        <button class="nav-item" onclick="window.location.href='estatisticas.html'">
+          <i class="fas fa-chart-pie"></i> Estatísticas
+        </button>
+        <button class="nav-item" onclick="window.location.href='configuracoes.html'">
+          <i class="fas fa-cog"></i> Configurações
+        </button>
+      </nav>
+
+      <main class="main-content profile-main">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Suas Conquistas</h2>
+            <span id="countUnlocked"></span>
+          </div>
+          <div class="achievements-list" id="achievementsFull"></div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="achievementToast">
+      <div class="toast-icon">★</div>
+      <div class="toast-content">
+        <p class="toast-label">Conquista desbloqueada</p>
+        <strong id="toastTitle"></strong>
+      </div>
+    </div>
+
+    <script>
+      const userId = localStorage.getItem("userId");
+      const achievements = [
+        {
+          id: "achv_login",
+          title: "Novo Aprendiz",
+          desc: "Criou conta e fez login no CodeWise.",
+          unlocked: !!userId,
+        },
+        {
+          id: "achv_first_lesson",
+          title: "Primeira Lição",
+          desc: "Concluiu sua primeira lição no CodeWise.",
+          unlocked:
+            !!localStorage.getItem("lessonComplete") ||
+            !!localStorage.getItem("lastLessonScore"),
+        },
+      ];
+
+      const achievementsFull = document.getElementById("achievementsFull");
+      const countUnlocked = document.getElementById("countUnlocked");
+      const toast = document.getElementById("achievementToast");
+      const toastTitle = document.getElementById("toastTitle");
+      const previousState =
+        JSON.parse(localStorage.getItem("achievements_state") || "{}");
+
+      function showToast(title) {
+        toastTitle.textContent = title;
+        toast.classList.add("visible");
+        setTimeout(() => toast.classList.remove("visible"), 3200);
+      }
+
+      function render() {
+        let unlockedCount = 0;
+        achievementsFull.innerHTML = "";
+        achievements.forEach((ach) => {
+          if (ach.unlocked) unlockedCount++;
+          const card = document.createElement("div");
+          card.className = `ach-card ${ach.unlocked ? "unlocked" : "locked"}`;
+          card.innerHTML = `
+            <div class="badge">${ach.unlocked ? "✓" : "…"}</div>
+            <div>
+              <strong>${ach.title}</strong>
+              <p>${ach.desc}</p>
+            </div>
+          `;
+          achievementsFull.appendChild(card);
+
+          if (ach.unlocked && !previousState[ach.id]) {
+            showToast(ach.title);
+            previousState[ach.id] = true;
+          }
+        });
+        countUnlocked.textContent = `${unlockedCount}/${achievements.length} concluídas`;
+        localStorage.setItem("achievements_state", JSON.stringify(previousState));
+      }
+
+      render();
+    </script>
+  </body>
+</html>

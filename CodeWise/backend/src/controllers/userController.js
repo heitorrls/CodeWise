@@ -1,7 +1,9 @@
 const User = require("../models/User");
 
 exports.updateUserProfile = (req, res) => {
-  const { id, username, email } = req.body;
+  const idParam = req.params.id;
+  const { id: idBody, username, email } = req.body;
+  const id = idParam || idBody;
 
   if (!id) {
     return res.status(400).json({ message: "ID do usuário é obrigatório." });
