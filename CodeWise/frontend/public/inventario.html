@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeWise - Inventário</title>
+    <link rel="stylesheet" href="src/assets/styles/theme.css" />
+    <link rel="stylesheet" href="src/assets/styles/home.css" />
+    <link rel="stylesheet" href="src/assets/styles/perfil_novo.css" />
+    <script src="src/assets/js/theme-loader.js"></script>
+  </head>
+  <body>
+    <header class="header">
+      <h1 class="logo">Inventário</h1>
+    </header>
+
+    <div class="container perfil-container">
+      <nav class="sidebar">
+        <button class="nav-item" onclick="window.location.href='home.html'">
+          <i class="fas fa-book"></i> Lições
+        </button>
+        <button class="nav-item" onclick="window.location.href='perfil.html'">
+          <i class="fas fa-user"></i> Perfil
+        </button>
+        <button class="nav-item" onclick="window.location.href='loja.html'">
+          <i class="fas fa-store"></i> Loja
+        </button>
+        <button class="nav-item" onclick="window.location.href='rank.html'">
+          <i class="fas fa-trophy"></i> Rank
+        </button>
+        <button class="nav-item" onclick="window.location.href='calendario.html'">
+          <i class="fas fa-calendar-alt"></i> Calendário
+        </button>
+        <button class="nav-item" onclick="window.location.href='estatisticas.html'">
+          <i class="fas fa-chart-pie"></i> Estatísticas
+        </button>
+        <button class="nav-item" onclick="window.location.href='configuracoes.html'">
+          <i class="fas fa-cog"></i> Configurações
+        </button>
+      </nav>
+
+      <main class="main-content profile-main">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Visuais</h2>
+          </div>
+          <div class="achievements-list" id="visualItems"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Utilizáveis</h2>
+          </div>
+          <div class="achievements-list" id="usableItems"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="src/pages/script.js"></script>
+  </body>
+</html>

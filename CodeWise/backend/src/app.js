@@ -19,6 +19,7 @@ const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/codeBuddyRoutes');
 const levelingRoutes = require('./routes/levelingRoutes');
 const calendarRoutes = require('./routes/calendarRoutes'); 
+const profileRoutes = require('./routes/profileRoutes');
 
 // Registra as rotas
 app.use('/api/auth', authRoutes);
@@ -26,6 +27,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/leveling', levelingRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api', profileRoutes);
 
 // 2. Servindo a página principal
 app.get('/', (req, res) => {

@@ -11,23 +11,24 @@
   style.textContent = `
     .cw-toast {
       position: fixed;
-      top: 20px;
+      top: 50%;
       left: 50%;
-      transform: translate(-50%, -8px);
+      transform: translate(-50%, -30px);
       background: var(--card, #222743);
       color: var(--text, #fff);
       border: 1px solid var(--border, rgba(255,255,255,0.08));
-      border-radius: 12px;
-      padding: 12px 14px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.3);
       z-index: 9999;
-      min-width: 240px;
-      max-width: 420px;
+      min-width: 260px;
+      max-width: 460px;
       opacity: 0;
       transition: opacity .2s ease, transform .2s ease;
       display: flex;
       gap: 10px;
       align-items: center;
+      text-align: left;
     }
     .cw-toast.show { opacity: 1; transform: translate(-50%, 0); }
     .cw-toast .dot { width: 10px; height: 10px; border-radius: 50%; background: #8b7cc8; box-shadow: 0 0 8px rgba(139,124,200,0.6); }
@@ -47,7 +48,7 @@
     }, 3000);
   }
 
-  window.alert = function (msg) {
+window.alert = function (msg) {
     showToast(msg);
   };
   window.showToast = showToast;
@@ -136,6 +137,96 @@
   };
 })();
 
+// Modal de confirmação (compras)
+(function setupConfirmModal() {
+  const style = document.createElement("style");
+  style.textContent = `
+    .cw-confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .cw-confirm-overlay.show { opacity: 1; pointer-events: all; }
+    .cw-confirm-card {
+      background: var(--card, #222743);
+      color: var(--text, #fff);
+      border: 1px solid var(--border, rgba(255,255,255,0.1));
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      transform: translateY(12px);
+      transition: transform .2s ease;
+    }
+    .cw-confirm-overlay.show .cw-confirm-card { transform: translateY(0); }
+    .cw-confirm-card h3 { margin-bottom: 8px; font-size: 1.1rem; }
+    .cw-confirm-card p { margin-bottom: 14px; color: var(--text-muted, #c8cbee); }
+    .cw-confirm-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .cw-confirm-actions button {
+      border: 1px solid var(--border, rgba(255,255,255,0.2));
+      background: rgba(139,124,200,0.12);
+      color: var(--text, #fff);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .cw-confirm-actions .primary {
+      background: linear-gradient(135deg, #8b7cc8, #6f5ac8);
+      color: #fff;
+      border: none;
+      box-shadow: 0 8px 20px rgba(139,124,200,0.35);
+    }
+  `;
+  document.head.appendChild(style);
+
+  window.showConfirmBox = function ({ title, message, onConfirm, onCancel }) {
+    const overlay = document.createElement("div");
+    overlay.className = "cw-confirm-overlay";
+    overlay.innerHTML = `
+      <div class="cw-confirm-card">
+        <h3>${title || "Confirmação"}</h3>
+        <p>${message || ""}</p>
+        <div class="cw-confirm-actions">
+          <button class="close-btn">Cancelar</button>
+          <button class="primary confirm-btn">Confirmar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add("show"));
+
+    const close = () => {
+      overlay.classList.remove("show");
+      setTimeout(() => overlay.remove(), 200);
+    };
+
+    overlay.querySelector(".close-btn").addEventListener("click", () => {
+      close();
+      if (onCancel) onCancel();
+    });
+    overlay.querySelector(".confirm-btn").addEventListener("click", () => {
+      close();
+      if (onConfirm) onConfirm();
+    });
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        close();
+        if (onCancel) onCancel();
+      }
+    });
+  };
+})();
+
 // Controle de sessão simples para páginas protegidas
 (function enforceAuthGuard() {
   const protectedPages = [
@@ -168,6 +259,9 @@ window.logout = function logout(showConfirm = true) {
   if (showConfirm && !confirm("Deseja realmente sair?")) return;
   localStorage.removeItem("userId");
   localStorage.removeItem("userEmail");
+  localStorage.removeItem("cw_avatar_data");
+  localStorage.removeItem("pendingAchievement");
+  localStorage.removeItem("achievements_state");
   window.location.replace("login.html");
 };
 
@@ -1259,6 +1353,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           "pendingAchievement",
           JSON.stringify({ title: "Primeira Lição" })
         );
+        // recompensa de moedas
+        updateCoins(75);
         transitionToPage(
           `resultado_modulo.html?score=${score}&total=${lessonQuestions.length}`
         );
@@ -1434,6 +1530,193 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       localStorage.removeItem("pendingAchievement");
     }
+  }
+
+  // Loja/Perfil/Home: saldo e compras
+  const balanceDisplay = document.querySelector(".balance-amount");
+  const buyButtons = document.querySelectorAll(".buy-button");
+  const userId = localStorage.getItem("userId");
+
+  async function fetchBalance() {
+    if (!userId) return;
+    try {
+      const resp = await fetch(`/api/profile/${userId}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (balanceDisplay) balanceDisplay.textContent = data?.moedas ?? 0;
+        const statCoins = document.querySelector(".daily-missions .stat-item:nth-child(2) .stat-value, .stats .stat-item:nth-child(2) .stat-value");
+        if (statCoins) statCoins.textContent = data?.moedas ?? 0;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  async function updateCoins(delta) {
+    if (!userId) return false;
+    try {
+      const resp = await fetch("/api/profile/coins", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, delta: Number(delta) }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        if (window.showToast) window.showToast(data.message || "Saldo insuficiente.");
+        return false;
+      }
+      if (balanceDisplay) balanceDisplay.textContent = data.saldo ?? 0;
+      return true;
+    } catch (e) {
+      if (window.showToast) window.showToast("Erro ao atualizar saldo.");
+      return false;
+    }
+  }
+
+  fetchBalance();
+
+  // Atualiza ofensiva/streak na home usando o mesmo backend do calendário
+  if (window.location.pathname.endsWith("home.html")) {
+    const statStreak = document.querySelector(".daily-missions .stat-item:nth-child(1) .stat-value, .stats .stat-item:nth-child(1) .stat-value");
+    const streakCountElement = statStreak;
+    if (userId && streakCountElement) {
+      (async () => {
+        try {
+          const response = await fetch(`/api/calendar/${userId}`);
+          if (!response.ok) throw new Error();
+          const data = await response.json();
+          streakCountElement.textContent = data?.streak || 0;
+        } catch (e) {
+          streakCountElement.textContent = "0";
+        }
+      })();
+    }
+  }
+
+  if (buyButtons.length) {
+    buyButtons.forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const priceText = btn.dataset.price || btn.textContent.trim().split(" ")[0];
+        const price = parseInt(priceText, 10);
+        if (Number.isNaN(price)) return;
+        const itemName = btn.dataset.name || "Item";
+        const itemType = btn.dataset.type || "utilizavel";
+        const itemDesc = btn.dataset.description || "";
+
+        if (window.showConfirmBox) {
+          window.showConfirmBox({
+            title: "Confirmar compra",
+            message: `Deseja comprar "${itemName}" por ${price} moedas?`,
+            onConfirm: async () => {
+              const ok = await updateCoins(-price);
+              if (ok) {
+                if (userId) {
+                  await fetch("/api/profile/inventory", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      userId,
+                      tipo: itemType,
+                      nome: itemName,
+                      descricao: itemDesc,
+                      quantidade: 1,
+                    }),
+                  }).catch(() => {});
+                }
+                if (window.showToast) window.showToast("Item comprado!");
+              }
+            },
+          });
+        } else {
+          const ok = await updateCoins(-price);
+          if (ok) {
+            if (userId) {
+              await fetch("/api/profile/inventory", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  userId,
+                  tipo: itemType,
+                  nome: itemName,
+                  descricao: itemDesc,
+                  quantidade: 1,
+                }),
+              }).catch(() => {});
+            }
+            if (window.showToast) window.showToast("Item comprado!");
+          }
+        }
+      });
+    });
+  }
+
+  // Inventário: renderiza visuais e utilizáveis
+  const visualItemsContainer = document.getElementById("visualItems");
+  const usableItemsContainer = document.getElementById("usableItems");
+  const inventoryPreview = document.getElementById("inventoryPreview");
+  if ((visualItemsContainer || usableItemsContainer) && userId) {
+    (async function () {
+      try {
+        const resp = await fetch(`/api/profile/inventory/${userId}`);
+        const items = (await resp.json()) || [];
+        const visuals = items.filter((i) => i.tipo === "visual");
+        const usables = items.filter((i) => i.tipo !== "visual");
+
+        const renderList = (container, list) => {
+          if (!container) return;
+          container.innerHTML = "";
+          if (!list.length) {
+            container.innerHTML = "<p class='text-muted'>Nenhum item.</p>";
+            return;
+          }
+          list.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "ach-card unlocked";
+            card.innerHTML = `
+              <div class="badge">✓</div>
+              <div>
+                <strong>${item.nome}</strong>
+                <p>${item.descricao || ""}</p>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        };
+
+        renderList(visualItemsContainer, visuals);
+        renderList(usableItemsContainer, usables);
+      } catch (e) {
+        if (visualItemsContainer) visualItemsContainer.innerHTML = "<p>Erro ao carregar.</p>";
+        if (usableItemsContainer) usableItemsContainer.innerHTML = "<p>Erro ao carregar.</p>";
+      }
+    })();
+  }
+  if (inventoryPreview && userId) {
+    (async function () {
+      try {
+        const resp = await fetch(`/api/profile/inventory/${userId}`);
+        const items = (await resp.json()) || [];
+        inventoryPreview.innerHTML = "";
+        if (!items.length) {
+          inventoryPreview.innerHTML = "<p class='text-muted'>Nenhum item.</p>";
+          return;
+        }
+        items.forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "ach-card unlocked";
+          card.innerHTML = `
+            <div class="badge">${item.tipo === "visual" ? "🎨" : "🛠"}</div>
+            <div>
+              <strong>${item.nome}</strong>
+              <p>${item.descricao || ""}</p>
+            </div>
+          `;
+          inventoryPreview.appendChild(card);
+        });
+      } catch (e) {
+        inventoryPreview.innerHTML = "<p>Erro ao carregar.</p>";
+      }
+    })();
   }
 
   // --- LÓGICA DE ENVIO DE MENSAGEM (MERGE DA SUA API + NOVO MODAL) ---

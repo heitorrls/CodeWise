@@ -1,4 +1,5 @@
 const UserProfile = require("../models/UserProfile");
+const Inventory = require("../models/Inventory");
 
 // Atualiza o nome de usuário
 exports.updateUsername = (req, res) => {
@@ -31,15 +32,17 @@ exports.updateAvatar = (req, res) => {
       .json({ message: "ID do usuário e avatar são obrigatórios." });
   }
 
-  UserProfile.updateAvatar(userId, avatar, (err, affected) => {
-    if (err) {
-      console.error("Erro ao atualizar avatar:", err);
-      return res.status(500).json({ message: "Erro ao salvar avatar." });
+  UserProfile.ensureProfile(userId, null, (errEnsure) => {
+    if (errEnsure) {
+      console.error("Erro ao garantir perfil:", errEnsure);
     }
-    if (affected === 0) {
-      return res.status(404).json({ message: "Perfil não encontrado." });
-    }
-    res.status(200).json({ message: "Avatar atualizado com sucesso." });
+    UserProfile.updateAvatar(userId, avatar, (err, affected) => {
+      if (err) {
+        console.error("Erro ao atualizar avatar:", err);
+        return res.status(500).json({ message: "Erro ao salvar avatar." });
+      }
+      res.status(200).json({ message: "Avatar atualizado com sucesso." });
+    });
   });
 };
 
@@ -50,14 +53,78 @@ exports.getProfile = (req, res) => {
     return res.status(400).json({ message: "ID do usuário é obrigatório." });
   }
 
-  UserProfile.findByUserId(userId, (err, profile) => {
-    if (err) {
-      console.error("Erro ao buscar perfil:", err);
-      return res.status(500).json({ message: "Erro no servidor." });
+  UserProfile.ensureProfile(userId, null, (errEnsure) => {
+    if (errEnsure) {
+      console.error("Erro ao garantir perfil:", errEnsure);
     }
-    if (!profile) {
-      return res.status(404).json({ message: "Perfil não encontrado." });
-    }
-    res.status(200).json(profile);
+    UserProfile.findByUserId(userId, (err, profile) => {
+      if (err) {
+        console.error("Erro ao buscar perfil:", err);
+        return res.status(500).json({ message: "Erro no servidor." });
+      }
+      if (!profile) {
+        return res.status(404).json({ message: "Perfil não encontrado." });
+      }
+      res.status(200).json(profile);
+    });
   });
+};
+
+// Atualiza moedas (delta positivo adiciona, negativo subtrai)
+exports.updateCoins = (req, res) => {
+  const { userId, delta } = req.body;
+  if (!userId || typeof delta !== "number") {
+    return res
+      .status(400)
+      .json({ message: "userId e delta (número) são obrigatórios." });
+  }
+
+  UserProfile.ensureProfile(userId, null, (errEnsure) => {
+    if (errEnsure) console.error("Erro ao garantir perfil:", errEnsure);
+    UserProfile.updateCoins(userId, delta, (err, newBalance) => {
+      if (err) {
+        console.error("Erro ao atualizar moedas:", err);
+        if (err.code === "INSUFFICIENT_FUNDS") {
+          return res.status(400).json({ message: "Saldo insuficiente." });
+        }
+        return res.status(500).json({ message: "Erro ao atualizar moedas." });
+      }
+      res
+        .status(200)
+        .json({ message: "Moedas atualizadas.", saldo: newBalance });
+    });
+  });
+};
+
+// Adiciona item ao inventário
+exports.addInventoryItem = async (req, res) => {
+  const { userId, tipo, nome, descricao, quantidade, meta } = req.body;
+  if (!userId || !nome) {
+    return res.status(400).json({ message: "userId e nome do item são obrigatórios." });
+  }
+  try {
+    const insertId = await Inventory.addItem(userId, {
+      tipo,
+      nome,
+      descricao,
+      quantidade,
+      meta: meta ? JSON.stringify(meta) : null,
+    });
+    res.status(200).json({ message: "Item adicionado ao inventário.", id: insertId });
+  } catch (err) {
+    console.error("Erro ao adicionar inventário:", err);
+    res.status(500).json({ message: "Erro ao adicionar ao inventário." });
+  }
+};
+
+exports.listInventory = async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) return res.status(400).json({ message: "userId é obrigatório." });
+  try {
+    const items = await Inventory.listByUser(userId);
+    res.status(200).json(items);
+  } catch (err) {
+    console.error("Erro ao listar inventário:", err);
+    res.status(500).json({ message: "Erro ao buscar inventário." });
+  }
 };

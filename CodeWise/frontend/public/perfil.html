@@ -71,33 +71,41 @@
           <div class="panel stats">
             <div class="panel-header">
               <h2>Estatísticas</h2>
-              <a href="estatisticas.html">Ver detalhes →</a>
+              <a href="estatisticas.html">Ver detalhes</a>
             </div>
             <div class="stat-grid">
               <div class="stat-card">
                 <span class="label">Questões respondidas</span>
                 <strong id="statTotal">0</strong>
-              </div>
-              <div class="stat-card">
-                <span class="label">Taxa de acerto</span>
-                <strong id="statAccuracy">0%</strong>
-              </div>
-              <div class="stat-card">
-                <span class="label">Lições concluídas</span>
-                <strong id="statLessons">0</strong>
-              </div>
+            </div>
+            <div class="stat-card">
+              <span class="label">Taxa de acerto</span>
+              <strong id="statAccuracy">0%</strong>
+            </div>
+            <div class="stat-card">
+              <span class="label">Lições concluídas</span>
+              <strong id="statLessons">0</strong>
             </div>
           </div>
+        </div>
 
-          <div class="panel achievements">
-            <div class="panel-header">
-              <h2>Conquistas</h2>
-              <a href="conquistas.html">Ver todas →</a>
-            </div>
-            <div class="achievements-list" id="achievementsPreview"></div>
+        <div class="panel achievements">
+          <div class="panel-header">
+            <h2>Conquistas</h2>
+            <a href="conquistas.html">Ver todas</a>
           </div>
-        </section>
-      </main>
+          <div class="achievements-list" id="achievementsPreview"></div>
+        </div>
+
+        <div class="panel achievements">
+          <div class="panel-header">
+            <h2>Inventário</h2>
+            <a href="inventario.html">Abrir inventário</a>
+          </div>
+          <div class="achievements-list" id="inventoryPreview"></div>
+        </div>
+      </section>
+    </main>
     </div>
 
     <div class="toast" id="achievementToast">
@@ -225,8 +233,8 @@
           reader.onload = async () => {
             const dataUrl = reader.result;
             avatarImg.src = dataUrl;
-            // Salva localmente
-            localStorage.setItem("cw_avatar_data", dataUrl);
+            // Salva localmente por usuário
+            if (userId) localStorage.setItem(`cw_avatar_data_${userId}`, dataUrl);
             // Envia para o backend para persistir
             const uid = localStorage.getItem("userId");
             if (uid) {
@@ -246,7 +254,7 @@
           };
           reader.readAsDataURL(file);
         });
-        const saved = localStorage.getItem("cw_avatar_data");
+        const saved = userId ? localStorage.getItem(`cw_avatar_data_${userId}`) : null;
         if (saved) avatarImg.src = saved;
       }
 

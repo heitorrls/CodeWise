@@ -191,7 +191,7 @@ body::before {
 }
 
 .balance-amount {
-    font-weight: bold;
+    font-weight: 800;
     color: white;
 }
 
