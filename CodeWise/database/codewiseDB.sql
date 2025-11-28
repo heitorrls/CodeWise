@@ -175,7 +175,7 @@ CREATE TABLE `inventario` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `inventario_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,6 +184,7 @@ CREATE TABLE `inventario` (
 
 LOCK TABLES `inventario` WRITE;
 /*!40000 ALTER TABLE `inventario` DISABLE KEYS */;
+INSERT INTO `inventario` VALUES (1,7,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:22:35'),(2,7,'visual','Traje Astronauta','Visual de astronauta.',1,NULL,'2025-11-28 01:22:53'),(3,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:25:05'),(4,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:48:28'),(5,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:48:41');
 /*!40000 ALTER TABLE `inventario` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -403,7 +404,7 @@ CREATE TABLE `user_logins` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_login` (`user_id`,`login_date`),
   CONSTRAINT `user_logins_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -412,7 +413,7 @@ CREATE TABLE `user_logins` (
 
 LOCK TABLES `user_logins` WRITE;
 /*!40000 ALTER TABLE `user_logins` DISABLE KEYS */;
-INSERT INTO `user_logins` VALUES (1,7,'2025-11-26','2025-11-26 20:09:49'),(2,7,'2025-11-27','2025-11-27 19:08:57');
+INSERT INTO `user_logins` VALUES (1,7,'2025-11-26','2025-11-26 20:09:49'),(2,7,'2025-11-27','2025-11-27 19:08:57'),(4,8,'2025-11-28','2025-11-28 01:23:56');
 /*!40000 ALTER TABLE `user_logins` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -433,7 +434,7 @@ CREATE TABLE `user_profiles` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `user_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -442,7 +443,7 @@ CREATE TABLE `user_profiles` (
 
 LOCK TABLES `user_profiles` WRITE;
 /*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
-INSERT INTO `user_profiles` VALUES (4,4,'bia',0,0,NULL),(6,6,'professor',0,0,NULL);
+INSERT INTO `user_profiles` VALUES (4,4,'bia',0,0,NULL),(6,6,'professor',0,0,NULL),(7,7,'Gabriel',0,250,NULL),(24,8,NULL,0,0,NULL);
 /*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -462,10 +463,11 @@ CREATE TABLE `users` (
   `tipo` enum('aluno','admin') NOT NULL DEFAULT 'aluno',
   `leveling_completed` tinyint(1) DEFAULT '0',
   `level` varchar(50) DEFAULT NULL,
+  `nome` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -474,7 +476,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (4,'bia@gmail.com','bia','$2a$10$enQsGtg8ebvgvNgcxMD58.szHYwPfga5pPwdBhhjgeKcq6NKEdENC','2025-10-31 13:14:11','aluno',0,NULL),(6,'professor@gmail.com','professor','$2a$10$yslsQ31q2gjobuA/FVax0OhdgIq2VmWdTNPbWQJbjgcPyZV/K8Pg.','2025-10-31 13:24:37','aluno',0,NULL),(7,'gabriel@gmail.com','Gabriel','$2a$10$l6zXTflOL69modTueaIL3.oRbmM7Nmq8wEatC3MuScEHR0Y10Zw5e','2025-11-26 20:09:41','aluno',1,'Intermediário');
+INSERT INTO `users` VALUES (4,'bia@gmail.com','bia','$2a$10$enQsGtg8ebvgvNgcxMD58.szHYwPfga5pPwdBhhjgeKcq6NKEdENC','2025-10-31 13:14:11','aluno',0,NULL,NULL),(6,'professor@gmail.com','professor','$2a$10$yslsQ31q2gjobuA/FVax0OhdgIq2VmWdTNPbWQJbjgcPyZV/K8Pg.','2025-10-31 13:24:37','aluno',0,NULL,NULL),(7,'gabriel@gmail.com','Gabriel','$2a$10$l6zXTflOL69modTueaIL3.oRbmM7Nmq8wEatC3MuScEHR0Y10Zw5e','2025-11-26 20:09:41','aluno',1,'Intermediário',NULL),(8,'heitor@gmail.com','heitorbundao','$2a$10$q6f4UJyRmEJUTV3q9hnVFOzp9fHTSFyiSJp7q0rBmijQiALoGC2pC','2025-11-28 01:23:51','aluno',1,'Iniciante',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -487,4 +489,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-27 22:14:06
+-- Dump completed on 2025-11-27 22:52:11
