@@ -57,7 +57,7 @@ body {
   grid-template-columns: 260px 1fr;
   gap: 20px;
   align-items: start;
-  max-width: 1380px;
+  max-width: 2000px;
   margin: 0 auto 40px;
 }
 
