@@ -911,11 +911,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         currentQuestion < testQuestions.length - 1 ? "Avançar" : "Finalizar";
     }
 
-    function finishTest() {
+    async function finishTest() {
       const percentage = Math.round((score / testQuestions.length) * 100);
       console.log(
         `Teste finalizado! Pontuação: ${score}/${testQuestions.length} (${percentage}%)`
       );
+      try {
+        const uid = localStorage.getItem('userId');
+        if (uid) {
+          const answered = testQuestions.length;
+          const correct = score;
+          const wrong = Math.max(0, answered - correct);
+          await fetch('/api/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: uid, answeredCount: answered, correctCount: correct, wrongCount: wrong })
+          }).catch(() => {});
+        }
+      } catch (e) { /* não bloqueia fluxo */ }
       transitionToPage(
         `resultado_nivelamento.html?score=${score}&total=${testQuestions.length}`
       );
@@ -1334,7 +1347,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
 
-      function finishQuiz() {
+      async function finishQuiz() {
         // Recalcula o score com base em todas as respostas marcadas
         score = userAnswers.reduce((total, answer, idx) => {
           const question = lessonQuestions[idx];
@@ -1347,6 +1360,20 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           return total;
         }, 0);
+        // Persistir estatísticas desta lição
+        try {
+          const uid = localStorage.getItem('userId');
+          if (uid) {
+            const answered = lessonQuestions.length;
+            const correct = score;
+            const wrong = Math.max(0, answered - correct);
+            await fetch('/api/progress', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: uid, answeredCount: answered, correctCount: correct, wrongCount: wrong })
+            }).catch(() => {});
+          }
+        } catch (e) { /* ignora erros */ }
         // Marca primeira lição concluída (para conquistas) e agenda modal ao voltar à home
         localStorage.setItem("lessonComplete", "true");
         localStorage.setItem(
@@ -2108,79 +2135,74 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 // 15 página de estatisticas.html
-  // Lógica Frontend (Mockada por enquanto)
-        document.addEventListener('DOMContentLoaded', () => {
-            // DADOS FICTÍCIOS (Simulando o que viria do banco)
-            // Quando fizermos o backend, substituiremos isso por um fetch()
-            const statsData = {
-                correct: 42,
-                incorrect: 12,
-                total: 54
-            };
+// Agora busca do backend as estatísticas reais do usuário logado e atualiza os cards e o gráfico
+document.addEventListener('DOMContentLoaded', async () => {
+  const totalEl = document.getElementById('totalQuestions');
+  const correctEl = document.getElementById('totalCorrect');
+  const wrongEl = document.getElementById('totalIncorrect');
+  const perfCanvas = document.getElementById('performanceChart');
+  const accEl = document.getElementById('accuracyPercent');
+  const circle = document.getElementById('progressCircle');
+  const userId = localStorage.getItem('userId');
 
-            // 1. Atualiza os Cards
-            document.getElementById('totalQuestions').textContent = statsData.total;
-            document.getElementById('totalCorrect').textContent = statsData.correct;
-            document.getElementById('totalIncorrect').textContent = statsData.incorrect;
+  if (!totalEl || !correctEl || !wrongEl || !perfCanvas || !accEl || !circle) return;
 
-            // 2. Configura o Gráfico (Chart.js)
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            const chart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Acertos', 'Erros'],
-                    datasets: [{
-                        data: [statsData.correct, statsData.incorrect],
-                        backgroundColor: [
-                            '#4ade80', // Verde (Acertos)
-                            '#f87171'  // Vermelho (Erros)
-                        ],
-                        borderColor: [
-                            'rgba(74, 222, 128, 0.2)',
-                            'rgba(248, 113, 113, 0.2)'
-                        ],
-                        borderWidth: 2,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: '#b8b0d0', // Cor do texto da legenda
-                                font: { size: 14 }
-                            }
-                        }
-                    },
-                    cutout: '70%' // Espessura da rosca
-                }
-            });
+  let summary = { totalAnswered: 0, totalCorrect: 0, totalWrong: 0 };
+  try {
+    if (userId) {
+      const resp = await fetch(`/api/progress/summary/${userId}`);
+      if (resp.ok) {
+        summary = await resp.json();
+      }
+    }
+  } catch (e) { /* fallback zeros */ }
 
-            // 3. Calcula e Anima a Taxa de Precisão
-            const accuracy = Math.round((statsData.correct / statsData.total) * 100) || 0;
-            document.getElementById('accuracyPercent').textContent = `${accuracy}%`;
-            
-            // Animação do círculo SVG (Stroke Dashoffset)
-            const circle = document.getElementById('progressCircle');
-            const radius = circle.r.baseVal.value;
-            const circumference = radius * 2 * Math.PI;
-            
-            circle.style.strokeDasharray = `${circumference} ${circumference}`;
-            circle.style.strokeDashoffset = circumference;
+  const total = Number(summary.totalAnswered) || 0;
+  const correct = Number(summary.totalCorrect) || 0;
+  const wrong = Number(summary.totalWrong) || Math.max(0, total - correct);
 
-            const offset = circumference - (accuracy / 100) * circumference;
-            
-            // Pequeno delay para a animação ocorrer
-            setTimeout(() => {
-                circle.style.strokeDashoffset = offset;
-            }, 100);
+  totalEl.textContent = total;
+  correctEl.textContent = correct;
+  wrongEl.textContent = wrong;
 
-            // Texto Motivacional
-            const motivation = document.getElementById('motivationText');
-            if(accuracy >= 80) motivation.textContent = "Excelente! Você é um mestre.";
-            else if(accuracy >= 50) motivation.textContent = "Muito bom! Continue assim.";
-            else motivation.textContent = "Não desista! A prática leva à perfeição.";
-        });
+  const ctx = perfCanvas.getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Acertos', 'Erros'],
+      datasets: [{
+        data: [correct, wrong],
+        backgroundColor: ['#4ade80', '#f87171'],
+        borderColor: ['rgba(74,222,128,0.2)', 'rgba(248,113,113,0.2)'],
+        borderWidth: 2,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#b8b0d0', font: { size: 14 } }
+        }
+      },
+      cutout: '70%'
+    }
+  });
+
+  const radius = circle.r.baseVal.value;
+  const circumference = radius * 2 * Math.PI;
+  circle.style.strokeDasharray = `${circumference} ${circumference}`;
+  circle.style.strokeDashoffset = circumference;
+  const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+  accEl.textContent = `${accuracy}%`;
+  const offset = circumference - (accuracy / 100) * circumference;
+  setTimeout(() => { circle.style.strokeDashoffset = offset; }, 100);
+  const motivation = document.getElementById('motivationText');
+  if (motivation) {
+    if (accuracy >= 80) motivation.textContent = 'Excelente! Você é um mestre.';
+    else if (accuracy >= 50) motivation.textContent = 'Muito bom! Continue assim.';
+    else motivation.textContent = 'Não desista! A prática leva à perfeição.';
+  }
+});
