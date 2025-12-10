@@ -70,7 +70,7 @@ body::before {
   grid-area: header;
   background: rgba(26, 27, 58, 0.95);
   border-bottom: 2px solid rgba(139, 124, 200, 0.3);
-  padding: 15px 40px;
+  padding: 20px 40px;
   position: fixed;
   top: 0;
   left: 0;
@@ -80,7 +80,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 70px;
+  
 }
 
 .header h1 {

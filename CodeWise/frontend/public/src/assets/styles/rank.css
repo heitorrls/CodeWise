@@ -7,27 +7,48 @@
 
 body {
   font-family: "Arial", sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  background: linear-gradient(135deg, #1a1b3a 0%, #0f1020 50%, #1a1b3a 100%);
+  color: white;
   min-height: 100vh;
   overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed; /* Fixo para não rolar com o conteúdo */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+      2px 2px at 20px 30px,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    ),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.2), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(
+      1px 1px at 130px 80px,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  animation: twinkle 4s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1; /* Fica atrás de todo o conteúdo */
 }
 
 /* Header Fixo (Padrão de configuracoes.css) */
 .header {
-  background: var(--card);
-  border-bottom: 2px solid var(--border);
-  padding: 15px 40px;
+  background: rgba(26, 27, 58, 0.95);
+  border-bottom: 2px solid rgba(139, 124, 200, 0.3);
+  padding: 20px 40px;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
   backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 70px;
 }
 
 .header h1 {
@@ -43,8 +64,9 @@ body {
   display: grid;
   grid-template-columns: 250px 1fr;
   gap: 20px;
-  padding: 90px 20px 20px;
+  padding: 90px 10px 10px;
   max-width: 2000px;
+  min-height: 100vh;
   margin: 0 auto;
 }
 
@@ -84,14 +106,14 @@ body {
 }
 
 .nav-item:hover {
-  background: var(--bg-elevated);
-  border-color: var(--primary);
+  background: rgba(139, 124, 200, 0.2);
+  border-color: #a89bd1;
   transform: translateX(5px);
 }
 
 .nav-item.active {
   background: var(--primary);
-  color: var(--primary-contrast);
+  color: white;
   border-color: var(--primary);
   box-shadow: 0 8px 20px var(--shadow);
 }
@@ -163,9 +185,9 @@ body {
 }
 
 .rank-item:hover {
-  background: var(--bg-elevated);
+  background: rgba(139, 124, 200, 0.2);
   transform: translateX(3px);
-  border-color: var(--primary);
+  border-color: #a89bd1;
 }
 
 .rank-position {

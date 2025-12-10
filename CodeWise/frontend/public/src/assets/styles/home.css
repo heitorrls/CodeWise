@@ -79,12 +79,12 @@ body::before {
   grid-template-areas:
     "header header header"
     "sidebar main right-sidebar";
-  gap: 30px;
-  padding: 1px 10px 10px; /* Espaço para header fixo + padding geral */
+  gap: 20px;
+  padding: 2px 10px 10px; /* Espaço para header fixo + padding geral */
   max-width: 2000px;
   min-height: 100vh; /* Garante altura mínima */
   margin: 0 auto;
-  position: relative; /* Para ficar acima do ::before */
+  position: relative; 
   z-index: 1;
 }
 
