@@ -2347,4 +2347,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   } 
+
+  // ==================================================================
+  // 7. LÓGICA DO TEMA (CLARO/ESCURO)
+  // ==================================================================
+  const themeSwitch = document.getElementById('lightTheme');
+  const rootElement = document.documentElement; // A tag <html>
+  const THEME_KEY = 'cw_theme'; // Mesma chave usada no theme-loader.js
+
+  // 1. Sincronizar o botão com o estado atual ao carregar a página
+  // O theme-loader já definiu o atributo no HTML, agora ajustamos o visual do botão
+  if (rootElement.getAttribute('data-theme') === 'light') {
+      if (themeSwitch) themeSwitch.checked = true;
+  }
+
+  // 2. Adicionar o evento de troca (Toggle)
+  if (themeSwitch) {
+      themeSwitch.addEventListener('change', function(e) {
+          if (e.target.checked) {
+              // Ativar modo claro
+              rootElement.setAttribute('data-theme', 'light');
+              localStorage.setItem(THEME_KEY, 'light');
+          } else {
+              // Ativar modo escuro (padrão)
+              rootElement.removeAttribute('data-theme');
+              localStorage.setItem(THEME_KEY, 'dark');
+          }
+      });
+  }
 });
