@@ -53,9 +53,9 @@
               <button class="edit-avatar-btn" id="changePhotoBtn">Trocar foto</button>
             </div>
             <div class="user-info">
-              <h1 id="userName">Usuário CodeWise</h1>
-              <p class="username" id="userHandle">@usuario</p>
-              <p class="email" id="userEmail">email@codewise.dev</p>
+              <h1 id="userName"></h1>
+              <p class="username" id="userHandle"></p>
+              <p class="email" id="userEmail"></p>
             </div>
           </div>
           <div class="quick-actions">
@@ -116,150 +116,6 @@
         <strong id="toastTitle"></strong>
       </div>
     </div>
-
-    <script>
-      const userId = localStorage.getItem("userId") || "";
-      const userEmail = localStorage.getItem("userEmail") || "email@codewise.dev";
-      const storedUsername = localStorage.getItem("userName") || localStorage.getItem("username");
-      const fallbackUserName =
-        storedUsername ||
-        (userEmail ? userEmail.split("@")[0] : "Usuário CodeWise");
-      const stats = {
-        total: parseInt(localStorage.getItem("statTotal") || "12", 10),
-        accuracy: parseInt(localStorage.getItem("statAccuracy") || "78", 10),
-        lessons: parseInt(localStorage.getItem("statLessons") || "3", 10),
-      };
-
-      const achievements = [
-        {
-          id: "achv_login",
-          title: "Novo Aprendiz",
-          desc: "Criou conta e acessou o CodeWise.",
-          unlocked: !!userId,
-        },
-        {
-          id: "achv_first_lesson",
-          title: "Primeira Lição",
-          desc: "Concluiu a primeira lição no CodeWise.",
-          unlocked:
-            !!localStorage.getItem("lessonComplete") ||
-            !!localStorage.getItem("lastLessonScore"),
-        },
-      ];
-
-      async function loadProfile() {
-        const userNameEl = document.getElementById("userName");
-        const userHandleEl = document.getElementById("userHandle");
-        const userEmailEl = document.getElementById("userEmail");
-        const avatarImg = document.getElementById("profileAvatar");
-        try {
-          if (userId) {
-            const resp = await fetch(`/api/profile/${userId}`);
-            if (resp.ok) {
-              const data = await resp.json();
-              if (data?.username && userNameEl && userHandleEl) {
-                userNameEl.textContent = data.username;
-                userHandleEl.textContent = `@${data.username}`;
-              }
-              if (data?.avatar && avatarImg) {
-                avatarImg.src = data.avatar;
-              }
-            }
-          }
-        } catch (e) {
-          // fallback silently
-        }
-        if (userNameEl && !userNameEl.textContent) userNameEl.textContent = fallbackUserName;
-        if (userHandleEl && !userHandleEl.textContent) {
-          userHandleEl.textContent = fallbackUserName
-            ? `@${fallbackUserName.replace(/\s+/g, "").toLowerCase()}`
-            : "@codewise_user";
-        }
-        if (userEmailEl) userEmailEl.textContent = userEmail;
-      }
-      loadProfile();
-      document.getElementById("statTotal").textContent = stats.total;
-      document.getElementById("statAccuracy").textContent = `${stats.accuracy}%`;
-      document.getElementById("statLessons").textContent = stats.lessons;
-
-      const achievementsPreview = document.getElementById("achievementsPreview");
-      const toast = document.getElementById("achievementToast");
-      const toastTitle = document.getElementById("toastTitle");
-
-      const previousState =
-        JSON.parse(localStorage.getItem("achievements_state") || "{}");
-
-      function renderAchievements() {
-        achievementsPreview.innerHTML = "";
-        achievements.forEach((ach) => {
-          const card = document.createElement("div");
-          card.className = `ach-card ${ach.unlocked ? "unlocked" : "locked"}`;
-          card.innerHTML = `
-            <div class="badge">${ach.unlocked ? "✓" : "…"}</div>
-            <div>
-              <strong>${ach.title}</strong>
-              <p>${ach.desc}</p>
-            </div>
-          `;
-          achievementsPreview.appendChild(card);
-
-          if (ach.unlocked && !previousState[ach.id]) {
-            showToast(ach.title);
-            previousState[ach.id] = true;
-          }
-        });
-        localStorage.setItem("achievements_state", JSON.stringify(previousState));
-      }
-
-      function showToast(title) {
-        toastTitle.textContent = title;
-        toast.classList.add("visible");
-        setTimeout(() => toast.classList.remove("visible"), 3200);
-      }
-
-      document
-        .getElementById("changePhotoBtn")
-        .addEventListener("click", () => {
-          const input = document.getElementById("avatarInput");
-          if (input) input.click();
-        });
-
-      const avatarInput = document.getElementById("avatarInput");
-      const avatarImg = document.getElementById("profileAvatar");
-      if (avatarInput && avatarImg) {
-        avatarInput.addEventListener("change", async (e) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = async () => {
-            const dataUrl = reader.result;
-            avatarImg.src = dataUrl;
-            // Salva localmente por usuário
-            if (userId) localStorage.setItem(`cw_avatar_data_${userId}`, dataUrl);
-            // Envia para o backend para persistir
-            const uid = localStorage.getItem("userId");
-            if (uid) {
-              try {
-                await fetch("/api/profile/avatar", {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ userId: uid, avatar: dataUrl }),
-                });
-                if (window.showToast) {
-                  window.showToast("Avatar atualizado.");
-                }
-              } catch (err) {
-                if (window.showToast) window.showToast("Não foi possível salvar no servidor.");
-              }
-            }
-          };
-          reader.readAsDataURL(file);
-        });
-        const saved = userId ? localStorage.getItem(`cw_avatar_data_${userId}`) : null;
-        if (saved) avatarImg.src = saved;
-      }
-
-      renderAchievements();
-    </script>
+    <script src="src/pages/script.js"></script>
   </body>
 </html>

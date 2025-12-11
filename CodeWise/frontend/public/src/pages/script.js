@@ -273,6 +273,13 @@ window.continuar = function () {
 
 // Make the DOMContentLoaded handler async so we can use `await` inside it.
 document.addEventListener("DOMContentLoaded", async () => {
+  // ---------- ADIÇÃO: declaração única de sessão (usar em todo o handler) ----------
+  const userId = localStorage.getItem("userId") || "";
+  const userEmail = localStorage.getItem("userEmail") || "";
+  const storedUsername = localStorage.getItem("userName") || localStorage.getItem("username");
+  const fallbackUserName = storedUsername || (userEmail ? userEmail.split("@")[0] : "");
+  // -------------------------------------------------------------------------------
+
   // --- FUNÇÕES GLOBAIS E UTILITÁRIAS ---
   // (Funções mantidas: isValidEmail, showError, clearError, showSuccess, transitionToPage, goBack, etc.)
 
@@ -514,8 +521,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // ... (Todo o código anterior, incluindo signup e login, permanece o mesmo) ...
-
   // 4. PÁGINA DE CONFIRMAÇÃO DE EMAIL (email-confirmation.html)
   const confirmationForm = document.getElementById("confirmationForm");
   if (confirmationForm) {
@@ -705,8 +710,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
-
-  // ... (Restante do seu script.js, seções 7 em diante, permanece o mesmo) ...
 
   // 7. PÁGINA DE INTRODUÇÃO DO NIVELAMENTO (intro_nivelamento.html)
   // ... (lógica mantida)
@@ -1042,7 +1045,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       (async function () {
         try {
           // Tenta marcar o nivelamento como concluído no backend
-          const userId = localStorage.getItem("userId");
           const level =
             window &&
             window.getComputedStyle &&
@@ -1179,6 +1181,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       }, 1500);
     });
   }
+
+  (function(){
+    try {
+      const el = document.getElementById('userLevel');
+      const stored = localStorage.getItem('lastTestResult');
+      let level = 'Iniciante';
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data && typeof data.classification === 'string' && data.classification.trim()) {
+          level = data.classification;
+        }
+      }
+      if (el) el.textContent = level;
+    } catch (e) {
+      const el = document.getElementById('userLevel');
+      if (el) el.textContent = 'Iniciante';
+    }
+  })();
 
   // 12. QUESTIONÁRIO DO MÓDULO (qst_modulo.html) - fluxo inspirado no nivelamento
   const lessonQuizPage = document.querySelector(".quiz-page");
@@ -1562,7 +1582,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Loja/Perfil/Home: saldo e compras
   const balanceDisplay = document.querySelector(".balance-amount");
   const buyButtons = document.querySelectorAll(".buy-button");
-  const userId = localStorage.getItem("userId");
 
   async function fetchBalance() {
     if (!userId) return;
@@ -1898,230 +1917,427 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
   }
+// 14. PÁGINA CALENDÁRIO (calendario.html)
+  const monthYearElement = document.getElementById('monthYear');
+  const calendarDaysElement = document.getElementById('calendarDays');
+  const streakCountElement = document.getElementById('streakCount');
+  const prevBtn = document.getElementById('prevMonth');
+  const nextBtn = document.getElementById('nextMonth');
 
-  // 15. Página calendario.html (executa apenas se os elementos existirem)
-  const monthYearElement = document.getElementById("monthYear");
-  const calendarDaysElement = document.getElementById("calendarDays");
-  const streakCountElement = document.getElementById("streakCount");
-  const prevBtn = document.getElementById("prevMonth");
-  const nextBtn = document.getElementById("nextMonth");
-
-  if (
-    monthYearElement &&
-    calendarDaysElement &&
-    streakCountElement &&
-    prevBtn &&
-    nextBtn
-  ) {
-    const userId = localStorage.getItem("userId");
-    if (!userId) return;
+  // Verifica se os elementos existem na página antes de rodar
+  if (monthYearElement && calendarDaysElement && streakCountElement && prevBtn && nextBtn) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return; // Se não tiver logado, não carrega
 
     let currentDate = new Date();
     let loginDates = [];
 
+    // Busca os dados de login do backend
     try {
-      const response = await fetch(`/api/calendar/${userId}`);
-      if (!response.ok) throw new Error(`Status ${response.status}`);
-      const data = await response.json();
-      loginDates = Array.isArray(data?.dates) ? data.dates : [];
-      streakCountElement.textContent = data?.streak || 0;
-      renderCalendar();
+      // Nota: O código original usava um fetch logo de cara. 
+      // Recomendo envolver isso numa função async autoinvocada ou chamada direta.
+      (async () => {
+          const response = await fetch(`/api/calendar/${userId}`);
+          if (response.ok) {
+            const data = await response.json();
+            loginDates = Array.isArray(data.dates) ? data.dates : [];
+            streakCountElement.textContent = data.streak || 0;
+          }
+          renderCalendar(); // Renderiza só depois de tentar buscar os dados
+      })();
     } catch (error) {
-      console.error("Erro ao carregar calendário:", error);
-      loginDates = [];
-      streakCountElement.textContent = 0;
-      renderCalendar();
+      console.error('Erro ao carregar calendário:', error);
+      renderCalendar(); // Renderiza mesmo se der erro (sem os destaques)
     }
 
     function renderCalendar() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
+      
       const monthNames = [
-        "Janeiro",
-        "Fevereiro",
-        "Março",
-        "Abril",
-        "Maio",
-        "Junho",
-        "Julho",
-        "Agosto",
-        "Setembro",
-        "Outubro",
-        "Novembro",
-        "Dezembro",
+        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
       ];
 
       monthYearElement.textContent = `${monthNames[month]} ${year}`;
-      calendarDaysElement.innerHTML = "";
+      calendarDaysElement.innerHTML = '';
 
       const firstDayIndex = new Date(year, month, 1).getDay();
       const lastDay = new Date(year, month + 1, 0).getDate();
 
+      // Cria espaços vazios antes do dia 1
       for (let i = 0; i < firstDayIndex; i++) {
-        const emptyDiv = document.createElement("div");
+        const emptyDiv = document.createElement('div');
         calendarDaysElement.appendChild(emptyDiv);
       }
 
+      // Cria os dias do mês
       for (let i = 1; i <= lastDay; i++) {
-        const dayDiv = document.createElement("div");
-        dayDiv.classList.add("day");
+        const dayDiv = document.createElement('div');
+        dayDiv.classList.add('day');
         dayDiv.textContent = i;
 
+        // Verifica log de login para marcar o dia (formato YYYY-MM-DD)
         const checkDate = new Date(year, month, i);
         const yyyy = checkDate.getFullYear();
-        const mm = String(checkDate.getMonth() + 1).padStart(2, "0");
-        const dd = String(checkDate.getDate()).padStart(2, "0");
+        const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(checkDate.getDate()).padStart(2, '0');
         const formattedDate = `${yyyy}-${mm}-${dd}`;
 
         if (loginDates.includes(formattedDate)) {
-          dayDiv.classList.add("active-day");
+          dayDiv.classList.add('active-day'); // Classe CSS que deixa verde
         }
 
+        // Marca o dia atual (hoje)
         const today = new Date();
-        if (
-          i === today.getDate() &&
-          month === today.getMonth() &&
-          year === today.getFullYear()
-        ) {
-          dayDiv.classList.add("today");
+        if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+          dayDiv.classList.add('today');
         }
 
         calendarDaysElement.appendChild(dayDiv);
       }
     }
+
+    // Botões de navegação
+    prevBtn.addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar();
+    });
   }
+  // 15 página de estatisticas.html
+  (function renderStatisticsIfPresent() {
+    const totalEl = document.getElementById('totalQuestions');
+    const correctEl = document.getElementById('totalCorrect');
+    const wrongEl = document.getElementById('totalIncorrect');
+    const perfCanvas = document.getElementById('performanceChart');
+    const accEl = document.getElementById('accuracyPercent');
+    const circle = document.getElementById('progressCircle');
 
-  // THEME: Toggle Claro/Escuro com persistência
-  (function () {
-    const THEME_KEY = "cw_theme";
-    const root = document.documentElement;
-    const switches = document.querySelectorAll(
-      '[data-setting="theme-light"], #lightTheme'
-    );
-    const isLight = root.getAttribute("data-theme") === "light";
+    if (!totalEl || !correctEl || !wrongEl || !perfCanvas || !accEl || !circle) return;
 
-    if (switches.length) {
-      switches.forEach((sw) => {
-        sw.checked = isLight;
-      });
-
-      const syncSwitches = (checked) => {
-        switches.forEach((sw) => {
-          if (sw.checked !== checked) sw.checked = checked;
-        });
-      };
-
-      const applyTheme = (enabled) => {
-        if (enabled) {
-          root.setAttribute("data-theme", "light");
-          localStorage.setItem(THEME_KEY, "light");
-        } else {
-          root.removeAttribute("data-theme");
-          localStorage.setItem(THEME_KEY, "dark");
+    (async () => {
+      try {
+        let summary = { totalAnswered: 0, totalCorrect: 0, totalWrong: 0 };
+        if (userId) {
+          const resp = await fetch(`/api/progress/summary/${userId}`);
+          if (resp.ok) summary = await resp.json();
         }
-        syncSwitches(enabled);
-      };
 
-      switches.forEach((sw) => {
-        sw.addEventListener("change", (e) => {
-          applyTheme(e.target.checked);
-        });
-      });
-    }
+        const total = Number(summary.totalAnswered) || 0;
+        const correct = Number(summary.totalCorrect) || 0;
+        const wrong = Number(summary.totalWrong) || Math.max(0, total - correct);
+
+        totalEl.textContent = total;
+        correctEl.textContent = correct;
+        wrongEl.textContent = wrong;
+
+        if (perfCanvas && perfCanvas.getContext) {
+          const ctx = perfCanvas.getContext('2d');
+          new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Acertos', 'Erros'],
+              datasets: [{
+                data: [correct, wrong],
+                backgroundColor: ['#4ade80', '#f87171'],
+                borderColor: ['rgba(74,222,128,0.2)', 'rgba(248,113,113,0.2)'],
+                borderWidth: 2,
+                hoverOffset: 4
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  position: 'bottom',
+                  labels: { color: '#b8b0d0', font: { size: 14 } }
+                }
+              },
+              cutout: '70%'
+            }
+          });
+        }
+
+        // Progress circle (SVG)
+        if (circle) {
+          const radius = Number(circle.getAttribute('r')) || (circle.r && circle.r.baseVal && circle.r.baseVal.value) || 0;
+          const circumference = radius * 2 * Math.PI;
+          circle.style.strokeDasharray = `${circumference} ${circumference}`;
+          circle.style.strokeDashoffset = circumference;
+          const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+          accEl.textContent = `${accuracy}%`;
+          const offset = circumference - (accuracy / 100) * circumference;
+          setTimeout(() => { circle.style.strokeDashoffset = offset; }, 100);
+        }
+
+        const motivation = document.getElementById('motivationText');
+        if (motivation) {
+          const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+          if (total === 0) {
+            motivation.textContent = 'Comece a responder perguntas para ver suas estatísticas.';
+          } else if (accuracy >= 80) {
+            motivation.textContent = 'Excelente! Você é um mestre.';
+          } else if (accuracy >= 50) {
+            motivation.textContent = 'Muito bom! Continue assim.';
+          } else {
+            motivation.textContent = 'Não desista! A prática leva à perfeição.';
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao carregar estatísticas:', err);
+      }
+    })();
   })();
 
-  // 13. PÁGINA DE PERFIL (perfil.html) // <-- MUDOU PARA DENTRO
+  // ==================================================================
+  // 1. ESTADO GLOBAL E UTILITÁRIOS
+  // ==================================================================
+
+
+  // ==================================================================
+  // 2. LÓGICA DE PERFIL E ESTATÍSTICAS
+  // ==================================================================
+  
+  // Carrega estatísticas do LocalStorage
+  const stats = {
+    total: parseInt(localStorage.getItem("statTotal") || "12", 10),
+    accuracy: parseInt(localStorage.getItem("statAccuracy") || "78", 10),
+    lessons: parseInt(localStorage.getItem("statLessons") || "3", 10),
+  };
+
+  // Exibe estatísticas na tela (se os elementos existirem)
+  const statTotalEl = document.getElementById("statTotal");
+  if (statTotalEl) {
+    statTotalEl.textContent = stats.total;
+    document.getElementById("statAccuracy").textContent = `${stats.accuracy}%`;
+    document.getElementById("statLessons").textContent = stats.lessons;
+  }
+
+  // Função para carregar dados do usuário (API)
+  async function loadProfile() {
+    const userNameEl = document.getElementById("userName");
+    const userHandleEl = document.getElementById("userHandle");
+    const userEmailEl = document.getElementById("userEmail");
+    const avatarImg = document.getElementById("profileAvatar");
+
+    try {
+      if (userId) {
+        const resp = await fetch(`/api/profile/${userId}`);
+        if (resp.ok) {
+          const data = await resp.json();
+          
+          if (data?.username && userNameEl && userHandleEl) {
+            userNameEl.textContent = data.username;
+            userHandleEl.textContent = `@${data.username}`;
+            try { localStorage.setItem("username", data.username); } catch (_) {}
+          }
+          
+          if (data?.avatar && avatarImg) {
+            avatarImg.src = data.avatar;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Falha ao carregar perfil remoto, usando cache.", e);
+    }
+
+    // Fallbacks visuais caso a API falhe ou dados não existam
+    if (userNameEl && !userNameEl.textContent) {
+      userNameEl.textContent = fallbackUserName || "Usuário";
+    }
+    if (userHandleEl && !userHandleEl.textContent) {
+      userHandleEl.textContent = (fallbackUserName && fallbackUserName.trim())
+        ? `@${fallbackUserName.replace(/\s+/g, "").toLowerCase()}`
+        : "@codewise_user";
+    }
+    if (userEmailEl) {
+      userEmailEl.textContent = userEmail || "email@codewise.dev";
+    }
+  }
+
+  // Executa carregamento do perfil
+  loadProfile();
+
+  // ==================================================================
+  // 3. SISTEMA DE CONQUISTAS
+  // ==================================================================
+  const achievementsPreview = document.getElementById("achievementsPreview");
+  
+  if (achievementsPreview) {
+    const toast = document.getElementById("achievementToast");
+    const toastTitle = document.getElementById("toastTitle");
+    
+    const achievements = [
+      {
+        id: "achv_login",
+        title: "Novo Aprendiz",
+        desc: "Criou conta e acessou o CodeWise.",
+        unlocked: !!userId,
+      },
+      {
+        id: "achv_first_lesson",
+        title: "Primeira Lição",
+        desc: "Concluiu a primeira lição no CodeWise.",
+        unlocked: !!localStorage.getItem("lessonComplete") || !!localStorage.getItem("lastLessonScore"),
+      },
+    ];
+
+    const previousState = JSON.parse(localStorage.getItem("achievements_state") || "{}");
+
+    function showToast(title) {
+      if (!toast || !toastTitle) return;
+      toastTitle.textContent = title;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 3200);
+    }
+
+    function renderAchievements() {
+      achievementsPreview.innerHTML = "";
+      achievements.forEach((ach) => {
+        const card = document.createElement("div");
+        card.className = `ach-card ${ach.unlocked ? "unlocked" : "locked"}`;
+        card.innerHTML = `
+          <div class="badge">${ach.unlocked ? "✓" : "…"}</div>
+          <div>
+            <strong>${ach.title}</strong>
+            <p>${ach.desc}</p>
+          </div>
+        `;
+        achievementsPreview.appendChild(card);
+
+        if (ach.unlocked && !previousState[ach.id]) {
+          showToast(ach.title);
+          previousState[ach.id] = true;
+        }
+      });
+      localStorage.setItem("achievements_state", JSON.stringify(previousState));
+    }
+
+    renderAchievements();
+  }
+
+  // ==================================================================
+  // 4. GERENCIAMENTO DE AVATAR (UPLOAD)
+  // ==================================================================
+  const changePhotoBtn = document.getElementById("changePhotoBtn");
+  const avatarInput = document.getElementById("avatarInput");
+  const avatarImg = document.getElementById("profileAvatar");
+
+  if (changePhotoBtn && avatarInput) {
+    changePhotoBtn.addEventListener("click", () => {
+      avatarInput.click();
+    });
+  }
+
+  if (avatarInput && avatarImg) {
+    // Carrega avatar salvo localmente ao iniciar
+    const savedAvatar = userId ? localStorage.getItem(`cw_avatar_data_${userId}`) : null;
+    if (savedAvatar) avatarImg.src = savedAvatar;
+
+    avatarInput.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result;
+        avatarImg.src = dataUrl;
+        
+        // 1. Salva localmente
+        if (userId) localStorage.setItem(`cw_avatar_data_${userId}`, dataUrl);
+        
+        // 2. Envia para o backend
+        if (userId) {
+          try {
+            await fetch("/api/profile/avatar", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: userId, avatar: dataUrl }),
+            });
+            if (window.showToast) window.showToast("Avatar atualizado.");
+          } catch (err) {
+            console.error(err);
+            if (window.showToast) window.showToast("Não foi possível salvar no servidor.");
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ==================================================================
+  // 5. CONFIGURAÇÕES DA CONTA (EDITAR / EXCLUIR)
+  // ==================================================================
+// ==================================================================
+  // 5. CONFIGURAÇÕES DA CONTA (EDITAR / EXCLUIR)
+  // ==================================================================
   const saveAccountBtn = document.getElementById("save-account-btn");
   const editAccountBtn = document.getElementById("edit-account-btn");
   const deleteAccountBtn = document.querySelector(".delete-button");
-  if (saveAccountBtn) {
-    const usernameInput = document.getElementById("username");
-    const emailInput = document.getElementById("email");
 
-    // Preenche o email do usuário logado e bloqueia por padrão
-    const userEmail = localStorage.getItem("userEmail");
-    if (emailInput && userEmail) {
-      emailInput.value = userEmail;
-    }
-    // Bloqueia os campos por padrão
-    if (usernameInput) usernameInput.disabled = true;
-    if (emailInput) emailInput.disabled = true;
+  // Só executa a lógica de bloquear inputs SE estivermos na página de conta
+  if (saveAccountBtn || editAccountBtn) {
+      const usernameInput = document.getElementById("username");
+      const emailInput = document.getElementById("email");
 
-    // Botão Editar habilita os campos para edição
-    if (editAccountBtn) {
-      editAccountBtn.addEventListener("click", () => {
-        if (usernameInput) usernameInput.disabled = false;
-        if (emailInput) emailInput.disabled = false;
-        if (usernameInput) usernameInput.focus();
-      });
-    }
-
-    // Botão Salvar envia as alterações
-    saveAccountBtn.addEventListener("click", async () => {
-      const newUsername = usernameInput ? usernameInput.value.trim() : "";
-      const newEmail = emailInput ? emailInput.value.trim() : "";
-      const userId = localStorage.getItem("userId");
-
-      if (!userId) {
-        alert("Erro: ID do usuário não encontrado. Faça login novamente.");
-        return;
+      // Preenchimento inicial dos inputs de configuração
+      if (emailInput && userEmail) {
+        emailInput.value = userEmail;
       }
-      if (!newUsername && !newEmail) {
-        alert("Nada para atualizar.");
-        return;
-      }
+      if (usernameInput) usernameInput.disabled = true;
+      if (emailInput) emailInput.disabled = true;
 
-      try {
-        const response = await fetch(`/api/user/${userId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: newUsername,
-            email: newEmail,
-          }),
+      // Botão Editar
+      if (editAccountBtn) {
+        editAccountBtn.addEventListener("click", () => {
+          if (usernameInput) usernameInput.disabled = false;
+          if (emailInput) emailInput.disabled = false;
+          if (usernameInput) usernameInput.focus();
         });
-
-        const data = await response.json().catch(() => ({}));
-        if (response.ok) {
-          // Atualiza localStorage do email se alterado
-          if (newEmail) {
-            localStorage.setItem("userEmail", newEmail);
-          }
-          alert(data.message || "Dados atualizados com sucesso.");
-          // Rebloqueia os campos após salvar
-          if (usernameInput) usernameInput.disabled = true;
-          if (emailInput) emailInput.disabled = true;
-        } else {
-          alert(data.message || "Erro ao atualizar dados.");
-        }
-      } catch (error) {
-        console.error("Erro ao atualizar dados:", error);
-        alert("Erro de conexão com o servidor. Tente novamente.");
       }
-    });
+
+      // Botão Salvar
+      if (saveAccountBtn) {
+         // ... (mantenha a lógica do saveAccountBtn aqui dentro) ...
+         saveAccountBtn.addEventListener("click", async () => {
+             // ... seu código de salvar ...
+         });
+      }
   }
 
   // Botão Excluir Conta
   if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener("click", async () => {
-      const userId = localStorage.getItem("userId");
       if (!userId) {
         alert("Erro: ID do usuário não encontrado. Faça login novamente.");
         return;
       }
-      const confirmed = confirm(
-        "Tem certeza que deseja excluir sua conta? Esta ação é irreversível."
-      );
+      
+      const confirmed = confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível.");
       if (!confirmed) return;
 
       try {
         const response = await fetch(`/api/user/${userId}`, {
           method: "DELETE",
         });
+        
         const data = await response.json().catch(() => ({}));
+        
         if (response.ok) {
           alert(data.message || "Conta excluída com sucesso.");
-          window.logout(false);
+          if (window.logout) {
+            window.logout(false);
+          } else {
+            // Fallback caso a função global logout não exista
+            localStorage.clear();
+            window.location.href = "login.html";
+          }
         } else {
           alert(data.message || "Não foi possível excluir a conta.");
         }
@@ -2130,79 +2346,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         alert("Erro de conexão com o servidor. Tente novamente.");
       }
     });
-  }
-});
-
-
-// 15 página de estatisticas.html
-// Agora busca do backend as estatísticas reais do usuário logado e atualiza os cards e o gráfico
-document.addEventListener('DOMContentLoaded', async () => {
-  const totalEl = document.getElementById('totalQuestions');
-  const correctEl = document.getElementById('totalCorrect');
-  const wrongEl = document.getElementById('totalIncorrect');
-  const perfCanvas = document.getElementById('performanceChart');
-  const accEl = document.getElementById('accuracyPercent');
-  const circle = document.getElementById('progressCircle');
-  const userId = localStorage.getItem('userId');
-
-  if (!totalEl || !correctEl || !wrongEl || !perfCanvas || !accEl || !circle) return;
-
-  let summary = { totalAnswered: 0, totalCorrect: 0, totalWrong: 0 };
-  try {
-    if (userId) {
-      const resp = await fetch(`/api/progress/summary/${userId}`);
-      if (resp.ok) {
-        summary = await resp.json();
-      }
-    }
-  } catch (e) { /* fallback zeros */ }
-
-  const total = Number(summary.totalAnswered) || 0;
-  const correct = Number(summary.totalCorrect) || 0;
-  const wrong = Number(summary.totalWrong) || Math.max(0, total - correct);
-
-  totalEl.textContent = total;
-  correctEl.textContent = correct;
-  wrongEl.textContent = wrong;
-
-  const ctx = perfCanvas.getContext('2d');
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Acertos', 'Erros'],
-      datasets: [{
-        data: [correct, wrong],
-        backgroundColor: ['#4ade80', '#f87171'],
-        borderColor: ['rgba(74,222,128,0.2)', 'rgba(248,113,113,0.2)'],
-        borderWidth: 2,
-        hoverOffset: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#b8b0d0', font: { size: 14 } }
-        }
-      },
-      cutout: '70%'
-    }
-  });
-
-  const radius = circle.r.baseVal.value;
-  const circumference = radius * 2 * Math.PI;
-  circle.style.strokeDasharray = `${circumference} ${circumference}`;
-  circle.style.strokeDashoffset = circumference;
-  const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
-  accEl.textContent = `${accuracy}%`;
-  const offset = circumference - (accuracy / 100) * circumference;
-  setTimeout(() => { circle.style.strokeDashoffset = offset; }, 100);
-  const motivation = document.getElementById('motivationText');
-  if (motivation) {
-    if (accuracy >= 80) motivation.textContent = 'Excelente! Você é um mestre.';
-    else if (accuracy >= 50) motivation.textContent = 'Muito bom! Continue assim.';
-    else motivation.textContent = 'Não desista! A prática leva à perfeição.';
-  }
+  } 
 });
