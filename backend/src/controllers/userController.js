@@ -41,21 +41,40 @@ exports.changePassword = (req, res) => {
   if (!email || !currentPassword || !newPassword) {
     return res.status(400).json({ message: "Email, senha atual e nova senha são obrigatórios." });
   }
+  if (typeof newPassword !== "string" || newPassword.length < 6) {
+    return res.status(400).json({ message: "A nova senha deve ter pelo menos 6 caracteres." });
+  }
 
   // Busca usuário por email
-  const User = require("../models/User");
   User.findByEmail(email, (err, user) => {
-    if (err) return res.status(500).json({ message: "Erro no servidor." });
+    if (err) {
+      console.error("Erro ao buscar usuário para troca de senha:", err);
+      return res.status(500).json({ message: "Erro no servidor ao buscar usuário.", detail: err.message });
+    }
     if (!user) return res.status(404).json({ message: "Usuário não encontrado." });
+    if (!user.password) {
+      console.error("Hash da senha não encontrado para o usuário:", email);
+      return res.status(500).json({ message: "Erro ao validar a senha atual." });
+    }
 
-    const isMatch = bcrypt.compareSync(currentPassword, user.password);
+    let isMatch = false;
+    try {
+      isMatch = bcrypt.compareSync(currentPassword, user.password);
+    } catch (compareError) {
+      console.error("Erro ao comparar senha atual:", compareError);
+      return res.status(500).json({ message: "Erro ao validar a senha atual.", detail: compareError.message });
+    }
+
     if (!isMatch) {
       return res.status(401).json({ message: "Senha atual incorreta." });
     }
 
     // Atualiza para a nova senha
     User.updatePasswordByEmail(email, newPassword, (err2, affected) => {
-      if (err2) return res.status(500).json({ message: "Erro ao atualizar a senha." });
+      if (err2) {
+        console.error("Erro ao atualizar a senha:", err2);
+        return res.status(500).json({ message: "Erro ao atualizar a senha.", detail: err2.message });
+      }
       if (affected === 0) return res.status(404).json({ message: "Usuário não encontrado." });
       return res.status(200).json({ message: "Senha alterada com sucesso." });
     });

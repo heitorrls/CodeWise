@@ -1468,6 +1468,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (currentPasswordInput) currentPasswordInput.focus();
     });
 
+    // Pergunta de confirmação antes de enviar
+    function confirmPasswordChange() {
+      return new Promise((resolve) => {
+        if (window.showConfirmBox) {
+          window.showConfirmBox({
+            title: "Alterar senha?",
+            message:
+              "Tem certeza de que deseja atualizar sua senha? Você precisará usá-la no próximo login.",
+            onConfirm: () => resolve(true),
+            onCancel: () => resolve(false),
+          });
+        } else {
+          const proceed = window.confirm(
+            "Tem certeza de que deseja atualizar sua senha?"
+          );
+          resolve(proceed);
+        }
+      });
+    }
+
     savePasswordBtn.addEventListener("click", async () => {
       const currentPassword = currentPasswordInput
         ? currentPasswordInput.value
@@ -1495,6 +1515,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
+      const confirmed = await confirmPasswordChange();
+      if (!confirmed) return;
+
+      const originalBtnText = savePasswordBtn.textContent;
+      savePasswordBtn.disabled = true;
+      savePasswordBtn.textContent = "Salvando...";
+
       try {
         const response = await fetch("/api/user/password", {
           method: "PUT",
@@ -1517,6 +1544,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       } catch (error) {
         console.error("Erro ao alterar senha:", error);
         alert("Erro de conexão com o servidor. Tente novamente.");
+      } finally {
+        savePasswordBtn.disabled = false;
+        savePasswordBtn.textContent = originalBtnText || "Salvar";
       }
     });
   }
@@ -2319,7 +2349,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
       
-      const confirmed = confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível.");
+      const confirmed = await new Promise((resolve) => {
+        if (window.showConfirmBox) {
+          window.showConfirmBox({
+            title: "Excluir conta",
+            message: "Tem certeza que deseja excluir sua conta? Esta ação é irreversível.",
+            onConfirm: () => resolve(true),
+            onCancel: () => resolve(false),
+          });
+        } else {
+          const res = window.confirm("Tem certeza que deseja excluir sua conta? Esta ação é irreversível.");
+          resolve(res);
+        }
+      });
       if (!confirmed) return;
 
       try {
@@ -2351,28 +2393,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ==================================================================
   // 7. LÓGICA DO TEMA (CLARO/ESCURO)
   // ==================================================================
-  const themeSwitch = document.getElementById('lightTheme');
-  const rootElement = document.documentElement; // A tag <html>
-  const THEME_KEY = 'cw_theme'; // Mesma chave usada no theme-loader.js
+  const themeToggles = document.querySelectorAll(
+    'input[type="checkbox"][data-setting="theme-light"]'
+  );
+  const rootElement = document.documentElement;
+  const THEME_KEY = 'cw_theme';
 
-  // 1. Sincronizar o botão com o estado atual ao carregar a página
-  // O theme-loader já definiu o atributo no HTML, agora ajustamos o visual do botão
-  if (rootElement.getAttribute('data-theme') === 'light') {
-      if (themeSwitch) themeSwitch.checked = true;
+  function applyTheme(isLight) {
+    if (isLight) {
+      rootElement.setAttribute('data-theme', 'light');
+      localStorage.setItem(THEME_KEY, 'light');
+    } else {
+      rootElement.removeAttribute('data-theme');
+      localStorage.setItem(THEME_KEY, 'dark');
+    }
+    themeToggles.forEach((toggle) => {
+      toggle.checked = isLight;
+    });
   }
 
-  // 2. Adicionar o evento de troca (Toggle)
-  if (themeSwitch) {
-      themeSwitch.addEventListener('change', function(e) {
-          if (e.target.checked) {
-              // Ativar modo claro
-              rootElement.setAttribute('data-theme', 'light');
-              localStorage.setItem(THEME_KEY, 'light');
-          } else {
-              // Ativar modo escuro (padrão)
-              rootElement.removeAttribute('data-theme');
-              localStorage.setItem(THEME_KEY, 'dark');
-          }
-      });
-  }
+  // Sincroniza o estado inicial dos toggles com o atributo já definido no loader
+  const currentThemeIsLight = rootElement.getAttribute('data-theme') === 'light';
+  themeToggles.forEach((toggle) => {
+    toggle.checked = currentThemeIsLight;
+    toggle.addEventListener('change', (event) => {
+      applyTheme(event.target.checked);
+    });
+  });
 });
