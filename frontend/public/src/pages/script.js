@@ -310,11 +310,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     },
   ];
 
+  const userScopedKey = (key) => (userId ? `${key}_${userId}` : key);
+  const progressKey = (moduleId) => userScopedKey(`module_progress_${moduleId}`);
+  const lessonIndexKey = (moduleId) => userScopedKey(`currentLessonIndex_${moduleId || "default"}`);
+  const selectedModuleKey = () => userScopedKey("selectedModule");
+
   function getModuleProgress(moduleId) {
     const mod = moduleCatalog.find((m) => m.id === moduleId);
     const fallbackTotal = mod?.totalLessons || 1;
     try {
-      const raw = localStorage.getItem(`module_progress_${moduleId}`);
+      const raw = localStorage.getItem(progressKey(moduleId));
       if (!raw) {
         return { completedLessons: 0, totalLessons: fallbackTotal };
       }
@@ -332,7 +337,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function saveModuleProgress(moduleId, completedLessons, totalLessons) {
     localStorage.setItem(
-      `module_progress_${moduleId}`,
+      progressKey(moduleId),
       JSON.stringify({
         completedLessons: Math.max(0, Number(completedLessons) || 0),
         totalLessons: Math.max(1, Number(totalLessons) || 1),
@@ -356,14 +361,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function persistSelection(mod) {
     if (!mod) return;
-    localStorage.setItem("selectedModule", mod.id);
+    localStorage.setItem(selectedModuleKey(), mod.id);
     localStorage.setItem("selectedModuleName", mod.title || "");
     localStorage.setItem("selectedModuleBadge", mod.badge || "");
     localStorage.setItem("selectedModuleTotal", String(mod.totalLessons || ""));
   }
 
   function resolveSelectedModule() {
-    const storedId = localStorage.getItem("selectedModule");
+    const storedId = localStorage.getItem(selectedModuleKey());
     const stored = moduleCatalog.find((m) => m.id === storedId);
     if (stored && isModuleUnlocked(stored)) return stored;
     return moduleCatalog.find((m) => isModuleUnlocked(m)) || moduleCatalog[0];
@@ -769,7 +774,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const selectedModule = resolveSelectedModule();
     const progress = selectedModule ? getModuleProgress(selectedModule.id) : { completedLessons: 0 };
     const rawLessonIndex =
-      Number(localStorage.getItem("currentLessonIndex")) ||
+      Number(localStorage.getItem(lessonIndexKey(selectedModule?.id))) ||
       progress.completedLessons ||
       0;
     const metaList = lessonMeta[selectedModule?.id] || [];
@@ -1657,10 +1662,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     ) {
       const selectedModule = resolveSelectedModule();
       const progress = selectedModule ? getModuleProgress(selectedModule.id) : { completedLessons: 0, totalLessons: 1 };
-      const rawLessonIndex =
-        Number(localStorage.getItem("currentLessonIndex")) ||
-        progress.completedLessons ||
-        0;
+    const rawLessonIndex =
+      Number(localStorage.getItem(lessonIndexKey(selectedModule?.id))) ||
+      progress.completedLessons ||
+      0;
       const maxLessons =
         selectedModule?.totalLessons ||
         (lessonsByModule[selectedModule?.id]?.length || 1);
@@ -1856,7 +1861,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             nextCompleted,
             availableLessons - 1
           );
-          localStorage.setItem("currentLessonIndex", String(nextIndex));
+          localStorage.setItem(lessonIndexKey(currentModule.id), String(nextIndex));
         }
         // recompensa de moedas
         const rewardCoins = 75;
@@ -2158,7 +2163,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const btn = node.querySelector("button");
         if (status !== "locked" && btn) {
           btn.addEventListener("click", () => {
-            localStorage.setItem("currentLessonIndex", String(i));
+            localStorage.setItem(lessonIndexKey(selectedModule.id), String(i));
             transitionToPage("intro_modulo.html");
           });
         }
