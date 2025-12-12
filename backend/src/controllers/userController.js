@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const UserProfile = require("../models/UserProfile");
 
 exports.updateUserProfile = (req, res) => {
   const idParam = req.params.id;
@@ -28,6 +29,21 @@ exports.updateUserProfile = (req, res) => {
 
     if (affectedRows === 0) {
       return res.status(404).json({ message: "Usuário não encontrado." });
+    }
+
+    // Sincroniza também o username no perfil, quando enviado
+    if (username !== undefined) {
+      UserProfile.ensureProfile(id, username, (ensureErr) => {
+        if (ensureErr) {
+          console.error("Erro ao garantir perfil ao atualizar username:", ensureErr);
+          return;
+        }
+        UserProfile.updateUsername(id, username, (profileErr) => {
+          if (profileErr) {
+            console.error("Erro ao sincronizar username no perfil:", profileErr);
+          }
+        });
+      });
     }
 
     return res.status(200).json({ message: "Dados atualizados com sucesso." });

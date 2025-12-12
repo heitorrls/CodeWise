@@ -133,6 +133,18 @@ body::before {
   box-shadow: var(--shadow-md);
   color: var(--text);
 }
+/* Ajusta botões da sidebar direita no tema claro */
+:root[data-theme="light"] .right-sidebar .sidebar-btn {
+  background: var(--surface-elev-1);
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
+}
+:root[data-theme="light"] .right-sidebar .sidebar-btn:hover {
+  background: var(--surface-elev-2);
+  border-color: var(--primary-soft);
+  color: var(--text);
+  transform: translateX(3px);
+}
 
 :root[data-theme="light"] .nav-item {
   background: var(--surface-elev-1);

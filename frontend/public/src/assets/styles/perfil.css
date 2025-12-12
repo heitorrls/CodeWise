@@ -298,8 +298,9 @@ body::before {
   color: #fff;
 }
 :root[data-theme="light"] .save-button:hover {
-  background: linear-gradient(135deg, #6c4dbd, #533fa2);
-  box-shadow: 0 6px 15px rgba(99, 72, 176, 0.35);
+  background: linear-gradient(135deg, #5b3fb5, #472f97);
+  border: 1px solid #4f36a5;
+  box-shadow: 0 6px 16px rgba(75, 55, 153, 0.35);
   color: #fff;
 }
 

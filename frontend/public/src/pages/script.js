@@ -713,7 +713,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         1;
       const displayTotal = mod.displayLessons || availableLessons;
       const completedCount = Math.min(progress.completedLessons || 0, availableLessons);
-      const completed = completedCount >= availableLessons && unlocked;
+      // Considera concluído apenas quando todas as lições previstas (displayTotal) estiverem feitas
+      const completed = completedCount >= displayTotal && unlocked;
       const percent = Math.min(
         100,
         Math.round(
@@ -3002,6 +3003,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                  if (username) {
                    localStorage.setItem("userName", username);
                    localStorage.setItem("username", username);
+                    // Atualiza visualmente em páginas já carregadas (perfil)
+                    const nameEl = document.getElementById("userName");
+                    const handleEl = document.getElementById("userHandle");
+                    if (nameEl) nameEl.textContent = username;
+                    if (handleEl) handleEl.textContent = `@${username}`;
                  }
                } else {
                  alert(data.message || "Não foi possível salvar.");
