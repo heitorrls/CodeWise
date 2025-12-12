@@ -315,6 +315,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const lessonIndexKey = (moduleId) => userScopedKey(`currentLessonIndex_${moduleId || "default"}`);
   const selectedModuleKey = () => userScopedKey("selectedModule");
 
+  function resolveLessonIndex(moduleId, availableLessons, completedLessons) {
+    const stored = Number(localStorage.getItem(lessonIndexKey(moduleId)));
+    if (!Number.isNaN(stored)) {
+      return Math.max(0, Math.min(stored, Math.max(availableLessons - 1, 0)));
+    }
+    return Math.max(0, Math.min(completedLessons || 0, Math.max(availableLessons - 1, 0)));
+  }
+
   function getModuleProgress(moduleId) {
     const mod = moduleCatalog.find((m) => m.id === moduleId);
     const fallbackTotal = mod?.totalLessons || 1;
@@ -773,10 +781,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (introPage) {
     const selectedModule = resolveSelectedModule();
     const progress = selectedModule ? getModuleProgress(selectedModule.id) : { completedLessons: 0 };
-    const rawLessonIndex =
-      Number(localStorage.getItem(lessonIndexKey(selectedModule?.id))) ||
-      progress.completedLessons ||
-      0;
+    const availableIntro =
+      (lessonsByModule[selectedModule?.id] &&
+        lessonsByModule[selectedModule?.id].length) ||
+      progress.totalLessons ||
+      selectedModule?.totalLessons ||
+      1;
+    const rawLessonIndex = resolveLessonIndex(
+      selectedModule?.id,
+      availableIntro,
+      progress.completedLessons || 0
+    );
     const metaList = lessonMeta[selectedModule?.id] || [];
     const meta = metaList[Math.min(rawLessonIndex, metaList.length - 1)] || metaList[0];
     if (meta) {
@@ -1662,18 +1677,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     ) {
       const selectedModule = resolveSelectedModule();
       const progress = selectedModule ? getModuleProgress(selectedModule.id) : { completedLessons: 0, totalLessons: 1 };
-    const rawLessonIndex =
-      Number(localStorage.getItem(lessonIndexKey(selectedModule?.id))) ||
-      progress.completedLessons ||
-      0;
-      const maxLessons =
-        selectedModule?.totalLessons ||
-        (lessonsByModule[selectedModule?.id]?.length || 1);
       const availableLessons =
         (lessonsByModule[selectedModule?.id] &&
           lessonsByModule[selectedModule?.id].length) ||
-        maxLessons ||
+        progress.totalLessons ||
+        selectedModule?.totalLessons ||
         1;
+      const rawLessonIndex = resolveLessonIndex(
+        selectedModule?.id,
+        availableLessons,
+        progress.completedLessons || 0
+      );
+      const maxLessons =
+        selectedModule?.totalLessons ||
+        (lessonsByModule[selectedModule?.id]?.length || 1);
       const currentLessonIndex = Math.max(
         0,
         Math.min(rawLessonIndex, availableLessons - 1)
@@ -1694,12 +1711,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       let currentQuestion = 0;
       let selectedAnswer = null;
       let userAnswers = [];
+      let answeredFlags = [];
       let score = 0;
 
       function displayQuestion() {
         const data = lessonQuestions[currentQuestion];
         questionText.textContent = data.question;
         questionPill.textContent = `Questão ${currentQuestion + 1}`;
+        selectedAnswer = userAnswers[currentQuestion] ?? null;
         optionsList.innerHTML = "";
         data.options.forEach((opt, idx) => {
           const btn = document.createElement("button");
@@ -1707,12 +1726,26 @@ document.addEventListener("DOMContentLoaded", async () => {
           btn.className = "option";
           if (selectedAnswer === idx) btn.classList.add("selected");
           btn.innerHTML = `<strong>${opt.letter})</strong> ${opt.text}`;
-          btn.addEventListener("click", () => selectOption(idx));
+          if (answeredFlags[currentQuestion]) {
+            // já respondida: mostra feedback e trava interação
+            btn.disabled = true;
+            if (data.options[idx].correct) {
+              btn.classList.add("correct");
+            }
+            if (selectedAnswer === idx && !data.options[idx].correct) {
+              btn.classList.add("incorrect");
+            }
+          } else {
+            btn.addEventListener("click", () => selectOption(idx));
+          }
           optionsList.appendChild(btn);
         });
+        nextBtnLesson.disabled = !answeredFlags[currentQuestion];
+        backBtn.disabled = currentQuestion === 0;
       }
 
       function selectOption(idx) {
+        if (answeredFlags[currentQuestion]) return;
         selectedAnswer = idx;
         const buttons = optionsList.querySelectorAll(".option");
         buttons.forEach((btn, i) => {
@@ -1732,6 +1765,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             btn.classList.add("incorrect");
           }
         });
+        answeredFlags[currentQuestion] = true;
         nextBtnLesson.disabled = true;
       }
 
@@ -1745,7 +1779,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           currentQuestion < lessonQuestions.length - 1 ? "Avançar" : "Finalizar";
         backBtn.disabled = currentQuestion === 0;
         backBtn.style.opacity = currentQuestion === 0 ? "0.6" : "1";
-        nextBtnLesson.disabled = selectedAnswer === null;
+        nextBtnLesson.disabled = selectedAnswer === null && !answeredFlags[currentQuestion];
       }
 
       async function goToNext() {
