@@ -3077,8 +3077,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   const themeToggles = document.querySelectorAll(
     'input[type="checkbox"][data-setting="theme-light"]'
   );
+  const themeToggleTexts = document.querySelectorAll('[data-theme-toggle-text]');
   const rootElement = document.documentElement;
   const THEME_KEY = 'cw_theme';
+
+  function updateThemeToggleText(isLight) {
+    themeToggleTexts.forEach((el) => {
+      el.textContent = isLight ? "Mudar para modo escuro" : "Mudar para modo claro";
+    });
+  }
 
   function applyTheme(isLight) {
     if (isLight) {
@@ -3091,10 +3098,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     themeToggles.forEach((toggle) => {
       toggle.checked = isLight;
     });
+    updateThemeToggleText(isLight);
   }
 
   // Sincroniza o estado inicial dos toggles com o atributo já definido no loader
   const currentThemeIsLight = rootElement.getAttribute('data-theme') === 'light';
+  updateThemeToggleText(currentThemeIsLight);
   themeToggles.forEach((toggle) => {
     toggle.checked = currentThemeIsLight;
     toggle.addEventListener('change', (event) => {
