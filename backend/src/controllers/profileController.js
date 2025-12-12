@@ -1,5 +1,7 @@
 const UserProfile = require("../models/UserProfile");
 const Inventory = require("../models/Inventory");
+const Lives = require("../models/Lives");
+const { MAX_LIVES } = require("../models/Lives");
 
 // Atualiza o nome de usuário
 exports.updateUsername = (req, res) => {
@@ -127,4 +129,61 @@ exports.listInventory = async (req, res) => {
     console.error("Erro ao listar inventário:", err);
     res.status(500).json({ message: "Erro ao buscar inventário." });
   }
+};
+
+exports.consumeInventoryItem = async (req, res) => {
+  const { userId, itemId } = req.body;
+  if (!userId || !itemId) {
+    return res.status(400).json({ message: "userId e itemId são obrigatórios." });
+  }
+  try {
+    const remaining = await Inventory.consumeItem(userId, itemId);
+    res.status(200).json({ message: "Item consumido.", remaining });
+  } catch (err) {
+    if (err.code === "NOT_FOUND") {
+      return res.status(404).json({ message: "Item não disponível." });
+    }
+    console.error("Erro ao consumir item:", err);
+    res.status(500).json({ message: "Erro ao consumir item." });
+  }
+};
+
+// --- VIDAS ---
+exports.getLives = (req, res) => {
+  const { userId } = req.params;
+  if (!userId) return res.status(400).json({ message: "userId é obrigatório." });
+  Lives.getState(userId, (err, state) => {
+    if (err) {
+      console.error("Erro ao obter vidas:", err);
+      return res.status(500).json({ message: "Erro ao obter vidas." });
+    }
+    res.status(200).json({ lives: state.lives, max: MAX_LIVES });
+  });
+};
+
+exports.consumeLife = (req, res) => {
+  const { userId, amount } = req.body;
+  if (!userId) return res.status(400).json({ message: "userId é obrigatório." });
+  Lives.consume(userId, amount || 1, (err, state) => {
+    if (err) {
+      if (err.code === "NO_LIVES") {
+        return res.status(400).json({ message: "Sem vidas suficientes." });
+      }
+      console.error("Erro ao consumir vida:", err);
+      return res.status(500).json({ message: "Erro ao consumir vida." });
+    }
+    res.status(200).json({ lives: state.lives, max: MAX_LIVES });
+  });
+};
+
+exports.refillLives = (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ message: "userId é obrigatório." });
+  Lives.updateLives(userId, { setTo: MAX_LIVES }, (err, state) => {
+    if (err) {
+      console.error("Erro ao recarregar vidas:", err);
+      return res.status(500).json({ message: "Erro ao recarregar vidas." });
+    }
+    res.status(200).json({ lives: state.lives, max: MAX_LIVES });
+  });
 };

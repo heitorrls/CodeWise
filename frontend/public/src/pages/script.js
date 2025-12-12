@@ -230,6 +230,7 @@ window.alert = function (msg) {
 // Controle de sessão simples para páginas protegidas
 (function enforceAuthGuard() {
   const protectedPages = [
+    "modulos.html",
     "home.html",
     "perfil.html",
     "loja.html",
@@ -279,6 +280,317 @@ document.addEventListener("DOMContentLoaded", async () => {
   const storedUsername = localStorage.getItem("userName") || localStorage.getItem("username");
   const fallbackUserName = storedUsername || (userEmail ? userEmail.split("@")[0] : "");
   // -------------------------------------------------------------------------------
+
+  // Catálogo simples de módulos (frontend) enquanto o backend não envia a lista.
+  const moduleCatalog = [
+    {
+      id: "mod-js-basico",
+      badge: "Módulo 1",
+      title: "JavaScript Básico",
+      description: "Sintaxe, variáveis e primeiros passos com funções.",
+      totalLessons: 2, // preview: só duas lições jogáveis
+      displayLessons: 5, // mostra 5 nós, mas só 2 liberadas
+      unlockWith: null,
+    },
+    {
+      id: "mod-html-css",
+      badge: "Módulo 2",
+      title: "HTML & CSS",
+      description: "Estrutura de páginas, semântica e estilos modernos.",
+      totalLessons: 6,
+      unlockWith: "mod-js-basico",
+    },
+    {
+      id: "mod-algoritmos",
+      badge: "Módulo 3",
+      title: "Algoritmos",
+      description: "Resolução de problemas e raciocínio lógico aplicado.",
+      totalLessons: 6,
+      unlockWith: "mod-html-css",
+    },
+  ];
+
+  function getModuleProgress(moduleId) {
+    const mod = moduleCatalog.find((m) => m.id === moduleId);
+    const fallbackTotal = mod?.totalLessons || 1;
+    try {
+      const raw = localStorage.getItem(`module_progress_${moduleId}`);
+      if (!raw) {
+        return { completedLessons: 0, totalLessons: fallbackTotal };
+      }
+      const parsed = JSON.parse(raw);
+      const total = Math.max(1, Math.min(Number(parsed.totalLessons) || fallbackTotal, fallbackTotal));
+      const completed = Math.max(0, Math.min(Number(parsed.completedLessons) || 0, total));
+      return {
+        completedLessons: completed,
+        totalLessons: total,
+      };
+    } catch (e) {
+      return { completedLessons: 0, totalLessons: fallbackTotal };
+    }
+  }
+
+  function saveModuleProgress(moduleId, completedLessons, totalLessons) {
+    localStorage.setItem(
+      `module_progress_${moduleId}`,
+      JSON.stringify({
+        completedLessons: Math.max(0, Number(completedLessons) || 0),
+        totalLessons: Math.max(1, Number(totalLessons) || 1),
+      })
+    );
+  }
+
+  function isModuleUnlocked(mod) {
+    // Preview: apenas o primeiro módulo é liberado
+    if (mod.id !== "mod-js-basico") return false;
+    if (!mod.unlockWith) return true;
+    const req = getModuleProgress(mod.unlockWith);
+    return req.completedLessons >= (req.totalLessons || 0);
+  }
+
+  function markModuleCompleted(moduleId) {
+    const mod = moduleCatalog.find((m) => m.id === moduleId);
+    const total = mod?.totalLessons || getModuleProgress(moduleId).totalLessons || 1;
+    saveModuleProgress(moduleId, total, total);
+  }
+
+  function persistSelection(mod) {
+    if (!mod) return;
+    localStorage.setItem("selectedModule", mod.id);
+    localStorage.setItem("selectedModuleName", mod.title || "");
+    localStorage.setItem("selectedModuleBadge", mod.badge || "");
+    localStorage.setItem("selectedModuleTotal", String(mod.totalLessons || ""));
+  }
+
+  function resolveSelectedModule() {
+    const storedId = localStorage.getItem("selectedModule");
+    const stored = moduleCatalog.find((m) => m.id === storedId);
+    if (stored && isModuleUnlocked(stored)) return stored;
+    return moduleCatalog.find((m) => isModuleUnlocked(m)) || moduleCatalog[0];
+  }
+
+  // Questões por lição (por módulo)
+  const lessonsByModule = {
+    "mod-js-basico": [
+      [
+        {
+          question:
+            "Qual símbolo é usado para fazer um comentário de linha em JavaScript?",
+          options: [
+            { letter: "A", text: "// Comentário", correct: true },
+            { letter: "B", text: "-- Comentário", correct: false },
+            { letter: "C", text: "/* Comentário */", correct: false },
+            { letter: "D", text: "<> Comentário", correct: false },
+          ],
+        },
+        {
+          question: "Qual palavra-chave cria uma variável com escopo de bloco?",
+          options: [
+            { letter: "A", text: "var", correct: false },
+            { letter: "B", text: "let", correct: true },
+            { letter: "C", text: "const", correct: false },
+            { letter: "D", text: "static", correct: false },
+          ],
+        },
+        {
+          question:
+            "Qual é o valor padrão de uma variável declarada mas não inicializada?",
+          options: [
+            { letter: "A", text: "null", correct: false },
+            { letter: "B", text: "undefined", correct: true },
+            { letter: "C", text: "0", correct: false },
+            { letter: "D", text: '""', correct: false },
+          ],
+        },
+        {
+          question: "Como declarar uma constante chamada PI com valor 3.14?",
+          options: [
+            { letter: "A", text: "var PI = 3.14;", correct: false },
+            { letter: "B", text: "let PI = 3.14;", correct: false },
+            { letter: "C", text: "const PI = 3.14;", correct: true },
+            { letter: "D", text: "static PI = 3.14;", correct: false },
+          ],
+        },
+        {
+          question: "Qual tipo é retornado por typeof [] em JavaScript?",
+          options: [
+            { letter: "A", text: '"array"', correct: false },
+            { letter: "B", text: '"object"', correct: true },
+            { letter: "C", text: '"list"', correct: false },
+            { letter: "D", text: '"undefined"', correct: false },
+          ],
+        },
+      ],
+      [
+        {
+          question: "Qual método adiciona um item ao final de um array em JS?",
+          options: [
+            { letter: "A", text: "push()", correct: true },
+            { letter: "B", text: "add()", correct: false },
+            { letter: "C", text: "append()", correct: false },
+            { letter: "D", text: "insert()", correct: false },
+          ],
+        },
+        {
+          question: "Qual operador compara valor e tipo em JavaScript?",
+          options: [
+            { letter: "A", text: "==", correct: false },
+            { letter: "B", text: "!=", correct: false },
+            { letter: "C", text: "===", correct: true },
+            { letter: "D", text: "<=>", correct: false },
+          ],
+        },
+        {
+          question: "Qual é a saída de console.log(typeof null)?",
+          options: [
+            { letter: "A", text: '"null"', correct: false },
+            { letter: "B", text: '"object"', correct: true },
+            { letter: "C", text: '"undefined"', correct: false },
+            { letter: "D", text: '"number"', correct: false },
+          ],
+        },
+        {
+          question: "Como declarar uma função de seta que retorna x * 2?",
+          options: [
+            { letter: "A", text: "const f = (x) => x * 2;", correct: true },
+            { letter: "B", text: "function f => x * 2;", correct: false },
+            { letter: "C", text: "let f(x) = x * 2;", correct: false },
+            { letter: "D", text: "arrow f(x) { x * 2; }", correct: false },
+          ],
+        },
+        {
+          question: "Qual método converte uma string '5' para número inteiro?",
+          options: [
+            { letter: "A", text: "parseInt('5')", correct: true },
+            { letter: "B", text: "'5'.number()", correct: false },
+            { letter: "C", text: "toInt('5')", correct: false },
+            { letter: "D", text: "int('5')", correct: false },
+          ],
+        },
+      ],
+    ],
+  };
+
+  // Metadados das lições (para intro_modulo.html)
+  const lessonMeta = {
+    "mod-js-basico": [
+      {
+        title: "Agora você vai iniciar uma lição sobre variáveis em JavaScript",
+        focus: "Variáveis, tipos e atribuição",
+        goal: "Checar fundamentos antes de liberar os desafios práticos",
+        estimatedTime: "10 questões • ~15 min",
+        pill: "Variáveis e Tipos",
+      },
+      {
+        title: "Pratique arrays e comparações em JavaScript",
+        focus: "Arrays, métodos básicos e igualdade estrita",
+        goal: "Consolidar operações com coleções e operadores de comparação",
+        estimatedTime: "10 questões • ~15 min",
+        pill: "Arrays e Operadores",
+      },
+    ],
+  };
+
+  // SISTEMA DE VIDAS
+  const MAX_LIVES = 5;
+  const LIFE_PRICE = 50;
+
+  async function fetchLivesState() {
+    if (!userId) return { lives: MAX_LIVES, max: MAX_LIVES };
+    try {
+      const resp = await fetch(`/api/profile/lives/${userId}`);
+      if (!resp.ok) throw new Error();
+      return await resp.json();
+    } catch (e) {
+      return { lives: MAX_LIVES, max: MAX_LIVES };
+    }
+  }
+
+  async function setLivesRemote(count) {
+    if (!userId) return count;
+    try {
+      const resp = await fetch("/api/profile/lives/refill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        updateLivesUI(data.lives || count);
+        return data.lives || count;
+      }
+    } catch (e) {}
+    updateLivesUI(count);
+    return count;
+  }
+
+  async function consumeLifeRemote() {
+    if (!userId) {
+      updateLivesUI(MAX_LIVES);
+      return MAX_LIVES;
+    }
+    try {
+      const resp = await fetch("/api/profile/lives/consume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, amount: 1 }),
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        updateLivesUI(data.lives);
+        return data.lives;
+      }
+      return 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  async function updateLivesUI(forcedLives) {
+    const state = forcedLives !== undefined
+      ? { lives: forcedLives }
+      : await fetchLivesState();
+    const livesEls = document.querySelectorAll("#livesCounter, #livesCounterHome, #livesCounterModules, #livesCounterSidebar, .lives-pill");
+    livesEls.forEach((el) => {
+      el.textContent = `❤️ ${state.lives ?? MAX_LIVES}/${MAX_LIVES} vidas`;
+    });
+  }
+
+  // Atualiza vidas periodicamente para refletir regeneração do backend
+  setInterval(() => updateLivesUI(), 30000);
+  updateLivesUI();
+
+  async function attemptBuyLifeRecharge() {
+    const ok = await updateCoins(-LIFE_PRICE);
+    if (!ok) return false;
+    await setLivesRemote(MAX_LIVES);
+    if (window.showToast) window.showToast("Vidas recarregadas!");
+    return true;
+  }
+
+  async function promptRechargeFlow() {
+    return new Promise((resolve) => {
+      const doBuy = async () => {
+        const bought = await attemptBuyLifeRecharge();
+        if (!bought && window.showToast) window.showToast("Compra não realizada.");
+        resolve(bought);
+      };
+      if (window.showConfirmBox) {
+        window.showConfirmBox({
+          title: "Sem vidas",
+          message: `Comprar recarga de vidas por ${LIFE_PRICE} moedas?`,
+          onConfirm: doBuy,
+          onCancel: () => resolve(false),
+        });
+      } else {
+        const wants = window.confirm(
+          `Sem vidas. Comprar recarga de vidas por ${LIFE_PRICE} moedas?`
+        );
+        if (wants) doBuy();
+        else resolve(false);
+      }
+    });
+  }
 
   // --- FUNÇÕES GLOBAIS E UTILITÁRIAS ---
   // (Funções mantidas: isValidEmail, showError, clearError, showSuccess, transitionToPage, goBack, etc.)
@@ -382,6 +694,120 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- LÓGICA ESPECÍFICA DE CADA PÁGINA ---
 
+  // 0. PÁGINA DE MÓDULOS (modulos.html)
+  const modulesGrid = document.getElementById("modulesGrid");
+  if (modulesGrid) {
+    modulesGrid.innerHTML = "";
+    moduleCatalog.forEach((mod) => {
+      const progress = getModuleProgress(mod.id);
+      // força total de lições alinhado ao catálogo
+      if (progress.totalLessons !== (mod.totalLessons || progress.totalLessons)) {
+        saveModuleProgress(mod.id, progress.completedLessons, mod.totalLessons || progress.totalLessons);
+        progress.totalLessons = mod.totalLessons || progress.totalLessons;
+      }
+      const unlocked = isModuleUnlocked(mod);
+      const availableLessons =
+        (lessonsByModule[mod.id] && lessonsByModule[mod.id].length) ||
+        mod.totalLessons ||
+        progress.totalLessons ||
+        1;
+      const displayTotal = mod.displayLessons || availableLessons;
+      const completedCount = Math.min(progress.completedLessons || 0, availableLessons);
+      const completed = completedCount >= availableLessons && unlocked;
+      const percent = Math.min(
+        100,
+        Math.round(
+          (completedCount / (displayTotal || 1)) *
+            100
+        )
+      );
+
+      const card = document.createElement("article");
+      card.className = "module-card";
+      card.innerHTML = `
+        <span class="badge">${mod.badge || "Módulo"}</span>
+        <h3>${mod.title}</h3>
+        <p>${mod.description || ""}</p>
+        <div class="progress-row">
+          <span>${completedCount}/${displayTotal} lições</span>
+          <span>${percent}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${percent}%"></div>
+        </div>
+        <div class="module-footer">
+          <span class="status ${completed ? "completed" : unlocked ? "" : "locked"}">
+            ${
+              completed
+                ? '<i class="fas fa-check-circle"></i> Concluído'
+                : unlocked
+                ? '<i class="fas fa-unlock"></i> Em andamento'
+                : '<i class="fas fa-lock"></i> Bloqueado'
+            }
+          </span>
+        <button class="primary select-module" ${unlocked ? "" : "disabled"}>
+            ${completed ? "Revisar" : unlocked ? "Entrar" : "Bloqueado"}
+        </button>
+        </div>
+      `;
+
+      const btn = card.querySelector(".select-module");
+      btn.addEventListener("click", () => {
+        if (!unlocked) return;
+        persistSelection(mod);
+        window.location.href = "home.html";
+      });
+
+    modulesGrid.appendChild(card);
+  });
+}
+
+  // Intro da lição (intro_modulo.html) - preenche textos conforme lição atual
+  const introPage = document.querySelector(".intro-page");
+  if (introPage) {
+    const selectedModule = resolveSelectedModule();
+    const progress = selectedModule ? getModuleProgress(selectedModule.id) : { completedLessons: 0 };
+    const rawLessonIndex =
+      Number(localStorage.getItem("currentLessonIndex")) ||
+      progress.completedLessons ||
+      0;
+    const metaList = lessonMeta[selectedModule?.id] || [];
+    const meta = metaList[Math.min(rawLessonIndex, metaList.length - 1)] || metaList[0];
+    if (meta) {
+      const titleEl = document.querySelector(".highlight-card .title");
+      const focusEl = document.getElementById("lessonFocus");
+      const goalEl = document.getElementById("lessonGoal");
+      const timeEl = document.getElementById("estimatedTime");
+      const pillEl = document.querySelector(".intro-header .pill");
+      if (titleEl) titleEl.textContent = meta.title;
+      if (focusEl) focusEl.textContent = meta.focus;
+      if (goalEl) goalEl.textContent = meta.goal;
+      if (timeEl) timeEl.textContent = meta.estimatedTime;
+      if (pillEl) pillEl.textContent = meta.pill || "Lição";
+    }
+  }
+
+  // Injeta vidas na barra lateral (home/modulos) se existir
+  function ensureLivesInSidebar() {
+    const sidebarLives = document.querySelector(".right-sidebar .lives-pill");
+    if (sidebarLives) return;
+    const container = document.querySelector(".right-sidebar .stats-missions-container");
+    if (container) {
+      const pill = document.createElement("div");
+      pill.className = "lives-pill";
+      pill.id = "livesCounterSidebar";
+      pill.textContent = "❤️ 5/5 vidas";
+      container.prepend(pill);
+    }
+  }
+  if (
+    window.location.pathname.endsWith("home.html") ||
+    window.location.pathname.endsWith("modulos.html")
+  ) {
+    ensureLivesInSidebar();
+    updateLivesUI();
+  }
+
   // 1. PÁGINA DE APRESENTAÇÃO (apresentacao.html)
   const continueBtn = document.querySelector(".continue-btn");
   if (continueBtn) {
@@ -442,7 +868,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             try {
               const completed = data.user && data.user.leveling_completed;
               if (completed) {
-                window.location.href = "home.html";
+                window.location.href = "modulos.html";
               } else {
                 window.location.href = "intro_nivelamento.html";
               }
@@ -1114,6 +1540,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       bestCategoryElement.textContent = bestCategory.name;
     }
 
+    // Marca o módulo selecionado como concluído (desbloqueia o próximo)
+    const currentModule = resolveSelectedModule();
+    if (currentModule) {
+      markModuleCompleted(currentModule.id);
+    }
+
     // Atualiza classificação
     const classificationElement = document.getElementById(
       "finalClassification"
@@ -1157,7 +1589,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (avatarBtn) {
     avatarBtn.addEventListener("click", () => {
       // Futuramente, redirecionar para a página de criação de avatar
-      transitionToPage("home.html"); // Placeholder
+      transitionToPage("modulos.html"); // Placeholder
     });
   }
 
@@ -1177,7 +1609,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       skipBtn.disabled = true;
       // Redireciona para a home após um pequeno atraso
       setTimeout(() => {
-        transitionToPage("home.html");
+        transitionToPage("modulos.html");
       }, 1500);
     });
   }
@@ -1222,55 +1654,36 @@ document.addEventListener("DOMContentLoaded", async () => {
       skipBtnLesson &&
       nextBtnLesson
     ) {
-      const lessonQuestions = [
-        {
-          question:
-            "Qual símbolo é usado para fazer um comentário de linha em JavaScript?",
-          options: [
-            { letter: "A", text: "// Comentário", correct: true },
-            { letter: "B", text: "-- Comentário", correct: false },
-            { letter: "C", text: "/* Comentário */", correct: false },
-            { letter: "D", text: "<> Comentário", correct: false },
-          ],
-        },
-        {
-          question: "Qual palavra-chave cria uma variável com escopo de bloco?",
-          options: [
-            { letter: "A", text: "var", correct: false },
-            { letter: "B", text: "let", correct: true },
-            { letter: "C", text: "const", correct: false },
-            { letter: "D", text: "static", correct: false },
-          ],
-        },
-        {
-          question:
-            "Qual é o valor padrão de uma variável declarada mas não inicializada?",
-          options: [
-            { letter: "A", text: "null", correct: false },
-            { letter: "B", text: "undefined", correct: true },
-            { letter: "C", text: "0", correct: false },
-            { letter: "D", text: '""', correct: false },
-          ],
-        },
-        {
-          question: "Como declarar uma constante chamada PI com valor 3.14?",
-          options: [
-            { letter: "A", text: "var PI = 3.14;", correct: false },
-            { letter: "B", text: "let PI = 3.14;", correct: false },
-            { letter: "C", text: "const PI = 3.14;", correct: true },
-            { letter: "D", text: "static PI = 3.14;", correct: false },
-          ],
-        },
-        {
-          question: "Qual tipo é retornado por typeof [] em JavaScript?",
-          options: [
-            { letter: "A", text: '"array"', correct: false },
-            { letter: "B", text: '"object"', correct: true },
-            { letter: "C", text: '"list"', correct: false },
-            { letter: "D", text: '"undefined"', correct: false },
-          ],
-        },
-      ];
+      const selectedModule = resolveSelectedModule();
+      const progress = selectedModule ? getModuleProgress(selectedModule.id) : { completedLessons: 0, totalLessons: 1 };
+      const rawLessonIndex =
+        Number(localStorage.getItem("currentLessonIndex")) ||
+        progress.completedLessons ||
+        0;
+      const maxLessons =
+        selectedModule?.totalLessons ||
+        (lessonsByModule[selectedModule?.id]?.length || 1);
+      const availableLessons =
+        (lessonsByModule[selectedModule?.id] &&
+          lessonsByModule[selectedModule?.id].length) ||
+        maxLessons ||
+        1;
+      const currentLessonIndex = Math.max(
+        0,
+        Math.min(rawLessonIndex, availableLessons - 1)
+      );
+      const questionsForModule = lessonsByModule[selectedModule?.id] || [];
+      const lessonQuestions =
+        questionsForModule[currentLessonIndex] ||
+        questionsForModule[0] ||
+        [];
+      const metaList = lessonMeta[selectedModule?.id] || [];
+      const meta = metaList[Math.min(currentLessonIndex, metaList.length - 1)] || metaList[0];
+      const lessonTitleEl = document.getElementById("lessonTitle");
+      if (lessonTitleEl && meta?.pill) lessonTitleEl.textContent = meta.pill;
+
+      const livesCounterEl = document.getElementById("livesCounter");
+      updateLivesUI();
 
       let currentQuestion = 0;
       let selectedAnswer = null;
@@ -1329,12 +1742,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         nextBtnLesson.disabled = selectedAnswer === null;
       }
 
-      function goToNext() {
+      async function goToNext() {
         if (selectedAnswer === null) return;
         userAnswers[currentQuestion] = selectedAnswer;
+        const isCorrect =
+          lessonQuestions[currentQuestion].options[selectedAnswer].correct;
         showAnswerFeedback(
-          lessonQuestions[currentQuestion].options[selectedAnswer].correct
+          isCorrect
         );
+        if (!isCorrect) {
+          const lives = await consumeLifeRemote();
+          updateLivesUI(lives);
+          if (lives <= 0) {
+            nextBtnLesson.disabled = true;
+            const wants = await promptRechargeFlow();
+            if (!wants) {
+              transitionToPage("home.html");
+              return;
+            } else {
+              nextBtnLesson.disabled = false;
+            }
+          }
+        }
         setTimeout(() => {
           if (currentQuestion < lessonQuestions.length - 1) {
             currentQuestion++;
@@ -1395,13 +1824,43 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
         } catch (e) { /* ignora erros */ }
         // Marca primeira lição concluída (para conquistas) e agenda modal ao voltar à home
-        localStorage.setItem("lessonComplete", "true");
-        localStorage.setItem(
-          "pendingAchievement",
-          JSON.stringify({ title: "Primeira Lição" })
-        );
+        if (!localStorage.getItem("ach_first_lesson")) {
+          localStorage.setItem("ach_first_lesson", "1");
+          localStorage.setItem("pendingAchievement", JSON.stringify({ title: "Primeira Lição" }));
+        }
+        // Atualiza progresso do módulo (incrementa uma lição)
+        const currentModule = resolveSelectedModule();
+        if (currentModule) {
+          const prog = getModuleProgress(currentModule.id);
+          const availableLessons =
+            (lessonsByModule[currentModule.id] &&
+              lessonsByModule[currentModule.id].length) ||
+            prog.totalLessons ||
+            currentModule.totalLessons ||
+            lessonQuestions.length;
+          const nextCompleted = Math.min(
+            (prog.completedLessons || 0) + 1,
+            availableLessons
+          );
+          saveModuleProgress(
+            currentModule.id,
+            nextCompleted,
+            availableLessons
+          );
+          if (nextCompleted >= availableLessons) {
+            markModuleCompleted(currentModule.id);
+          }
+          // avança o índice para a próxima lição disponível
+          const nextIndex = Math.min(
+            nextCompleted,
+            availableLessons - 1
+          );
+          localStorage.setItem("currentLessonIndex", String(nextIndex));
+        }
         // recompensa de moedas
-        updateCoins(75);
+        const rewardCoins = 75;
+        updateCoins(rewardCoins);
+        localStorage.setItem("lastRewardCoins", String(rewardCoins));
         transitionToPage(
           `resultado_modulo.html?score=${score}&total=${lessonQuestions.length}`
         );
@@ -1410,9 +1869,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       backBtn.addEventListener("click", goBack);
       skipBtnLesson.addEventListener("click", skipQuestion);
       nextBtnLesson.addEventListener("click", goToNext);
+      const exitBtn = document.getElementById("lessonExitBtn");
+      if (exitBtn) exitBtn.addEventListener("click", () => transitionToPage("home.html"));
 
-      displayQuestion();
-      updateProgress();
+      (async () => {
+        const state = await fetchLivesState();
+        updateLivesUI(state.lives);
+        if ((state.lives ?? MAX_LIVES) <= 0) {
+          const wants = await promptRechargeFlow();
+          if (!wants) {
+            transitionToPage("home.html");
+            return;
+          }
+        }
+        displayQuestion();
+        updateProgress();
+      })();
     } else {
       console.warn("Elementos do questionário do módulo não encontrados.");
     }
@@ -1450,6 +1922,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         rewardBtn.href = "qst_modulo.html";
       }
     }
+  }
+
+  // 13.1 Recompensa do módulo (recompensa_modulo.html)
+  const rewardTitle = document.getElementById("rewardTitle");
+  const rewardDescription = document.getElementById("rewardDescription");
+  if (rewardTitle && rewardDescription) {
+    const coins = parseInt(localStorage.getItem("lastRewardCoins"), 10) || 0;
+    const value = coins > 0 ? coins : 75;
+    rewardTitle.textContent = `+${value} moedas`;
+    rewardDescription.textContent = "Você ganhou moedas por completar a atividade.";
   }
 
   // 14. Ações de senha em perfil.html
@@ -1607,6 +2089,80 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       localStorage.removeItem("pendingAchievement");
     }
+
+    // Configura o contexto do módulo selecionado
+    const selectedModule = resolveSelectedModule();
+    if (!selectedModule) {
+      window.location.replace("modulos.html");
+      return;
+    }
+    persistSelection(selectedModule);
+    const progress = getModuleProgress(selectedModule.id);
+    const availableLessons =
+      (lessonsByModule[selectedModule.id] &&
+        lessonsByModule[selectedModule.id].length) ||
+      selectedModule.totalLessons ||
+      progress.totalLessons ||
+      1;
+    const displayTotal =
+      selectedModule.displayLessons || availableLessons;
+    const completed = Math.min(progress.completedLessons || 0, availableLessons);
+    const percent = Math.min(
+      100,
+      Math.round((completed / (displayTotal || 1)) * 100)
+    );
+
+    const headerTitle = document.querySelector(".header h1");
+    if (headerTitle) headerTitle.textContent = selectedModule.title || "Lições";
+
+    const trailTitle = document.querySelector(".knowledge-trail h2");
+    if (trailTitle)
+      trailTitle.textContent = selectedModule.badge
+        ? `${selectedModule.badge} · Lições`
+        : "Lições do módulo";
+
+    const trailLabel = document.querySelector(".trail-progress span");
+    if (trailLabel)
+      trailLabel.textContent = `${completed}/${displayTotal} lições`;
+
+    const progressBarFill = document.querySelector(".progress-bar-fill");
+    if (progressBarFill) progressBarFill.style.width = `${percent}%`;
+
+    const exerciseTree = document.querySelector(".exercise-tree");
+    if (exerciseTree) {
+      exerciseTree.innerHTML = "";
+      for (let i = 0; i < displayTotal; i++) {
+        const status =
+          i < completed
+            ? "completed"
+            : i === completed && i < availableLessons
+            ? "current"
+            : "locked";
+
+        const node = document.createElement("div");
+        node.className = "trail-item";
+        node.innerHTML = `
+          <button class="exercise-node ${status}" type="button" title="Lição ${i + 1}" data-lesson-index="${i}">
+            ${
+              status === "completed"
+                ? '<i class="fas fa-check"></i>'
+                : status === "current"
+                ? '<i class="fas fa-pencil-alt"></i>'
+            : '<i class="fas fa-lock"></i>'
+          }
+          </button>
+        `;
+        exerciseTree.appendChild(node);
+
+        const btn = node.querySelector("button");
+        if (status !== "locked" && btn) {
+          btn.addEventListener("click", () => {
+            localStorage.setItem("currentLessonIndex", String(i));
+            transitionToPage("intro_modulo.html");
+          });
+        }
+      }
+    }
   }
 
   // Loja/Perfil/Home: saldo e compras
@@ -1651,8 +2207,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   fetchBalance();
 
-  // Atualiza ofensiva/streak na home usando o mesmo backend do calendário
-  if (window.location.pathname.endsWith("home.html")) {
+  // Atualiza ofensiva/streak na home e módulos usando o backend do calendário
+  const isHomeOrModulos =
+    window.location.pathname.endsWith("home.html") ||
+    window.location.pathname.endsWith("modulos.html");
+  if (isHomeOrModulos) {
     const statStreak = document.querySelector(".daily-missions .stat-item:nth-child(1) .stat-value, .stats .stat-item:nth-child(1) .stat-value");
     const streakCountElement = statStreak;
     if (userId && streakCountElement) {
@@ -1678,6 +2237,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const itemName = btn.dataset.name || "Item";
         const itemType = btn.dataset.type || "utilizavel";
         const itemDesc = btn.dataset.description || "";
+        if (itemType === "visual" && btn.disabled) return;
 
         if (window.showConfirmBox) {
           window.showConfirmBox({
@@ -1699,7 +2259,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }),
                   }).catch(() => {});
                 }
-                if (window.showToast) window.showToast("Item comprado!");
+                if (itemName.toLowerCase().includes("recarga de vidas")) {
+                  setLivesRemote(MAX_LIVES);
+                  if (window.showToast) window.showToast("Recarga de vidas aplicada!");
+                } else if (window.showToast) window.showToast("Item comprado!");
+                if (itemType === "visual") {
+                  btn.disabled = true;
+                  btn.textContent = "Adquirido";
+                }
               }
             },
           });
@@ -1719,7 +2286,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }),
               }).catch(() => {});
             }
-            if (window.showToast) window.showToast("Item comprado!");
+            if (itemName.toLowerCase().includes("recarga de vidas")) {
+              setLivesRemote(MAX_LIVES);
+              if (window.showToast) window.showToast("Recarga de vidas aplicada!");
+            } else if (window.showToast) window.showToast("Item comprado!");
+            if (itemType === "visual") {
+              btn.disabled = true;
+              btn.textContent = "Adquirido";
+            }
           }
         }
       });
@@ -1748,14 +2322,52 @@ document.addEventListener("DOMContentLoaded", async () => {
           list.forEach((item) => {
             const card = document.createElement("div");
             card.className = "ach-card unlocked";
-            card.innerHTML = `
-              <div class="badge">✓</div>
+          card.innerHTML = `
+              <div class="badge">${item.tipo === "visual" ? "🎨" : "🛠"}</div>
               <div>
                 <strong>${item.nome}</strong>
                 <p>${item.descricao || ""}</p>
               </div>
+              ${item.tipo !== "visual" ? '<button class="use-item-btn" data-item-id="' + item.id + '">Usar</button>' : ""}
             `;
             container.appendChild(card);
+
+            if (item.tipo !== "visual") {
+              const btn = card.querySelector(".use-item-btn");
+              btn?.addEventListener("click", () => {
+                if ((item.nome || "").toLowerCase().includes("recarga de vidas")) {
+                  (async () => {
+                    const state = await fetchLivesState();
+                    if ((state.lives ?? MAX_LIVES) >= MAX_LIVES) {
+                      if (window.showToast) window.showToast("Suas vidas já estão cheias.");
+                      return;
+                    }
+                    const itemId = btn.getAttribute("data-item-id");
+                    await setLivesRemote(MAX_LIVES);
+                    if (itemId && userId) {
+                      await fetch("/api/profile/inventory/consume", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ userId, itemId }),
+                      }).catch(() => {});
+                    }
+                    if (window.showToast) window.showToast("Vidas recarregadas!");
+                    card.remove();
+                  })();
+                } else {
+                  const itemId = btn.getAttribute("data-item-id");
+                  if (itemId && userId) {
+                    fetch("/api/profile/inventory/consume", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ userId, itemId }),
+                    }).catch(() => {});
+                  }
+                  if (window.showToast) window.showToast("Item utilizado!");
+                  card.remove();
+                }
+              });
+            }
           });
         };
 
@@ -2135,19 +2747,42 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ==================================================================
   
   // Carrega estatísticas do LocalStorage
-  const stats = {
-    total: parseInt(localStorage.getItem("statTotal") || "12", 10),
-    accuracy: parseInt(localStorage.getItem("statAccuracy") || "78", 10),
-    lessons: parseInt(localStorage.getItem("statLessons") || "3", 10),
-  };
+  async function loadProfileStats() {
+    const statTotalEl = document.getElementById("statTotal");
+    const statAccuracyEl = document.getElementById("statAccuracy");
+    const statLessonsEl = document.getElementById("statLessons");
+    if (!statTotalEl || !statAccuracyEl || !statLessonsEl) return;
 
-  // Exibe estatísticas na tela (se os elementos existirem)
-  const statTotalEl = document.getElementById("statTotal");
-  if (statTotalEl) {
-    statTotalEl.textContent = stats.total;
-    document.getElementById("statAccuracy").textContent = `${stats.accuracy}%`;
-    document.getElementById("statLessons").textContent = stats.lessons;
+    let total = 0;
+    let correct = 0;
+    if (userId) {
+      try {
+        const resp = await fetch(`/api/progress/summary/${userId}`);
+        if (resp.ok) {
+          const summary = await resp.json();
+          total = Number(summary.totalAnswered) || 0;
+          correct = Number(summary.totalCorrect) || 0;
+        }
+      } catch (e) {}
+    }
+    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+    // Lições concluídas: soma completions por módulo clamped ao máximo disponível
+    let lessons = 0;
+    moduleCatalog.forEach((mod) => {
+      const prog = getModuleProgress(mod.id);
+      const avail =
+        (lessonsByModule[mod.id] && lessonsByModule[mod.id].length) ||
+        mod.totalLessons ||
+        prog.totalLessons ||
+        0;
+      lessons += Math.min(prog.completedLessons || 0, avail);
+    });
+
+    statTotalEl.textContent = total;
+    statAccuracyEl.textContent = `${accuracy}%`;
+    statLessonsEl.textContent = lessons;
   }
+  loadProfileStats();
 
   // Função para carregar dados do usuário (API)
   async function loadProfile() {
@@ -2165,7 +2800,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (data?.username && userNameEl && userHandleEl) {
             userNameEl.textContent = data.username;
             userHandleEl.textContent = `@${data.username}`;
-            try { localStorage.setItem("username", data.username); } catch (_) {}
+            try { 
+              localStorage.setItem("username", data.username); 
+              localStorage.setItem("userName", data.username); 
+            } catch (_) {}
           }
           
           if (data?.avatar && avatarImg) {
@@ -2334,9 +2972,46 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Botão Salvar
       if (saveAccountBtn) {
-         // ... (mantenha a lógica do saveAccountBtn aqui dentro) ...
          saveAccountBtn.addEventListener("click", async () => {
-             // ... seu código de salvar ...
+             if (!userId) {
+               alert("Erro: usuário não encontrado. Faça login novamente.");
+               return;
+             }
+             const username = usernameInput ? usernameInput.value.trim() : "";
+             const email = emailInput ? emailInput.value.trim() : "";
+            if (!username && !email) {
+              alert("Informe nome ou e-mail para salvar.");
+              return;
+            }
+
+            const originalText = saveAccountBtn.textContent;
+            saveAccountBtn.disabled = true;
+            saveAccountBtn.textContent = "Salvando...";
+            try {
+               const resp = await fetch(`/api/user/user`, {
+                 method: "PUT",
+                 headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify({ id: userId, username, email }),
+               });
+               const data = await resp.json().catch(() => ({}));
+               if (resp.ok) {
+                 if (window.showToast) window.showToast(data.message || "Dados salvos.");
+                 if (usernameInput) usernameInput.disabled = true;
+                 if (emailInput) emailInput.disabled = true;
+                 if (email) localStorage.setItem("userEmail", email);
+                 if (username) {
+                   localStorage.setItem("userName", username);
+                   localStorage.setItem("username", username);
+                 }
+               } else {
+                 alert(data.message || "Não foi possível salvar.");
+               }
+             } catch (e) {
+               alert("Erro ao salvar. Tente novamente.");
+             } finally {
+               saveAccountBtn.disabled = false;
+               saveAccountBtn.textContent = originalText;
+             }
          });
       }
   }

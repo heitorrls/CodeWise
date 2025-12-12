@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-default-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeWise - Módulos</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="src/assets/styles/home.css" />
+    <link rel="stylesheet" href="src/assets/styles/modulos.css" />
+    <script src="src/assets/js/theme-loader.js"></script>
+    <link rel="stylesheet" href="src/assets/styles/theme.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-title">
+        <h1>Módulos</h1>
+      </div>
+      <div class="header-actions">
+        <div class="lives-pill" id="livesCounterModules">5/5 vidas</div>
+      </div>
+    </header>
+    <div class="container">
+      <nav class="sidebar">
+        <button class="nav-item active" onclick="window.location.href='modulos.html'">
+          <i class="fas fa-map"></i> Módulos
+        </button>
+        <button class="nav-item" onclick="window.location.href='perfil.html'">
+          <i class="fas fa-user"></i> Perfil
+        </button>
+        <button class="nav-item" onclick="window.location.href='loja.html'">
+          <i class="fas fa-store"></i> Loja
+        </button>
+        <button class="nav-item" onclick="window.location.href='rank.html'">
+          <i class="fas fa-trophy"></i> Rank
+        </button>
+        <button class="nav-item" onclick="window.location.href='calendario.html'">
+          <i class="fas fa-calendar-alt"></i> Calendário
+        </button>
+        <button class="nav-item" onclick="window.location.href='estatisticas.html'">
+          <i class="fas fa-chart-pie"></i> Estatísticas
+        </button>
+        <button class="nav-item" onclick="window.location.href='configuracoes.html'">
+          <i class="fas fa-cog"></i> Configurações
+        </button>
+      </nav>
+
+      <main class="main-content">
+        <div class="knowledge-trail modules-wrapper">
+          <div class="modules-header">
+            <div>
+              <p class="eyebrow">Trilha de Aprendizagem</p>
+              <h2>Módulos</h2>
+              <p class="modules-subtitle">
+                Escolha um módulo para abrir suas lições. Conclua todas para desbloquear o próximo.
+              </p>
+            </div>
+            <div class="pill legend">
+              <span><i class="fas fa-unlock"></i> Em andamento</span>
+              <span><i class="fas fa-check-circle"></i> Concluído</span>
+              <span><i class="fas fa-lock"></i> Bloqueado</span>
+            </div>
+          </div>
+          <section class="modules-grid" id="modulesGrid">
+            <!-- Preenchido via script.js -->
+          </section>
+        </div>
+      </main>
+
+      <aside class="right-sidebar">
+        <div class="stats-missions-container">
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-icon">🔥</span>
+              <span class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">💎</span>
+              <span class="stat-value balance-amount">0</span>
+            </div>
+          </div>
+          <div class="daily-missions">
+            <h3>Status dos módulos</h3>
+            <div class="mission-list legend-list">
+              <div class="mission-item">
+                <i class="fas fa-unlock"></i>
+                <span>Módulos liberados podem ser abertos</span>
+              </div>
+              <div class="mission-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Concluídos liberam o próximo módulo</span>
+              </div>
+              <div class="mission-item">
+                <i class="fas fa-lock"></i>
+                <span>Bloqueados até concluir o anterior</span>
+              </div>
+            </div>
+            <h4 class="missions-title">Missões Diárias</h4>
+            <div class="mission-list">
+              <div class="mission-item completed">
+                <i class="fas fa-check-circle"></i>
+                <span>Resolver 5 exercícios</span>
+              </div>
+              <div class="mission-item">
+                <i class="far fa-circle"></i>
+                <span>Avançar um módulo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script src="src/pages/script.js"></script>
+  </body>
+</html>

@@ -10,5 +10,9 @@ router.get("/profile/:userId", profileController.getProfile);
 router.put("/profile/coins", profileController.updateCoins);
 router.post("/profile/inventory", profileController.addInventoryItem);
 router.get("/profile/inventory/:userId", profileController.listInventory);
+router.post("/profile/inventory/consume", profileController.consumeInventoryItem);
+router.get("/profile/lives/:userId", profileController.getLives);
+router.post("/profile/lives/consume", profileController.consumeLife);
+router.post("/profile/lives/refill", profileController.refillLives);
 
 module.exports = router;

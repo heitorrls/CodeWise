@@ -289,11 +289,18 @@ body::before {
   background: linear-gradient(135deg, #8b7cc8, #a89bd1);
   border-color: transparent;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  color: #fff;
 }
 .save-button:hover {
   filter: brightness(1.1);
   background: linear-gradient(135deg, #9c8cd6, #b9aedf);
   box-shadow: 0 6px 15px rgba(139, 124, 200, 0.4);
+  color: #fff;
+}
+:root[data-theme="light"] .save-button:hover {
+  background: linear-gradient(135deg, #6c4dbd, #533fa2);
+  box-shadow: 0 6px 15px rgba(99, 72, 176, 0.35);
+  color: #fff;
 }
 
 /* Seção de Senha */
@@ -552,10 +559,10 @@ body::before {
   filter: brightness(0.98);
 }
 :root[data-theme="light"] .save-button {
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #7756d3, #5d4db8);
   color: #ffffff;
   border: none;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 6px 15px rgba(117, 86, 211, 0.35);
 }
 
 :root[data-theme="light"] .delete-section {

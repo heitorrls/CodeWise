@@ -24,6 +24,39 @@ const Inventory = {
       );
     });
   },
+  consumeItem: (userId, itemId) => {
+    return new Promise((resolve, reject) => {
+      db.query(
+        "UPDATE inventario SET quantidade = quantidade - 1 WHERE id = ? AND user_id = ? AND quantidade > 0",
+        [itemId, userId],
+        (err, result) => {
+          if (err) return reject(err);
+          if (result.affectedRows === 0) {
+            const error = new Error("Item indisponível");
+            error.code = "NOT_FOUND";
+            return reject(error);
+          }
+          db.query(
+            "SELECT quantidade FROM inventario WHERE id = ? AND user_id = ?",
+            [itemId, userId],
+            (err2, rows) => {
+              if (err2) return reject(err2);
+              const qty = rows[0]?.quantidade ?? 0;
+              if (qty <= 0) {
+                db.query(
+                  "DELETE FROM inventario WHERE id = ? AND user_id = ?",
+                  [itemId, userId],
+                  () => resolve(0)
+                );
+              } else {
+                resolve(qty);
+              }
+            }
+          );
+        }
+      );
+    });
+  },
   listByUser: (userId) => {
     return new Promise((resolve, reject) => {
       db.query(

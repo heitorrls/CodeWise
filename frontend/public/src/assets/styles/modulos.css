@@ -1,0 +1,241 @@
+/* Ajustes específicos da tela de módulos, herdando a base de home.css */
+
+body {
+  background: linear-gradient(135deg, #1a1b3a 0%, #0f1020 50%, #1a1b3a 100%);
+  color: #f4f5fb;
+}
+
+.modules-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 100%;
+}
+
+.modules-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.modules-wrapper h2 {
+  font-size: 1.8rem;
+  margin: 2px 0;
+  background: linear-gradient(135deg, #ffffff, #e0d8f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.modules-subtitle {
+  color: #c8cbe8;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lives-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  color: #f5f3ff;
+  min-width: 140px;
+  text-align: center;
+}
+
+.pill.legend {
+  display: inline-flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(139, 124, 200, 0.12);
+  border: 1px solid rgba(139, 124, 200, 0.3);
+  color: #e9e9ff;
+  font-weight: 700;
+}
+
+.pill.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.module-card {
+  background: rgba(40, 42, 70, 0.8);
+  border: 1px solid rgba(139, 124, 200, 0.25);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.module-card .badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #f4f5fb;
+  background: rgba(139, 124, 200, 0.16);
+  border: 1px solid rgba(139, 124, 200, 0.3);
+  width: fit-content;
+}
+
+.module-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.module-card p {
+  margin: 0;
+  color: #c8cbe8;
+  line-height: 1.45;
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  color: #c8cbe8;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(26, 27, 58, 0.85);
+  border-radius: 999px;
+  border: 1px solid rgba(139, 124, 200, 0.25);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #8b7cc8, #c7a9ff);
+  width: 0%;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(168, 155, 209, 0.5);
+}
+
+.module-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.module-footer .status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #c8cbe8;
+}
+
+.module-footer .status.completed {
+  color: #7ae7c7;
+}
+
+.module-footer .status.locked {
+  color: #e17a7a;
+}
+
+.module-footer button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 140px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.module-footer .primary {
+  background: linear-gradient(135deg, #8b7cc8, #a89bd1);
+  color: #fff;
+  box-shadow: 0 14px 32px rgba(139, 124, 200, 0.35);
+}
+
+.module-footer button:hover:enabled {
+  transform: translateY(-1px);
+}
+
+.module-footer button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+:root[data-theme="light"] body {
+  background: #f0f1f8;
+  color: #1c1e2e;
+}
+:root[data-theme="light"] .sidebar,
+:root[data-theme="light"] .main-content,
+:root[data-theme="light"] .right-sidebar,
+:root[data-theme="light"] .module-card,
+:root[data-theme="light"] .modules-wrapper,
+:root[data-theme="light"] .header {
+  background: #ffffff;
+  color: #1c1e2e;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+}
+:root[data-theme="light"] .module-card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+:root[data-theme="light"] .modules-subtitle,
+:root[data-theme="light"] .module-card p,
+:root[data-theme="light"] .module-footer .status {
+  color: #3d4160;
+}
+:root[data-theme="light"] .badge,
+:root[data-theme="light"] .pill.legend {
+  background: rgba(139, 124, 200, 0.12);
+  color: #2f2555;
+  border-color: rgba(139, 124, 200, 0.35);
+}
+:root[data-theme="light"] .progress-bar {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+:root[data-theme="light"] .modules-grid .primary {
+  color: #fff;
+}
+:root[data-theme="light"] .lives-pill {
+  background: #f7f2ff;
+  border: 1px solid rgba(118, 82, 197, 0.25);
+  color: #2f2555;
+}
+
+.right-sidebar .mission-list.legend-list .mission-item {
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.right-sidebar .mission-list.legend-list i {
+  color: #c7a9ff;
+}
+
+@media (max-width: 1080px) {
+  .modules-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}

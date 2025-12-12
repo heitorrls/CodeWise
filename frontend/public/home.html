@@ -17,12 +17,17 @@
   <body>
     <div class="container">
       <header class="header">
-        <h1>Lições</h1>
+        <div class="header-title">
+          <h1>Lições</h1>
+        </div>
+        <div class="header-actions">
+          <div class="lives-pill" id="livesCounterHome">5/5 vidas</div>
+        </div>
       </header>
 
       <nav class="sidebar">
-        <button class="nav-item active" data-route="/licoes">
-          <i class="fas fa-book"></i> Lições
+        <button class="nav-item active" onclick="window.location.href='modulos.html'">
+          <i class="fas fa-map"></i> Módulos
         </button>
         <button
           class="nav-item"
