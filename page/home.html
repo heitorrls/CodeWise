@@ -22,7 +22,7 @@
     </section>
     
     <section class="introdoucao-section">
-        <div>
+        <div class="image-container">
             <img id="img-main" src="images/imagem-principal.png" alt="">
         </div>
         <div class="intro-content">
@@ -50,7 +50,9 @@
             </div>
 
             <div class="sobre-image">
-                <img src="images/macaco-protagonista.png" alt="Mascote CodeWise formado acenando">
+                <div class="image-wrapper">
+                    <img src="images/macaco-protagonista.png" alt="Mascote CodeWise formado acenando">
+                </div>
             </div>
         </div>
     </section>
@@ -58,7 +60,9 @@
     <section class="visao-section" id="visao">
         <div class="visao-body">
             <div class="visao-image">
-                <img src="images/guaxinim-macaco.png" alt="Mascotes CodeWise formados comemorando">
+                <div class="image-wrapper">
+                    <img src="images/guaxinim-macaco.png" alt="Mascotes CodeWise formados comemorando">
+                </div>
             </div>
 
             <div class="visao-content">
@@ -78,5 +82,46 @@
         <footer class="footer">
             <p>&copy; 2026 CodeWise. Todos os direitos reservados.</p>
         </footer>
+
+        <script>
+            // Parallax effect on scroll
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const imgMain = document.getElementById('img-main');
+                if (imgMain) {
+                    imgMain.style.transform = `translateY(${scrolled * 0.1}px)`;
+                }
+            });
+
+            // Intersection Observer for scroll animations
+            const observerOptions = {
+                threshold: 0.2,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.sobre-image, .visao-image').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Button click animation
+            const btnComecar = document.getElementById('btn-comecar');
+            if (btnComecar) {
+                btnComecar.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-3px) scale(1)';
+                    }, 150);
+                });
+            }
+        </script>
 </body>
 </html>
