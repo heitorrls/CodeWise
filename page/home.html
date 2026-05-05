@@ -16,7 +16,7 @@
                     <li class="hover-underline"><a href="#inicio">Início</a></li>
                     <li class="hover-underline"><a href="#sobre">Sobre Nós</a></li>
                     <li class="hover-underline"><a href="#visao">Visão</a></li>
-                    <li class="hover-underline"><a href="">Missão</a></li>
+                    <li class="hover-underline"><a href="#missao">Missão</a></li>
                 </ul>
             </nav>
         </header>
@@ -30,13 +30,11 @@
             <h1>Sua jornada JavaScript começa aqui. Transforme linhas de código em superpoderes e suba de nível no mercado de tecnologia.</h1>             
             <button id="btn-comecar">Começar Agora</button>
         </div>
-        <div>
-        </div>
     </section>
 
     <section class="sobre-section" id="sobre">
-        <div class="sobre-body">
-            <div class="sobre-content">
+        <div class="body-left">
+            <div class="body-content-left">
                 <h3>Codar nunca foi tão viciante.</h3>
 
                 <p>
@@ -80,49 +78,29 @@
             </div>
         </div>
     </section>
+
+    <section class="missao-section" id="missao">
+        <div class="body-left">
+            <div class="body-content-left">
+                <h2>Missão</h2>
+                <h3>O que nos move.</h3>
+
+                <p>
+                    Nossa missão é tornar o aprendizado da linguagem mais democrática e intuitiva, substituindo métodos cansativos de ensino por uma experiência prática, interativa e viciante. Focamos em transformar a curva de aprendizado em uma linha reta, entregando conhecimento técnico de alto nível através de micro desafios que respeitam cada usuário de forma individual.
+                </p>
+            </div>
+
+            <div class="missao-image">
+                <div class="image-wrapper">
+                    <img src="images/elefante-esquilo.png" alt="Mascotes CodeWise formados comemorando">
+                </div>
+            </div>
+        </div>
+    </section>
         <footer class="footer">
             <p>&copy; 2026 CodeWise. Todos os direitos reservados.</p>
         </footer>
 
-        <script>
-            // Parallax effect on scroll
-            window.addEventListener('scroll', () => {
-                const scrolled = window.pageYOffset;
-                const imgMain = document.getElementById('img-main');
-                if (imgMain) {
-                    imgMain.style.transform = `translateY(${scrolled * 0.1}px)`;
-                }
-            });
-
-            // Intersection Observer for scroll animations
-            const observerOptions = {
-                threshold: 0.2,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.animationPlayState = 'running';
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.sobre-image, .visao-image').forEach(el => {
-                observer.observe(el);
-            });
-
-            // Button click animation
-            const btnComecar = document.getElementById('btn-comecar');
-            if (btnComecar) {
-                btnComecar.addEventListener('click', function() {
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = 'translateY(-3px) scale(1)';
-                    }, 150);
-                });
-            }
-        </script>
+    <script src="js/page_script.js"></script>
 </body>
 </html>

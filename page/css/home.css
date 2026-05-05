@@ -143,7 +143,7 @@ html {
 }
 
 /* Scroll animations */
-.sobre-image, .visao-image {
+.sobre-image, .visao-image, .missao-image {
     opacity: 0;
     transform: translateY(30px);
     animation: fadeInUp 0.8s ease forwards;
@@ -153,6 +153,10 @@ html {
     animation-delay: 0.2s;
 }
 
+.missao-image {
+    animation-delay: 0.4s;
+}
+
 @keyframes fadeInUp {
     to {
         opacity: 1;
@@ -160,8 +164,10 @@ html {
     }
 }
 
+
+
 .sobre-section {
-    display: flex;
+   display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -170,7 +176,7 @@ html {
     padding: 50px 70px;
 }
 
-.sobre-body {
+.body-left{
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -179,11 +185,11 @@ html {
     gap: 90px;
 }
 
-.sobre-content {
+.body-content-left {
     max-width: 560px;
 }
 
-.sobre-content h3 {
+.body-content-left h3 {
     color: #9A8ACB;
     font-size: 30px;
     font-weight: 800;
@@ -191,7 +197,7 @@ html {
     text-align: center;
 }
 
-.sobre-content p {
+.body-content-left p {
     color: #4F4F4F;
     font-size: 16px;
     line-height: 1.2;
@@ -255,6 +261,65 @@ html {
 }
 
 .sobre-image .image-wrapper:hover img {
+    transform: rotate(-10deg) scale(1.1);
+    filter: grayscale(0%);
+    box-shadow: 0 0 30px rgba(139, 121, 189, 0.5);
+}
+
+.missao-image {
+    display: flex;
+    justify-content: center;
+    flex: 0 0 330px;
+    padding-top: 5px;
+}
+
+.missao-image .image-wrapper {
+    width: 210px;
+    height: 210px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(139, 121, 189, 0.15), transparent 70%);
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.missao-image .image-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    background: linear-gradient(135deg, #8B79BD, #9A8ACB) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    opacity: 0.5;
+    transition: all 0.5s ease;
+}
+
+.missao-image .image-wrapper img {
+    width: 180px;
+    height: auto;
+    border-radius: 50%;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: grayscale(20%);
+}
+
+.missao-image .image-wrapper:hover {
+    transform: scale(1.05);
+    background: radial-gradient(circle at 30% 30%, rgba(139, 121, 189, 0.3), transparent 70%);
+}
+
+.missao-image .image-wrapper:hover::before {
+    opacity: 1;
+    transform: rotate(360deg);
+    border-color: #9A8ACB;
+}
+
+.missao-image .image-wrapper:hover img {
     transform: rotate(-10deg) scale(1.1);
     filter: grayscale(0%);
     box-shadow: 0 0 30px rgba(139, 121, 189, 0.5);
@@ -425,6 +490,27 @@ html {
     text-align: justify;
 }
 
+/* aqui COMEÇA a section da missao */
+.missao-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+    box-sizing: border-box;
+    padding: 50px 70px;
+}
+.body-content-left h2{
+    color: #9A8ACB;
+    text-align: center;
+    margin: 0;
+}
+.body-content-left h2 {
+    font-size: 30px;
+    margin-bottom: 4px;
+}
+/* aqui TERMINA a section da missao */
+
 .footer {
     background-color: #7A68A0;
     color: white;
@@ -458,7 +544,8 @@ html {
 
     .introdoucao-section,
     .sobre-section,
-    .visao-section {
+    .visao-section,
+    .missao-section {
         min-height: calc(100vh - 96px);
         flex-direction: column;
         padding: 36px 24px;
@@ -471,21 +558,24 @@ html {
     }
 
     .sobre-body,
-    .visao-body {
+    .visao-body,
+    .missao-body {
         flex-direction: column;
         align-items: center;
         gap: 20px;
     }
 
     .sobre-content p,
-    .visao-content p {
+    .visao-content p,
+    .missao-content p {
         font-size: 16px;
         text-align: left;
         margin-bottom: 26px;
     }
 
     .sobre-image,
-    .visao-image {
+    .visao-image,
+    .missao-image {
         flex-basis: auto;
     }
 
