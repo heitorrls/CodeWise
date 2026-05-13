@@ -1,0 +1,602 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding-top: 80px;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+.header-section {
+    /* border: 1px solid #D9D9D9; */
+    border-left: none;
+    border-right: none;
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background-color: white;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.logo-header {
+    width: 150px;
+    height: auto;
+    margin-left: 20px;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.logo-header:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 4px 8px rgba(139, 121, 189, 0.3));
+}
+
+.header-section nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.header-section nav ul li a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    padding-bottom: 5px;
+    border-bottom: solid transparent 2px;
+    transition: 0.3s;
+}
+
+.header-section nav ul li a:hover {
+    color: #8B79BD;
+    transition: 0.3s;
+    border-bottom: 2px solid #8B79BD;
+}
+
+.introdoucao-section div:nth-child(2),
+.intro-content {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;    
+    text-align: center;     
+    max-width: 600px;       
+}
+
+#btn-comecar {
+    font-size: 20px;
+    background-color: #8B79BD;
+    color: white;
+    width: 200px;
+    height: 40px;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#btn-comecar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+#btn-comecar:hover {
+    background-color: #7A68A0;
+    transition: 0.3s;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(139, 121, 189, 0.4);
+}
+
+#btn-comecar:hover::before {
+    left: 100%;
+}
+
+.introdoucao-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    min-height: calc(100vh - 80px);
+    box-sizing: border-box;
+    padding: 50px;
+    margin: 0;
+}
+
+#img-main {
+    max-width: 520px;
+    width: 100%;
+    height: auto;
+    transition: transform 0.5s ease, filter 0.5s ease;
+    animation: float 3s ease-in-out infinite;
+}
+
+#img-main:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 15px 30px rgba(139, 121, 189, 0.5));
+    animation: none;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+/* Scroll animations */
+.sobre-image, .visao-image, .missao-image {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+.visao-image {
+    animation-delay: 0.2s;
+}
+
+.missao-image {
+    animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+.sobre-section {
+   display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+    box-sizing: border-box;
+    padding: 50px 70px;
+}
+
+.body-left{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1120px;
+    gap: 90px;
+}
+
+.body-content-left {
+    max-width: 560px;
+}
+
+.body-content-left h3 {
+    color: #9A8ACB;
+    font-size: 30px;
+    font-weight: 800;
+    margin: 0 0 50px;
+    text-align: center;
+}
+
+.body-content-left p {
+    color: #4F4F4F;
+    font-size: 16px;
+    line-height: 1.2;
+    margin: 0 0 42px;
+    text-align: justify;
+}
+
+.sobre-image {
+    display: flex;
+    justify-content: center;
+    flex: 0 0 330px;
+    padding-top: 5px;
+}
+
+/* Aqui começa as animações */
+
+.sobre-image .image-wrapper {
+    width: 210px;
+    height: 210px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(139, 121, 189, 0.15), transparent 70%);
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sobre-image .image-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    background: linear-gradient(135deg, #8B79BD, #9A8ACB) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    opacity: 0.5;
+    transition: all 0.5s ease;
+}
+
+.sobre-image .image-wrapper img {
+    width: 180px;
+    height: auto;
+    border-radius: 50%;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: grayscale(20%);
+}
+
+.sobre-image .image-wrapper:hover {
+    transform: scale(1.05);
+    background: radial-gradient(circle at 30% 30%, rgba(139, 121, 189, 0.3), transparent 70%);
+}
+
+.sobre-image .image-wrapper:hover::before {
+    opacity: 1;
+    transform: rotate(360deg);
+    border-color: #9A8ACB;
+}
+
+.sobre-image .image-wrapper:hover img {
+    transform: rotate(-10deg) scale(1.1);
+    filter: grayscale(0%);
+    box-shadow: 0 0 30px rgba(139, 121, 189, 0.5);
+}
+
+.missao-image {
+    display: flex;
+    justify-content: center;
+    flex: 0 0 330px;
+    padding-top: 5px;
+}
+
+.missao-image .image-wrapper {
+    width: 210px;
+    height: 210px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(139, 121, 189, 0.15), transparent 70%);
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.missao-image .image-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    background: linear-gradient(135deg, #8B79BD, #9A8ACB) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    opacity: 0.5;
+    transition: all 0.5s ease;
+}
+
+.missao-image .image-wrapper img {
+    width: 180px;
+    height: auto;
+    border-radius: 50%;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: grayscale(20%);
+}
+
+.missao-image .image-wrapper:hover {
+    transform: scale(1.05);
+    background: radial-gradient(circle at 30% 30%, rgba(139, 121, 189, 0.3), transparent 70%);
+}
+
+.missao-image .image-wrapper:hover::before {
+    opacity: 1;
+    transform: rotate(360deg);
+    border-color: #9A8ACB;
+}
+
+.missao-image .image-wrapper:hover img {
+    transform: rotate(-10deg) scale(1.1);
+    filter: grayscale(0%);
+    box-shadow: 0 0 30px rgba(139, 121, 189, 0.5);
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.visao-image {
+    display: flex;
+    justify-content: center;
+    flex: 0 0 330px;
+    padding-top: 5px;
+}
+
+.visao-image .image-wrapper {
+    width: 210px;
+    height: 210px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 70% 70%, rgba(154, 138, 203, 0.15), transparent 70%);
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+}
+
+.visao-image .image-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(139, 121, 189, 0.3) 60deg,
+        transparent 120deg
+    );
+    animation: rotateBorder 4s linear infinite;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.visao-image .image-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 95%;
+    height: 95%;
+    border-radius: 50%;
+    border: 2px solid rgba(139, 121, 189, 0.2);
+    transition: all 0.5s ease;
+}
+
+.visao-image .image-wrapper img {
+    width: 180px;
+    height: auto;
+    border-radius: 50%;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    z-index: 1;
+}
+
+.visao-image .image-wrapper:hover {
+    transform: scale(1.05);
+    background: radial-gradient(circle at 70% 70%, rgba(154, 138, 203, 0.3), transparent 70%);
+}
+
+.visao-image .image-wrapper:hover::before {
+    opacity: 1;
+}
+
+.visao-image .image-wrapper:hover::after {
+    border-color: #8B79BD;
+    transform: scale(1.1);
+}
+
+.visao-image .image-wrapper:hover img {
+    transform: translateY(-5px) scale(1.05);
+    filter: brightness(1.1);
+    box-shadow: 0 15px 30px rgba(139, 121, 189, 0.4);
+}
+
+@keyframes rotateBorder {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.visao-image img {
+    width: 210px;
+    height: auto;
+    transition: transform 0.4s ease, filter 0.4s ease;
+    cursor: pointer;
+}
+
+.visao-image img:hover {
+    transform: scale(1.1) rotate(-3deg);
+    filter: drop-shadow(0 10px 20px rgba(139, 121, 189, 0.4));
+}
+
+/* aqui termina as animações das imagens */
+
+.visao-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+    box-sizing: border-box;
+    padding: 50px 70px;
+}
+
+.visao-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1120px;
+    gap: 90px;
+}
+
+.visao-image {
+    display: flex;
+    justify-content: center;
+    flex: 0 0 390px;
+}
+
+.visao-image img {
+    width: 330px;
+    height: auto;
+}
+
+.visao-content {
+    max-width: 430px;
+}
+
+.visao-content h2,
+.visao-content h3 {
+    color: #9A8ACB;
+    text-align: center;
+    margin: 0;
+}
+
+.visao-content h2 {
+    font-size: 30px;
+    margin-bottom: 4px;
+}
+
+.visao-content h3 {
+    font-size: 27px;
+    font-weight: 800;
+    margin-bottom: 48px;
+}
+
+.visao-content p {
+    color: #4F4F4F;
+    font-size: 16px;
+    line-height: 1.2;
+    margin: 0 0 24px;
+    text-align: justify;
+}
+
+/* aqui COMEÇA a section da missao */
+.missao-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+    box-sizing: border-box;
+    padding: 50px 70px;
+}
+.body-content-left h2{
+    color: #9A8ACB;
+    text-align: center;
+    margin: 0;
+}
+.body-content-left h2 {
+    font-size: 30px;
+    margin-bottom: 4px;
+}
+/* aqui TERMINA a section da missao */
+
+.footer {
+    background-color: #7A68A0;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+
+}
+
+@media (max-width: 800px) {
+    body {
+        padding-top: 96px;
+    }
+
+    .header-section {
+        height: 96px;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .logo-header {
+        width: 120px;
+        margin-left: 0;
+    }
+
+    .header-section nav ul {
+        gap: 14px;
+        margin: 0;
+        padding: 0 12px;
+    }
+
+    .introdoucao-section,
+    .sobre-section,
+    .visao-section,
+    .missao-section {
+        min-height: calc(100vh - 96px);
+        flex-direction: column;
+        padding: 36px 24px;
+        gap: 28px;
+    }
+
+    .sobre-content h3 {
+        font-size: 24px;
+        margin-bottom: 32px;
+    }
+
+    .sobre-body,
+    .visao-body,
+    .missao-body {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .sobre-content p,
+    .visao-content p,
+    .missao-content p {
+        font-size: 16px;
+        text-align: left;
+        margin-bottom: 26px;
+    }
+
+    .sobre-image,
+    .visao-image,
+    .missao-image {
+        flex-basis: auto;
+    }
+
+    .visao-image {
+        order: 2;
+    }
+
+    .visao-content {
+        order: 1;
+    }
+
+    .visao-content h2 {
+        font-size: 28px;
+    }
+
+    .visao-content h3 {
+        font-size: 24px;
+        margin-bottom: 32px;
+    }
+
+    .visao-image img {
+        width: 280px;
+    }
+}

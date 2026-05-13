@@ -33,7 +33,7 @@ app.use('/api', profileRoutes);
 
 // 2. Servindo a página principal
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/public/apresentacao.html'));
+  res.sendFile(path.join(__dirname, '../../frontend/public/homepage.html'));
 });
 
 module.exports = app;
