@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeWise — Aprenda JavaScript Jogando</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900;1000&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green:   #58CC02;
+            --green-dk:#46A302;
+            --blue:    #1CB0F6;
+            --blue-dk: #0E8BC7;
+            --purple:  #8B79BD;
+            --purple-dk:#6B5A9B;
+            --yellow:  #FFD900;
+            --yellow-dk:#E6C400;
+            --red:     #FF4B4B;
+            --bg:      #F7F7F7;
+            --white:   #FFFFFF;
+            --text:    #3C3C3C;
+            --text-lt: #777;
+            --radius:  16px;
+            --shadow:  0 4px 0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ── NAV ─────────────────────────────────────── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: var(--white);
+            border-bottom: 3px solid #E5E5E5;
+            height: 72px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 32px;
+        }
+
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo-icon {
+            width: 40px; height: 40px;
+            background: var(--purple);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 0 var(--purple-dk);
+        }
+
+        .nav-logo-text {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 26px; font-weight: 700;
+            color: var(--purple);
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links {
+            display: flex; gap: 8px; list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 700; font-size: 15px;
+            color: var(--text-lt);
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: #F0EDF8;
+            color: var(--purple);
+        }
+
+        .nav-cta {
+            background: var(--purple);
+            color: white !important;
+            border-radius: 12px !important;
+            padding: 8px 20px !important;
+            box-shadow: 0 4px 0 var(--purple-dk);
+            transition: transform 0.1s, box-shadow 0.1s !important;
+        }
+
+        .nav-cta:hover {
+            background: var(--purple) !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 var(--purple-dk) !important;
+        }
+
+        .nav-cta:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--purple-dk) !important;
+        }
+
+        /* ── HERO ─────────────────────────────────────── */
+        .hero {
+            margin-top: 72px;
+            min-height: calc(100vh - 72px);
+            background: linear-gradient(160deg, #F0EDF8 0%, #E8F8FF 50%, #F0FDE4 100%);
+            display: flex; align-items: center; justify-content: center;
+            padding: 60px 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* decorative blobs */
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(88,204,2,0.08) 0%, transparent 70%);
+            top: -100px; right: -100px;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139,121,189,0.1) 0%, transparent 70%);
+            bottom: -50px; left: -50px;
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            display: flex; align-items: center; gap: 80px;
+            max-width: 1100px; width: 100%;
+            position: relative; z-index: 1;
+        }
+
+        .hero-text { flex: 1; }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: white;
+            border: 2px solid var(--green);
+            color: var(--green-dk);
+            font-weight: 800; font-size: 13px;
+            padding: 6px 14px; border-radius: 999px;
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-badge span { font-size: 16px; }
+
+        .hero-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(36px, 5vw, 58px);
+            font-weight: 700;
+            line-height: 1.1;
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+
+        .hero-title em {
+            font-style: normal;
+            color: var(--purple);
+        }
+
+        .hero-sub {
+            font-size: 18px; font-weight: 600;
+            color: var(--text-lt);
+            line-height: 1.6;
+            margin-bottom: 36px;
+            max-width: 480px;
+        }
+
+        .hero-btns {
+            display: flex; gap: 16px; flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--green);
+            color: white;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800; font-size: 17px;
+            border: none; cursor: pointer;
+            padding: 16px 36px;
+            border-radius: 14px;
+            box-shadow: 0 5px 0 var(--green-dk);
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-decoration: none;
+            display: inline-block;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--green-dk); }
+        .btn-primary:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--green-dk); }
+
+        .btn-secondary {
+            background: white;
+            color: var(--purple);
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800; font-size: 17px;
+            border: 3px solid var(--purple);
+            cursor: pointer;
+            padding: 13px 28px;
+            border-radius: 14px;
+            box-shadow: 0 5px 0 var(--purple-dk);
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--purple-dk); }
+        .btn-secondary:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--purple-dk); }
+
+        /* hero stats */
+        .hero-stats {
+            display: flex; gap: 24px; margin-top: 40px; flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            background: white;
+            border-radius: 12px;
+            padding: 10px 18px;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 2px solid #EFEFEF;
+        }
+
+        .stat-icon { font-size: 22px; }
+
+        .stat-info { display: flex; flex-direction: column; }
+
+        .stat-num { font-weight: 900; font-size: 17px; color: var(--text); }
+
+        .stat-label { font-size: 12px; font-weight: 600; color: var(--text-lt); }
+
+        /* hero mascot side */
+        .hero-visual {
+            flex: 0 0 420px;
+            position: relative;
+        }
+
+        .hero-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 8px 0 #D5D5D5, 0 0 40px rgba(0,0,0,0.06);
+            position: relative;
+            border: 3px solid #EFEFEF;
+        }
+
+        .code-header {
+            display: flex; gap: 8px; margin-bottom: 18px; align-items: center;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-r { background: #FF5F56; }
+        .dot-y { background: #FFBD2E; }
+        .dot-g { background: #27C93F; }
+
+        .code-filename {
+            font-size: 13px; font-weight: 700;
+            color: var(--text-lt);
+            margin-left: 6px;
+        }
+
+        .code-block {
+            background: #1E1E2E;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .c-purple { color: #BD93F9; }
+        .c-green  { color: #50FA7B; }
+        .c-yellow { color: #F1FA8C; }
+        .c-blue   { color: #8BE9FD; }
+        .c-white  { color: #F8F8F2; }
+        .c-pink   { color: #FF79C6; }
+        .c-orange { color: #FFB86C; }
+
+        .xp-badge {
+            position: absolute;
+            top: -16px; right: 20px;
+            background: var(--yellow);
+            color: #5C4A00;
+            font-weight: 900; font-size: 13px;
+            padding: 6px 14px; border-radius: 999px;
+            box-shadow: 0 4px 0 var(--yellow-dk);
+            white-space: nowrap;
+        }
+
+        .streak-badge {
+            position: absolute;
+            bottom: -16px; left: 20px;
+            background: var(--red);
+            color: white;
+            font-weight: 900; font-size: 13px;
+            padding: 6px 14px; border-radius: 999px;
+            box-shadow: 0 4px 0 #CC3333;
+            white-space: nowrap;
+        }
+
+        /* floating elements */
+        .float-el {
+            position: absolute;
+            animation: floatY 3s ease-in-out infinite;
+        }
+
+        @keyframes floatY {
+            0%,100% { transform: translateY(0); }
+            50%      { transform: translateY(-10px); }
+        }
+
+        .float-star {
+            font-size: 28px;
+            top: -30px; left: -20px;
+            animation-delay: 0.5s;
+        }
+
+        .float-bolt {
+            font-size: 24px;
+            bottom: 20px; right: -28px;
+            animation-delay: 1.2s;
+        }
+
+        /* ── FEATURES BAR ──────────────────────────────── */
+        .features-bar {
+            background: var(--purple);
+            padding: 24px 32px;
+            display: flex; justify-content: center; gap: 0;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 0 32px;
+            border-right: 2px solid rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .feature-item:last-child { border-right: none; }
+
+        .feature-icon {
+            font-size: 28px;
+            background: rgba(255,255,255,0.15);
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .feature-text strong {
+            display: block;
+            font-weight: 900; font-size: 15px;
+        }
+
+        .feature-text span {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        /* ── SECTIONS SHARED ───────────────────────────── */
+        .section {
+            padding: 90px 32px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .section-inner {
+            max-width: 1100px; width: 100%;
+            display: flex; align-items: center; gap: 80px;
+        }
+
+        .section-inner.reverse { flex-direction: row-reverse; }
+
+        .section-text { flex: 1; }
+
+        .section-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-weight: 800; font-size: 13px;
+            letter-spacing: 1px; text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .tag-green  { color: var(--green-dk); }
+        .tag-blue   { color: var(--blue-dk); }
+        .tag-purple { color: var(--purple); }
+
+        .section-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(28px, 3.5vw, 42px);
+            font-weight: 700; line-height: 1.15;
+            margin-bottom: 20px;
+        }
+
+        .section-body {
+            font-size: 17px; font-weight: 600;
+            color: var(--text-lt);
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        /* ── SOBRE CARD ─────────────────────────────────── */
+        .sobre-bg { background: var(--white); }
+
+        .mascot-card {
+            flex: 0 0 440px;
+            background: linear-gradient(135deg, #F0EDF8, #E3F6FF);
+            border-radius: 28px;
+            padding: 40px 30px;
+            border: 3px solid #E5E5E5;
+            box-shadow: 0 8px 0 #D8D8D8;
+            text-align: center;
+            position: relative;
+        }
+
+        .mascot-emoji {
+            font-size: 90px;
+            display: block;
+            margin-bottom: 16px;
+            animation: floatY 4s ease-in-out infinite;
+        }
+
+        .mascot-speech {
+            background: white;
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-weight: 700; font-size: 15px;
+            color: var(--text);
+            line-height: 1.5;
+            border: 2px solid #EFEFEF;
+            position: relative;
+        }
+
+        .mascot-speech::before {
+            content: '';
+            position: absolute;
+            top: -12px; left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 12px solid #EFEFEF;
+        }
+
+        .mascot-speech::after {
+            content: '';
+            position: absolute;
+            top: -9px; left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid white;
+        }
+
+        .points-row {
+            display: flex; justify-content: center; gap: 12px;
+            margin-top: 20px;
+        }
+
+        .point-chip {
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-weight: 800; font-size: 14px;
+        }
+
+        .chip-green  { background: #E5F9D0; color: var(--green-dk); border: 2px solid var(--green); }
+        .chip-blue   { background: #DDF3FF; color: var(--blue-dk);   border: 2px solid var(--blue); }
+        .chip-yellow { background: #FFF9CC; color: #7A6A00;          border: 2px solid var(--yellow-dk); }
+
+        /* ── VISAO SECTION ─────────────────────────────── */
+        .visao-bg { background: #FAFAFE; }
+
+        .progress-card {
+            flex: 0 0 420px;
+            background: white;
+            border-radius: 28px;
+            padding: 32px;
+            border: 3px solid #E5E5E5;
+            box-shadow: 0 8px 0 #D8D8D8;
+        }
+
+        .progress-card h4 {
+            font-weight: 900; font-size: 16px;
+            color: var(--text); margin-bottom: 24px;
+        }
+
+        .prog-row {
+            margin-bottom: 20px;
+        }
+
+        .prog-label {
+            display: flex; justify-content: space-between;
+            font-weight: 700; font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .prog-bar-bg {
+            height: 14px; border-radius: 999px;
+            background: #EFEFEF;
+            overflow: hidden;
+        }
+
+        .prog-bar-fill {
+            height: 100%; border-radius: 999px;
+            transition: width 1s ease;
+        }
+
+        .fill-green  { background: linear-gradient(90deg, var(--green), #80E000); }
+        .fill-blue   { background: linear-gradient(90deg, var(--blue), #60CDFF); }
+        .fill-yellow { background: linear-gradient(90deg, var(--yellow), #FFE866); }
+        .fill-purple { background: linear-gradient(90deg, var(--purple), #B0A0E0); }
+
+        .leaderboard {
+            margin-top: 28px;
+            border-top: 2px solid #EFEFEF;
+            padding-top: 20px;
+        }
+
+        .leaderboard h5 {
+            font-weight: 900; font-size: 13px;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-lt); margin-bottom: 14px;
+        }
+
+        .lb-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 14px; border-radius: 12px;
+            margin-bottom: 6px;
+            font-weight: 700; font-size: 14px;
+        }
+
+        .lb-row.me { background: #F0EDF8; color: var(--purple); }
+
+        .lb-rank { width: 24px; text-align: center; font-weight: 900; }
+        .lb-name { flex: 1; }
+        .lb-xp   { color: var(--text-lt); font-weight: 600; font-size: 13px; }
+
+        /* ── MISSAO SECTION ─────────────────────────────── */
+        .missao-bg { background: var(--white); }
+
+        .cards-grid {
+            flex: 0 0 480px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .mini-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px 20px;
+            border: 3px solid #EFEFEF;
+            box-shadow: 0 5px 0 #E0E0E0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: default;
+        }
+
+        .mini-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 9px 0 #D5D5D5;
+        }
+
+        .mini-card-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .mini-card h4 {
+            font-weight: 900; font-size: 15px;
+            color: var(--text); margin-bottom: 6px;
+        }
+
+        .mini-card p {
+            font-size: 13px; font-weight: 600;
+            color: var(--text-lt); line-height: 1.5;
+        }
+
+        .mini-card.accent-green  { border-color: var(--green); }
+        .mini-card.accent-blue   { border-color: var(--blue); }
+        .mini-card.accent-yellow { border-color: var(--yellow); }
+        .mini-card.accent-purple { border-color: var(--purple); }
+
+        /* ── CTA SECTION ───────────────────────────────── */
+        .cta-section {
+            background: linear-gradient(135deg, var(--purple) 0%, #6A58A8 100%);
+            padding: 90px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '🎮 🏆 ⚡ 🎯 💡 🚀 🎮 🏆 ⚡ 🎯 💡 🚀';
+            position: absolute;
+            font-size: 32px;
+            top: 20px; left: 0; right: 0;
+            opacity: 0.12;
+            letter-spacing: 24px;
+            white-space: nowrap;
+        }
+
+        .cta-content {
+            position: relative; z-index: 1;
+            max-width: 600px; margin: 0 auto;
+        }
+
+        .cta-emoji { font-size: 64px; display: block; margin-bottom: 20px; }
+
+        .cta-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(30px, 4vw, 48px);
+            font-weight: 700;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .cta-sub {
+            font-size: 18px; font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 36px;
+            line-height: 1.6;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--purple);
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900; font-size: 18px;
+            border: none; cursor: pointer;
+            padding: 18px 48px;
+            border-radius: 16px;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-white:hover { transform: translateY(-3px); box-shadow: 0 9px 0 rgba(0,0,0,0.2); }
+        .btn-white:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.2); }
+
+        /* ── FOOTER ────────────────────────────────────── */
+        footer {
+            background: #2B2B3A;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            padding: 28px 32px;
+            font-size: 14px; font-weight: 600;
+        }
+
+        footer strong { color: rgba(255,255,255,0.9); }
+
+        /* ── RESPONSIVE ─────────────────────────────────── */
+        @media (max-width: 900px) {
+            .hero-inner,
+            .section-inner,
+            .section-inner.reverse {
+                flex-direction: column;
+                gap: 40px;
+                align-items: center;
+            }
+
+            .hero-visual,
+            .mascot-card,
+            .progress-card,
+            .cards-grid {
+                flex: 0 0 auto;
+                width: 100%;
+                max-width: 480px;
+            }
+
+            .features-bar { gap: 20px; }
+
+            .feature-item {
+                border-right: none;
+                padding: 12px 16px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            nav { padding: 0 16px; }
+            .nav-links { display: none; }
+            .hero { padding: 40px 16px; }
+            .section { padding: 60px 16px; }
+            .hero-stats { gap: 12px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .points-row { flex-wrap: wrap; }
+        }
+
+        /* ── SCROLL REVEAL ──────────────────────────────── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* cursor sparkle hint on CTA */
+        .btn-primary:hover,
+        .btn-secondary:hover,
+        .btn-white:hover {
+            filter: brightness(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────────────── -->
+<nav>
+    <a href="#inicio" class="nav-logo">
+        <div class="nav-logo-icon">🦉</div>
+        <span class="nav-logo-text">CodeWise</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="#inicio">Início</a></li>
+        <li><a href="#sobre">Sobre Nós</a></li>
+        <li><a href="#visao">Visão</a></li>
+        <li><a href="#missao">Missão</a></li>
+        <li><a href="#comecar" class="nav-cta">Começar Grátis</a></li>
+    </ul>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────── -->
+<section class="hero" id="inicio">
+    <div class="hero-inner">
+        <div class="hero-text">
+            <div class="hero-badge"><span>🔥</span> GRÁTIS PARA SEMPRE</div>
+            <h1 class="hero-title">
+                Aprenda <em>JavaScript</em><br>
+                jogando. Sério.
+            </h1>
+            <p class="hero-sub">
+                Transforme linhas de código em superpoderes com desafios, rankings e recompensas. A plataforma mais viciante para aprender JS do zero.
+            </p>
+            <div class="hero-btns">
+                <a href="#comecar" class="btn-primary">🚀 Começar Agora</a>
+                <a href="#sobre" class="btn-secondary">Como funciona?</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-pill">
+                    <span class="stat-icon">🎓</span>
+                    <div class="stat-info">
+                        <span class="stat-num">50k+</span>
+                        <span class="stat-label">Alunos ativos</span>
+                    </div>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-icon">⚡</span>
+                    <div class="stat-info">
+                        <span class="stat-num">200+</span>
+                        <span class="stat-label">Desafios</span>
+                    </div>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-icon">⭐</span>
+                    <div class="stat-info">
+                        <span class="stat-num">4.9</span>
+                        <span class="stat-label">Avaliação</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="float-el float-star">⭐</div>
+            <div class="hero-card">
+                <div class="xp-badge">+50 XP Ganhos!</div>
+                <div class="code-header">
+                    <div class="dot dot-r"></div>
+                    <div class="dot dot-y"></div>
+                    <div class="dot dot-g"></div>
+                    <span class="code-filename">desafio_01.js</span>
+                </div>
+                <div class="code-block">
+<span class="c-purple">function</span> <span class="c-green">somarArray</span>(<span class="c-orange">arr</span>) {<br>
+&nbsp;&nbsp;<span class="c-pink">return</span> <span class="c-orange">arr</span>.<span class="c-blue">reduce</span>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="c-orange">acc</span>, <span class="c-orange">val</span>) <span class="c-purple">=&gt;</span> <span class="c-orange">acc</span> + <span class="c-orange">val</span>, <span class="c-yellow">0</span><br>
+&nbsp;&nbsp;);<br>
+}<br>
+<br>
+<span class="c-white">// ✅ Teste passou!</span><br>
+<span class="c-green">somarArray</span>([<span class="c-yellow">1</span>,<span class="c-yellow">2</span>,<span class="c-yellow">3</span>]); <span class="c-white">// 6</span>
+                </div>
+                <div class="streak-badge">🔥 7 dias seguidos!</div>
+            </div>
+            <div class="float-el float-bolt">⚡</div>
+        </div>
+    </div>
+</section>
+
+<!-- ── FEATURES BAR ────────────────────────── -->
+<div class="features-bar">
+    <div class="feature-item">
+        <div class="feature-icon">🎮</div>
+        <div class="feature-text">
+            <strong>Aprenda Jogando</strong>
+            <span>Puzzles e desafios interativos</span>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-icon">🏆</div>
+        <div class="feature-text">
+            <strong>Ranking Global</strong>
+            <span>Compita com outros alunos</span>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-text">
+            <strong>Ciência Cognitiva</strong>
+            <span>Aprenda mais rápido e retenha</span>
+        </div>
+    </div>
+    <div class="feature-item">
+        <div class="feature-icon">📱</div>
+        <div class="feature-text">
+            <strong>Em Qualquer Lugar</strong>
+            <span>Web e Mobile, quando quiser</span>
+        </div>
+    </div>
+</div>
+
+<!-- ── SOBRE ──────────────────────────────── -->
+<section class="section sobre-bg" id="sobre">
+    <div class="section-inner">
+        <div class="section-text reveal">
+            <span class="section-tag tag-green">🦊 SOBRE NÓS</span>
+            <h2 class="section-title">Codar nunca foi tão <span style="color:var(--green)">viciante.</span></h2>
+            <p class="section-body">
+                No CodeWise, acreditamos que aprender JavaScript não deve ser uma batalha árdua contra uma tela preta. Abordamos a prática da linguagem de forma simples e incentivadora.
+            </p>
+            <p class="section-body">
+                Por que ler 50 páginas de teoria quando você pode aprender arrays e loops resolvendo puzzles e subindo no ranking? Nossa equipe uniu ciência cognitiva com a diversão dos games.
+            </p>
+        </div>
+
+        <div class="mascot-card reveal reveal-delay-2">
+            <span class="mascot-emoji">🦝</span>
+            <div class="mascot-speech">
+                Parabéns! Você completou o<br>
+                <strong>Módulo 3: Funções 🎉</strong><br>
+                Continue assim, você é incrível!
+            </div>
+            <div class="points-row">
+                <span class="point-chip chip-green">🔥 15 dias</span>
+                <span class="point-chip chip-blue">⚡ Nível 8</span>
+                <span class="point-chip chip-yellow">🏆 Top 12%</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── VISÃO ──────────────────────────────── -->
+<section class="section visao-bg" id="visao">
+    <div class="section-inner reverse">
+        <div class="section-text reveal">
+            <span class="section-tag tag-blue">🔭 VISÃO</span>
+            <h2 class="section-title">Onde queremos <span style="color:var(--blue)">chegar.</span></h2>
+            <p class="section-body">
+                Ser a plataforma de aprendizado número 1 para quem quer dominar JavaScript — uma das linguagens mais importantes do mercado web.
+            </p>
+            <p class="section-body">
+                Queremos provar que é possível atingir qualidade técnica sem abrir mão do entretenimento, formando uma nova geração de programadores que aprendem fazendo.
+            </p>
+        </div>
+
+        <div class="progress-card reveal reveal-delay-2">
+            <h4>📊 Seu Progresso — JavaScript</h4>
+            <div class="prog-row">
+                <div class="prog-label"><span>Variáveis & Tipos</span><span>100%</span></div>
+                <div class="prog-bar-bg"><div class="prog-bar-fill fill-green" style="width:100%"></div></div>
+            </div>
+            <div class="prog-row">
+                <div class="prog-label"><span>Funções</span><span>78%</span></div>
+                <div class="prog-bar-bg"><div class="prog-bar-fill fill-blue" style="width:78%"></div></div>
+            </div>
+            <div class="prog-row">
+                <div class="prog-label"><span>Arrays & Objetos</span><span>55%</span></div>
+                <div class="prog-bar-bg"><div class="prog-bar-fill fill-yellow" style="width:55%"></div></div>
+            </div>
+            <div class="prog-row">
+                <div class="prog-label"><span>Async / Await</span><span>20%</span></div>
+                <div class="prog-bar-bg"><div class="prog-bar-fill fill-purple" style="width:20%"></div></div>
+            </div>
+
+            <div class="leaderboard">
+                <h5>🏆 Ranking da Semana</h5>
+                <div class="lb-row" style="background:#FFF9CC">
+                    <span class="lb-rank">🥇</span>
+                    <span class="lb-name">Ana S.</span>
+                    <span class="lb-xp">1.840 XP</span>
+                </div>
+                <div class="lb-row" style="background:#F0F0F0">
+                    <span class="lb-rank">🥈</span>
+                    <span class="lb-name">Pedro M.</span>
+                    <span class="lb-xp">1.620 XP</span>
+                </div>
+                <div class="lb-row me">
+                    <span class="lb-rank">4º</span>
+                    <span class="lb-name">Você 👈</span>
+                    <span class="lb-xp">1.340 XP</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── MISSÃO ──────────────────────────────── -->
+<section class="section missao-bg" id="missao">
+    <div class="section-inner">
+        <div class="section-text reveal">
+            <span class="section-tag tag-purple">🎯 MISSÃO</span>
+            <h2 class="section-title">O que nos <span style="color:var(--purple)">move.</span></h2>
+            <p class="section-body">
+                Tornar o aprendizado de JavaScript mais democrático e intuitivo, substituindo métodos cansativos por uma experiência prática, interativa e viciante.
+            </p>
+            <p class="section-body">
+                Focamos em transformar a curva de aprendizado em uma linha reta, entregando conhecimento técnico de alto nível através de micro desafios que respeitam cada usuário individualmente.
+            </p>
+        </div>
+
+        <div class="cards-grid reveal reveal-delay-2">
+            <div class="mini-card accent-green">
+                <span class="mini-card-icon">🧩</span>
+                <h4>Micro Desafios</h4>
+                <p>Aprenda em pequenas etapas que se encaixam</p>
+            </div>
+            <div class="mini-card accent-blue">
+                <span class="mini-card-icon">🤖</span>
+                <h4>Feedback Imediato</h4>
+                <p>Saiba na hora o que acertou e o que melhorar</p>
+            </div>
+            <div class="mini-card accent-yellow">
+                <span class="mini-card-icon">🌍</span>
+                <h4>Democrático</h4>
+                <p>Totalmente gratuito, para qualquer pessoa</p>
+            </div>
+            <div class="mini-card accent-purple">
+                <span class="mini-card-icon">🎓</span>
+                <h4>Nível Técnico</h4>
+                <p>Conteúdo real e aplicável no mercado</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────── -->
+<section class="cta-section" id="comecar">
+    <div class="cta-content">
+        <span class="cta-emoji">🦉</span>
+        <h2 class="cta-title">Pronto para dar o primeiro passo?</h2>
+        <p class="cta-sub">Junte-se a mais de 50.000 alunos que já estão transformando código em superpoderes. Grátis para sempre.</p>
+        <a href="#" class="btn-white">🚀 Criar minha conta grátis</a>
+    </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────── -->
+<footer>
+    <p>© 2026 <strong>CodeWise</strong>. Todos os direitos reservados. Feito com 💜 para quem ama código.</p>
+</footer>
+
+<script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                observer.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    reveals.forEach(r => observer.observe(r));
+
+    // Animate progress bars on scroll
+    const bars = document.querySelectorAll('.prog-bar-fill');
+    const barObserver = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                const fill = e.target;
+                const target = fill.style.width;
+                fill.style.width = '0';
+                requestAnimationFrame(() => {
+                    setTimeout(() => { fill.style.width = target; }, 80);
+                });
+                barObserver.unobserve(fill);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    bars.forEach(b => barObserver.observe(b));
+
+    // Nav active link highlight
+    const sections = document.querySelectorAll('section[id], .cta-section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+
+    const sectionObserver = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                navLinks.forEach(l => l.style.color = '');
+                const active = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+                if (active && !active.classList.contains('nav-cta'))
+                    active.style.color = 'var(--purple)';
+            }
+        });
+    }, { threshold: 0.4 });
+
+    sections.forEach(s => sectionObserver.observe(s));
+</script>
+
+</body>
+</html>
