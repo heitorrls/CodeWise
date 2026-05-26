@@ -1,105 +1,230 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeWise</title>
-    <link rel="icon" href="home-page/images/icon-site.png">
+    <title>CodeWise - Aprenda JavaScript Jogando</title>
+    <link rel="icon" type="image/png" href="home-page/images/codewise-monkey.png">
     <link rel="stylesheet" href="home-page/css/homepage.css">
 </head>
 <body>
-    <section class="header-section">
-        <img src="home-page/images/codewise.png" alt="CodeWise Logo" class="logo-header">
-        <header>
-            <nav>
-                <ul>
-                    <li class="hover-underline"><a href="#inicio">Início</a></li>
-                    <li class="hover-underline"><a href="#sobre">Sobre Nós</a></li>
-                    <li class="hover-underline"><a href="#visao">Visão</a></li>
-                    <li class="hover-underline"><a href="#missao">Missão</a></li>
+    <!-- HEADER / NAVEGAÇÃO -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <img src="home-page/images/logo-codewise.png" alt="CodeWise Logo" class="logo-img">
+            </div>
+            
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li><a href="#inicio" class="nav-link">Início</a></li>
+                    <li><a href="#sobre" class="nav-link">Sobre Nós</a></li>
+                    <li><a href="#visao" class="nav-link">Visão</a></li>
+                    <li><a href="#missao" class="nav-link">Missão</a></li>
                 </ul>
             </nav>
-        </header>
-    </section>
-    
-    <section class="introdoucao-section" id="inicio">
-        <div class="image-container">
-            <img id="img-main" src="home-page/images/imagem-principal.png" alt="">
+
+            <button class="btn-nav" type="button" data-url="login.html">Entrar</button>
         </div>
-        <div class="intro-content">
-            <h1>Sua jornada JavaScript começa aqui. Transforme linhas de código em superpoderes e suba de nível no mercado de tecnologia.</h1>             
-            <button id="btn-comecar">Começar Agora</button>
-        </div>
-    </section>
+    </header>
 
-    <section class="sobre-section" id="sobre">
-        <div class="body-left">
-            <div class="body-content-left">
-                <h3>Codar nunca foi tão viciante.</h3>
-
-                <p>
-                    Nós do CodeWise, acreditamos que o processo de aprendizado de JavaScript não deve ser uma batalha árdua e solitária contra uma tela preta e letrinhas coloridas.
-                    No CodeWise abordamos a prática da linguagem de uma maneira mais simples e incentivadora.
-                </p>
-
-                <p>
-                    Porque ler 50 páginas de teoria se você pode aprender arrays e loops resolvendo puzzles e subindo no ranking?
-                    Nossa equipe de desenvolvedores e educadores uniu o melhor da ciência cognitiva com a diversão dos games para garantir que você aprenda mais rápido e retenha o que importa.
-                </p>
+    <!-- HERO SECTION -->
+    <section class="hero" id="inicio">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Sua jornada JavaScript começa aqui</h1>
+                <p class="hero-subtitle">Transforme linhas de código em superpoderes e suba de nível no mercado de tecnologia</p>
+                <button class="btn-primary" id="btn-comecar" type="button" data-url="apresentacao.html">Começar Agora</button>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Desenvolvedores</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Divertido</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">Desafios</span>
+                    </div>
+                </div>
             </div>
+            
+            <div class="hero-image">
+                <img src="home-page/images/imagem-principal.png" alt="Hero Image" class="hero-img">
+            </div>
+        </div>
 
-            <div class="sobre-image">
-                <div class="image-wrapper">
-                    <img src="home-page/images/macaco-protagonista.png" alt="Mascote CodeWise formado acenando">
+        <div class="hero-features">
+            <div class="feature-card">
+                <span class="feature-emoji">⚡</span>
+                <div class="feature-info">
+                    <h4>Arrays & Loops</h4>
+                    <p>Domine os conceitos fundamentais</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-emoji">🎮</span>
+                <div class="feature-info">
+                    <h4>100% Gamificado</h4>
+                    <p>Aprenda jogando e se divertindo</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <span class="feature-emoji">🏆</span>
+                <div class="feature-info">
+                    <h4>Ranking & Badges</h4>
+                    <p>Compita e ganhe reconhecimento</p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+
+    <!-- SOBRE SECTION -->
+    <section class="about" id="sobre">
+        <div class="about-container">
+            <div class="about-image">
+                <div class="image-frame">
+                    <img src="home-page/images/macaco-protagonista.png" alt="Mascote CodeWise">
+                </div>
+            </div>
+            
+            <div class="about-content">
+                <h2 class="section-title">Codar nunca foi tão viciante</h2>
+                <p class="section-subtitle">Uma nova forma de aprender</p>
+                
+                <p class="about-text">
+                    No CodeWise, acreditamos que o aprendizado de JavaScript não deve ser uma batalha solitária contra uma tela preta. Abordamos a prática de uma maneira <strong>mais simples e incentivadora</strong>.
+                </p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">🧠</div>
+                        <div class="feature-text">
+                            <h3>Aprendizado Científico</h3>
+                            <p>Baseado em ciência cognitiva</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">🎮</div>
+                        <div class="feature-text">
+                            <h3>Gamificado</h3>
+                            <p>Ranking, badges e desafios</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-text">
+                            <h3>Prático</h3>
+                            <p>Aprenda fazendo puzzles</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="visao-section" id="visao">
-        <div class="visao-body">
-            <div class="visao-image">
-                <div class="image-wrapper">
-                    <img src="home-page/images/guaxinim-macaco.png" alt="Mascotes CodeWise formados comemorando">
+    <!-- VISÃO SECTION -->
+    <section class="vision" id="visao">
+        <div class="vision-container">
+            <div class="vision-content">
+                <h2 class="section-title">Nossa Visão</h2>
+                <p class="section-subtitle">Onde queremos chegar</p>
+                
+                <p class="vision-text">
+                    Ser a plataforma de aprendizado <span class="highlight">número 1</span> para quem quer dominar JavaScript, a linguagem mais importante do mercado web.
+                </p>
+                
+                <p class="vision-text">
+                    Queremos provar que é possível atingir qualidade técnica sem abrir mão da diversão, formando uma nova geração de programadores.
+                </p>
+
+                <div class="vision-badges">
+                    <div class="badge">Educação de Qualidade</div>
+                    <div class="badge">100% Divertido</div>
+                    <div class="badge">Prático & Intuitivo</div>
                 </div>
             </div>
-
-            <div class="visao-content">
-                <h2>Visão</h2>
-                <h3>Onde queremos chegar.</h3>
-
-                <p>
-                    Ser a plataforma de aprendizado número 1 para quem quer aprender essa linguagem que é uma das mais importantes do mercado web.
-                </p>
-
-                <p>
-                    Queremos ser parâmetro para educação tecnológica, provar que é possível atingir qualidade técnica sem abrir mão do entretenimento, formando uma nova geração de programadores que aprendem fazendo e constroem um novo mundo a partir do código.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <section class="missao-section" id="missao">
-        <div class="body-left">
-            <div class="body-content-left">
-                <h2>Missão</h2>
-                <h3>O que nos move.</h3>
-
-                <p>
-                    Nossa missão é tornar o aprendizado da linguagem mais democrática e intuitiva, substituindo métodos cansativos de ensino por uma experiência prática, interativa e viciante. Focamos em transformar a curva de aprendizado em uma linha reta, entregando conhecimento técnico de alto nível através de micro desafios que respeitam cada usuário de forma individual.
-                </p>
-            </div>
-
-            <div class="missao-image">
-                <div class="image-wrapper">
-                    <img src="home-page/images/elefante-esquilo.png" alt="Mascotes CodeWise formados comemorando">
+            
+            <div class="vision-image">
+                <div class="image-frame">
+                    <img src="home-page/images/guaxinim-macaco.png" alt="Mascotes Celebrando">
                 </div>
             </div>
         </div>
     </section>
-        <footer class="footer">
+
+    <!-- MISSÃO SECTION -->
+    <section class="mission" id="missao">
+        <div class="mission-container">
+            <div class="mission-image">
+                <div class="image-frame">
+                    <img src="home-page/images/elefante-esquilo.png" alt="Mascotes">
+                </div>
+            </div>
+            
+            <div class="mission-content">
+                <h2 class="section-title">Nossa Missão</h2>
+                <p class="section-subtitle">O que nos move</p>
+                
+                <p class="mission-text">
+                    Tornar o aprendizado de JavaScript mais <strong>democrático e intuitivo</strong>, substituindo métodos cansativos por uma experiência prática, interativa e viciante.
+                </p>
+                
+                <div class="mission-points">
+                    <div class="point">
+                        <div class="point-number">01</div>
+                        <div class="point-content">
+                            <h3>Transformar a curva de aprendizado</h3>
+                            <p>De complexa para reta e clara</p>
+                        </div>
+                    </div>
+                    
+                    <div class="point">
+                        <div class="point-number">02</div>
+                        <div class="point-content">
+                            <h3>Conhecimento Técnico Alto Nível</h3>
+                            <p>Através de micro desafios</p>
+                        </div>
+                    </div>
+                    
+                    <div class="point">
+                        <div class="point-number">03</div>
+                        <div class="point-content">
+                            <h3>Respeitar Cada Usuário</h3>
+                            <p>Aprendizado personalizado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta">
+        <div class="cta-content">
+            <h2>Pronto para começar sua jornada?</h2>
+            <p>Junte-se a milhares de desenvolvedores que já estão aprendendo com CodeWise</p>
+            <button class="btn-primary btn-large" type="button" data-url="apresentacao.html">Começar Grátis</button>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
             <p>&copy; 2026 CodeWise. Todos os direitos reservados.</p>
-        </footer>
+            <div class="footer-links">
+                <a href="#privacy">Privacidade</a>
+                <a href="#terms">Termos</a>
+                <a href="#contact">Contato</a>
+            </div>
+        </div>
+    </footer>
 
     <script src="home-page/js/page_script.js"></script>
 </body>

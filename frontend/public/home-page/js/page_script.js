@@ -7,7 +7,6 @@
                 }
             });
 
-            // Intersection Observer for scroll animations
             const observerOptions = {
                 threshold: 0.2,
                 rootMargin: '0px 0px -50px 0px'
@@ -26,14 +25,15 @@
                 observer.observe(el);
             });
 
-            // Button click animation
-            const btnComecar = document.getElementById('btn-comecar');
-            if (btnComecar) {
-                btnComecar.addEventListener('click', function() {
+
+            document.querySelectorAll('button[data-url]').forEach((button) => {
+                button.addEventListener('click', function() {
+                    const url = this.dataset.url;
+
                     this.style.transform = 'scale(0.95)';
                     setTimeout(() => {
                         this.style.transform = 'translateY(-3px) scale(1)';
-                        window.location.href = 'apresentacao.html';
+                        window.location.href = url;
                     }, 150);
                 });
-            }
+            });
