@@ -21,6 +21,7 @@ const levelingRoutes = require('./routes/levelingRoutes');
 const calendarRoutes = require('./routes/calendarRoutes'); 
 const progressRoutes = require('./routes/progressRoutes'); 
 const profileRoutes = require('./routes/profileRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Registra as rotas
 app.use('/api/auth', authRoutes);
@@ -30,10 +31,15 @@ app.use('/api/leveling', levelingRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api', progressRoutes);
 app.use('/api', profileRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // 2. Servindo a página principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../../frontend/public/homepage.html'));
+});
+
+app.get('/monetizacao', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../frontend/public/monetizacao.html'));
 });
 
 module.exports = app;
