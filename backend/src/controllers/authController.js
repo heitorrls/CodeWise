@@ -3,6 +3,69 @@ const LoginHistory = require("../models/LoginHistory");
 const PasswordReset = require("../models/PasswordReset");
 const bcrypt = require("bcryptjs");
 
+// Função para gerar um token JWT (pode ser usada tanto no login tradicional quanto no login do Google)
+// Função do login com google
+const { OAuth2Client } = require('google-auth-library');
+const jwt = require('jsonwebtoken');
+// Importe o seu modelo de Utilizador (exemplo genérico, adapte ao seu ORM/MySQL)
+
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+exports.googleLogin = async (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+        return res.status(400).json({ success: false, message: 'Token não fornecido.' });
+    }
+
+    try {
+        // 1. O backend pede ao Google para verificar se o token é autêntico
+        const ticket = await googleClient.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        // 2. Extrair os dados validados do utilizador
+        const payload = ticket.getPayload();
+        const { email, name, picture } = payload;
+
+        // 3. Lógica da Base de Dados (Verificar se o utilizador já existe)
+        // Atenção: Adapte esta parte para a sintaxe do seu sistema (Sequelize, MySQL puro, etc)
+        let user = await User.findOne({ where: { email: email } });
+
+        if (!user) {
+            // Se não existir, criamos um novo utilizador na base de dados
+            user = await User.create({
+                name: name,
+                email: email,
+                avatar: picture,
+                // Como fez login pelo Google, podemos não precisar de password, 
+                // ou definimos um valor aleatório/nulo dependendo da sua base de dados
+                password: null 
+            });
+        }
+
+        // 4. Gerar o token JWT do CodeWise para manter a sessão ativa
+        const appToken = jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' } // O token expira em 7 dias
+        );
+
+        // 5. Devolver o sucesso e o token ao frontend
+        return res.status(200).json({
+            success: true,
+            token: appToken,
+            user: { id: user.id, name: user.name, email: user.email }
+        });
+
+    } catch (error) {
+        console.error('Erro na validação do token do Google:', error);
+        return res.status(401).json({ success: false, message: 'Token do Google inválido ou expirado.' });
+    }
+};
+
 // --- CADASTRO (SIGNUP) COM CORREÇÃO DE DUPLICIDADE ---
 exports.signup = (req, res) => {
   const { email, username, password } = req.body;

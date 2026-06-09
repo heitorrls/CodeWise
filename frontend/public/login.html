@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="src/assets/styles/login.css" />
         <script src="src/assets/js/theme-loader.js"></script>
     <link rel="stylesheet" href="src/assets/styles/theme.css" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body data-default-theme="dark">
     <div class="theme-toggle-auth">
@@ -62,7 +63,12 @@
             </div>
 
             <button type="submit" class="login-btn">Entrar</button>
-
+            <div id="googleButtonDiv">
+              <button id="googleLoginButton" class="google-login-btn">
+                <img src="src/assets/images/google-icon.png" alt="Login com Google" />
+                Entrar com Google
+              </button>
+            </div>
             <div class="signup-link">
               <a href="signup.html" id="signupLink">Cadastre-se</a>
             </div>
