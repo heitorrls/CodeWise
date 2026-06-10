@@ -3173,7 +3173,7 @@ function handleGoogleResponse(response) {
             // Se o backend validou e criou a sessão, salvamos o token do CodeWise
             localStorage.setItem('codewise_token', data.token);
             // Redireciona para a página interna
-            window.location.href = '/homepage.html'; 
+            window.location.href = '/intro_nivelamento.html'; 
         } else {
             alert('Falha na autenticação.');
         }

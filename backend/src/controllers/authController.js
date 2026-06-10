@@ -3,15 +3,22 @@ const LoginHistory = require("../models/LoginHistory");
 const PasswordReset = require("../models/PasswordReset");
 const bcrypt = require("bcryptjs");
 
-// Função para gerar um token JWT (pode ser usada tanto no login tradicional quanto no login do Google)
-// Função do login com google
 const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
-// Importe o seu modelo de Utilizador (exemplo genérico, adapte ao seu ORM/MySQL)
-
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+// --- FUNÇÃO AUXILIAR: GERAR TOKEN JWT ---
+// Agora centralizamos a geração do token para usar em qualquer lugar
+const generateAppToken = (user) => {
+    return jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' } // O token expira em 7 dias
+    );
+};
+
+// --- LOGIN COM GOOGLE ---
 exports.googleLogin = async (req, res) => {
     const { token } = req.body;
 
@@ -20,44 +27,52 @@ exports.googleLogin = async (req, res) => {
     }
 
     try {
-        // 1. O backend pede ao Google para verificar se o token é autêntico
+        // 1. Verifica token com o Google
         const ticket = await googleClient.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 
-        // 2. Extrair os dados validados do utilizador
+        // 2. Extrair dados
         const payload = ticket.getPayload();
-        const { email, name, picture } = payload;
+        const { email, name } = payload; // O Google devolve 'name', vamos usar como 'username'
 
-        // 3. Lógica da Base de Dados (Verificar se o utilizador já existe)
-        // Atenção: Adapte esta parte para a sintaxe do seu sistema (Sequelize, MySQL puro, etc)
-        let user = await User.findOne({ where: { email: email } });
-
-        if (!user) {
-            // Se não existir, criamos um novo utilizador na base de dados
-            user = await User.create({
-                name: name,
-                email: email,
-                avatar: picture,
-                // Como fez login pelo Google, podemos não precisar de password, 
-                // ou definimos um valor aleatório/nulo dependendo da sua base de dados
-                password: null 
+        // 3. Adaptando para o seu modelo User.js (Callbacks -> Promises)
+        const findUser = () => new Promise((resolve, reject) => {
+            User.findByEmail(email, (err, result) => {
+                if (err) reject(err);
+                else resolve(result);
             });
+        });
+
+        const createUser = () => new Promise((resolve, reject) => {
+            const fakePassword = 'google_login_no_password'; // Senha falsa pois o login é via Google
+            
+            // Usamos a mesma assinatura do seu signup tradicional: (email, username, password, callback)
+            User.create(email, name, fakePassword, (err, insertId) => {
+                if (err) reject(err);
+                else resolve({ id: insertId, email: email, username: name }); 
+            });
+        });
+
+        // Executar a busca
+        let user = await findUser();
+
+        // Tratamento para garantir que pegamos o usuário corretamente
+        if (!user || (Array.isArray(user) && user.length === 0)) {
+            user = await createUser();
+        } else if (Array.isArray(user)) {
+            user = user[0];
         }
 
-        // 4. Gerar o token JWT do CodeWise para manter a sessão ativa
-        const appToken = jwt.sign(
-            { id: user.id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' } // O token expira em 7 dias
-        );
+        // 4. Gerar o token JWT do CodeWise
+        const appToken = generateAppToken(user);
 
-        // 5. Devolver o sucesso e o token ao frontend
+        // 5. Devolver sucesso
         return res.status(200).json({
             success: true,
-            token: appToken,
-            user: { id: user.id, name: user.name, email: user.email }
+            token: appToken, // Token JWT gerado
+            user: { id: user.id, username: user.username, email: user.email }
         });
 
     } catch (error) {
@@ -66,150 +81,136 @@ exports.googleLogin = async (req, res) => {
     }
 };
 
-// --- CADASTRO (SIGNUP) COM CORREÇÃO DE DUPLICIDADE ---
+// --- CADASTRO (SIGNUP) ---
 exports.signup = (req, res) => {
   const { email, username, password } = req.body;
   
-  // Validação básica
   if (!email || !username || !password) {
     return res.status(400).json({ message: "Preencha todos os campos." });
   }
 
   User.findByEmail(email, (err, user) => {
-    if (err) {
-      console.error("Erro ao verificar email:", err);
-      return res.status(500).json({ message: "Erro interno no servidor." });
-    }
+    if (err) return res.status(500).json({ message: "Erro interno no servidor." });
     
-    if (user) {
+    // Verifica duplicidade no array caso retorne array vazio ou populado
+    if (user && (!Array.isArray(user) || user.length > 0)) {
       return res.status(409).json({ message: "Este email já está cadastrado." });
     }
 
-    // Tenta criar o usuário
     User.create(email, username, password, (err, userId) => {
       if (err) {
-        console.error("Erro detalhado do MySQL:", err);
-
-        // Tratamento do erro de duplicidade (username ou email)
         if (err.code === 'ER_DUP_ENTRY') {
            const message = err.sqlMessage.includes('username') 
              ? "Este nome de usuário já está em uso. Escolha outro." 
              : "Este email já está em uso.";
            return res.status(409).json({ message });
         }
-
         return res.status(500).json({ message: "Erro ao cadastrar usuário." });
       }
 
+      // Opcional: Gerar token já no cadastro para auto-login
+      const token = generateAppToken({ id: userId, email: email });
+
       return res.status(201).json({ 
         message: "Cadastro realizado com sucesso!", 
-        userId 
+        token: token,
+        userId: userId 
       });
     });
   });
 };
 
-// --- LOGIN ---
+// --- LOGIN TRADICIONAL ---
 exports.login = (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password)
+  
+  if (!email || !password) {
     return res.status(400).json({ message: "Preencha todos os campos." });
+  }
 
-  User.findByEmail(email, (err, user) => {
+  User.findByEmail(email, (err, userResult) => {
     if (err) return res.status(500).json({ message: "Erro no servidor." });
     
-    // Verifica se usuário existe
-    if (!user)
+    let user = userResult;
+    if (Array.isArray(userResult) && userResult.length > 0) user = userResult[0];
+    
+    if (!user || Array.isArray(userResult) && userResult.length === 0) {
       return res.status(401).json({ message: "Email ou senha inválidos." });
+    }
 
-    // Compara a senha enviada com o hash salvo
     const isMatch = bcrypt.compareSync(password, user.password);
 
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(401).json({ message: "Email ou senha inválidos." });
+    }
 
     LoginHistory.logVisit(user.id, (err) => {
         if (err) console.error("Erro ao registrar histórico de login:", err);
-        // Não impedimos o login se der erro no log, apenas avisamos no console
     });
-    // Retorna sucesso e dados do usuário (incluindo nivelamento e tipo se houver)
+
+    // AQUI ESTAVA FALTANDO: Gerar o token no login normal!
+    const token = generateAppToken(user);
+
     res.json({
+      success: true,
       message: "Login realizado com sucesso!",
+      token: token, // Enviando o token para o frontend
       user: {
         id: user.id,
         email: user.email,
-        username: user.username, // Adicionado username para o frontend
+        username: user.username,
         leveling_completed: user.leveling_completed,
         level: user.level,
-        tipo: user.tipo || 'aluno' // Suporte ao novo campo do seu DB
+        tipo: user.tipo || 'aluno'
       },
     });
   });
 };
 
 // --- RECUPERAÇÃO DE SENHA ---
-
 exports.forgotPassword = (req, res) => {
   const { email } = req.body;
-  if (!email)
-    return res.status(400).json({ message: "Por favor, digite seu email." });
+  if (!email) return res.status(400).json({ message: "Por favor, digite seu email." });
 
-  // Gera um código de 6 dígitos
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-  // Define a expiração (ex: 10 minutos)
   const expires = new Date(Date.now() + 10 * 60 * 1000);
 
   PasswordReset.create(email, code, expires, (err, insertId) => {
-    if (err) {
-      console.error("Erro ao salvar código:", err);
-      return res.status(500).json({ message: "Erro no servidor." });
-    }
+    if (err) return res.status(500).json({ message: "Erro no servidor." });
 
-    console.log(`Código de redefinição para ${email}: ${code}`); // Log para teste local
+    console.log(`Código de redefinição para ${email}: ${code}`); 
 
-    res.status(200).json({
-      message: "Se o email estiver cadastrado, um código foi enviado.",
-    });
+    res.status(200).json({ message: "Se o email estiver cadastrado, um código foi enviado." });
   });
 };
 
 exports.verifyCode = (req, res) => {
   const { email, code } = req.body;
-  if (!email || !code)
-    return res.status(400).json({ message: "Email e código são obrigatórios." });
+  if (!email || !code) return res.status(400).json({ message: "Email e código são obrigatórios." });
 
   PasswordReset.findByEmailAndCode(email, code, (err, resetRequest) => {
     if (err) return res.status(500).json({ message: "Erro no servidor." });
-
-    if (!resetRequest) {
+    if (!resetRequest || (Array.isArray(resetRequest) && resetRequest.length === 0)) {
       return res.status(400).json({ message: "Código inválido ou expirado." });
     }
-
     res.status(200).json({ message: "Código verificado com sucesso." });
   });
 };
 
 exports.resetPassword = (req, res) => {
   const { email, code, newPassword } = req.body;
-  if (!email || !code || !newPassword) {
-    return res.status(400).json({ message: "Todos os campos são obrigatórios." });
-  }
+  if (!email || !code || !newPassword) return res.status(400).json({ message: "Todos os campos são obrigatórios." });
 
-  // 1. Verifica se o código ainda é válido
   PasswordReset.findByEmailAndCode(email, code, (err, resetRequest) => {
     if (err) return res.status(500).json({ message: "Erro no servidor." });
-    if (!resetRequest)
+    if (!resetRequest || (Array.isArray(resetRequest) && resetRequest.length === 0)) {
       return res.status(400).json({ message: "Código inválido ou expirado." });
+    }
 
-    // 2. Atualiza a senha no banco de usuários
     User.updatePasswordByEmail(email, newPassword, (err, affectedRows) => {
-      if (err)
-        return res.status(500).json({ message: "Erro ao atualizar senha." });
-      if (affectedRows === 0)
-        return res.status(404).json({ message: "Usuário não encontrado." });
+      if (err) return res.status(500).json({ message: "Erro ao atualizar senha." });
+      if (affectedRows === 0) return res.status(404).json({ message: "Usuário não encontrado." });
 
-      // 3. Deleta o código usado
       PasswordReset.delete(email, code, (err) => {
         if (err) console.error("Erro ao deletar código:", err);
       });
