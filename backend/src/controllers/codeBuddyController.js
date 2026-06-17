@@ -5,15 +5,15 @@ const DEFAULT_MODEL = process.env.GEMINI_MODEL || "models/gemini-1.5-flash";
 exports.handleChat = async (req, res) => {
   try {
     const { prompt } = req.body;
-    if (!prompt)
+    
+    if (!prompt) {
       return res.status(400).json({ error: "Campo 'prompt' obrigatório." });
+    }
 
     // --- INSTRUÇÕES DE SISTEMA APRIMORADAS ---
     const systemInstruction = [
-      // Definição de Persona e Tom
       'Você é o "CodeBuddy", um assistente de programação **sênior, didático e encorajador** da plataforma CodeWise. Seu foco é **JavaScript, Node.js e seus ecossistemas**.',
       "Sua principal missão é educar, fornecendo respostas que são fáceis de ler e implementar.",
-      
       "Siga estritamente estas regras para todas as respostas:",
       "1. **Estrutura:** Use **Markdown** e comece com um título `###` relevante. Estruture a resposta em seções como: Explicação do Conceito, Exemplo Prático e Dicas Finais.",
       "2. **Formatação:** Use **negrito** para termos técnicos importantes. Use listas (`* ` ou `1. `) para organizar passos ou definições.",
@@ -24,34 +24,35 @@ exports.handleChat = async (req, res) => {
     // --- FIM DAS INSTRUÇÕES ---
 
     console.log("Usando modelo configurado:", DEFAULT_MODEL);
+    
+    // Passando o systemInstruction de forma nativa e correta para o Gemini 1.5+
     const model = genAI.getGenerativeModel({
       model: DEFAULT_MODEL,
-      // Aumentando a criatividade e diversidade da resposta
+      systemInstruction: systemInstruction, 
       generationConfig: { temperature: 0.5, topP: 0.95, maxOutputTokens: 2048 }, 
     });
 
-    const combinedPrompt = `${systemInstruction}\n\nPergunta: ${prompt}`;
-
-    // Tentativa principal usando generateContent (mais simples)
     let text = null;
 
+    // Tentativa principal usando generateContent
     try {
-      const genResult = await model.generateContent(combinedPrompt);
+      // Como o systemInstruction já foi passado acima, enviamos apenas o prompt do usuário!
+      const genResult = await model.generateContent(prompt);
       const genResp = await genResult.response;
       text = genResp.text();
+      
     } catch (genErr) {
-      console.warn(
-        "generateContent falhou, tentando fluxo de chat como fallback:",
-        genErr?.message || genErr
-      );
-      // Fluxo de chat como fallback (mantido por segurança, mas não deve ser necessário)
+      console.warn("generateContent falhou, tentando fluxo de chat como fallback:", genErr?.message || genErr);
+      
+      // Fluxo de chat como fallback
       try {
         const chat = model.startChat();
-        const sendResult = await chat.sendMessage({
-          content: { parts: [{ text: combinedPrompt }] },
-        });
+        
+        // CORREÇÃO AQUI: Passar a string diretamente
+        const sendResult = await chat.sendMessage(prompt); 
         const response = await sendResult.response;
         text = response.text();
+        
       } catch (chatErr) {
         console.error("Fluxo de chat também falhou:", chatErr);
         throw chatErr;
@@ -59,20 +60,18 @@ exports.handleChat = async (req, res) => {
     }
 
     if (!text || text.trim().length === 0) {
-      console.warn(
-        "Resposta vazia do modelo, retornando mensagem de fallback."
-      );
+      console.warn("Resposta vazia do modelo, retornando mensagem de fallback.");
       return res.json({
-        response:
-          "Desculpe — não obtive uma resposta clara. Tente reformular a pergunta ou pedir um exemplo específico em JavaScript.",
+        response: "Desculpe — não obtive uma resposta clara. Tente reformular a pergunta ou pedir um exemplo específico em JavaScript.",
         modelUsed: DEFAULT_MODEL,
       });
     }
 
     return res.json({ response: text, modelUsed: DEFAULT_MODEL });
+
   } catch (error) {
     console.error("Erro ao chamar a API do Gemini:", error);
-    // ... (restante do tratamento de erro mantido)
+    
     if (error.status === 403) {
       return res.status(500).json({
         error: "Generative Language API desativada ou chave sem permissão.",
@@ -82,12 +81,9 @@ exports.handleChat = async (req, res) => {
     if (error.status === 404) {
       return res.status(500).json({
         error: "Modelo não encontrado (404).",
-        action:
-          'Liste modelos: curl "[https://generativelanguage.googleapis.com/v1/models?key=YOUR_API_KEY](https://generativelanguage.googleapis.com/v1/models?key=YOUR_API_KEY)"',
+        action: 'Liste modelos: curl "[https://generativelanguage.googleapis.com/v1/models?key=YOUR_API_KEY](https://generativelanguage.googleapis.com/v1/models?key=YOUR_API_KEY)"',
       });
     }
-    return res
-      .status(500)
-      .json({ error: "Erro interno ao processar a solicitação." });
+    return res.status(500).json({ error: "Erro interno ao processar a solicitação." });
   }
 };

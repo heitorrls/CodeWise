@@ -19,65 +19,89 @@ const generateAppToken = (user) => {
 };
 
 // --- LOGIN COM GOOGLE ---
+// --- LOGIN COM GOOGLE ---
 exports.googleLogin = async (req, res) => {
-    const { token } = req.body;
-
-    if (!token) {
-        return res.status(400).json({ success: false, message: 'Token não fornecido.' });
-    }
-
     try {
-        // 1. Verifica token com o Google
-        const ticket = await googleClient.verifyIdToken({
-            idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
+        const { credential } = req.body; 
 
-        // 2. Extrair dados
-        const payload = ticket.getPayload();
-        const { email, name } = payload; // O Google devolve 'name', vamos usar como 'username'
-
-        // 3. Adaptando para o seu modelo User.js (Callbacks -> Promises)
-        const findUser = () => new Promise((resolve, reject) => {
-            User.findByEmail(email, (err, result) => {
-                if (err) reject(err);
-                else resolve(result);
-            });
-        });
-
-        const createUser = () => new Promise((resolve, reject) => {
-            const fakePassword = 'google_login_no_password'; // Senha falsa pois o login é via Google
-            
-            // Usamos a mesma assinatura do seu signup tradicional: (email, username, password, callback)
-            User.create(email, name, fakePassword, (err, insertId) => {
-                if (err) reject(err);
-                else resolve({ id: insertId, email: email, username: name }); 
-            });
-        });
-
-        // Executar a busca
-        let user = await findUser();
-
-        // Tratamento para garantir que pegamos o usuário corretamente
-        if (!user || (Array.isArray(user) && user.length === 0)) {
-            user = await createUser();
-        } else if (Array.isArray(user)) {
-            user = user[0];
+        if (!credential) {
+            return res.status(400).json({ error: "Token do Google não fornecido." });
         }
 
-        // 4. Gerar o token JWT do CodeWise
-        const appToken = generateAppToken(user);
+        // 1. Valida a integridade do token com os servidores do Google
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        
+        // 2. Extrai os dados do usuário diretamente do Google
+        const payload = ticket.getPayload();
+        const { email, name, sub: googleId } = payload;
 
-        // 5. Devolver sucesso
-        return res.status(200).json({
-            success: true,
-            token: appToken, // Token JWT gerado
-            user: { id: user.id, username: user.username, email: user.email }
+        // 3. Verifica se o e-mail já está cadastrado (USANDO CALLBACK PARA MANTER O PADRÃO)
+        User.findByEmail(email, async (err, userResult) => {
+            if (err) return res.status(500).json({ message: "Erro ao consultar banco de dados." });
+
+            let user = userResult;
+            if (Array.isArray(userResult) && userResult.length > 0) user = userResult[0];
+
+            // 4. REGRA DE NEGÓCIO: Silent Signup (Criação automática se não existir)
+            if (!user || (Array.isArray(userResult) && userResult.length === 0)) {
+                console.log("Novo usuário detectado via Google. Criando conta...");
+
+                const randomPassword = Math.random().toString(36).slice(-16) + googleId;
+                const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+                // Como o Google não devolve 'username', usamos o 'name' ou a primeira parte do email
+                const username = name || email.split('@')[0];
+
+                // Usando o formato padrão do seu User.create
+                User.create(email, username, hashedPassword, (err, insertId) => {
+                    if (err) {
+                        console.error("Erro ao criar usuário via Google:", err);
+                        return res.status(500).json({ message: "Erro ao cadastrar usuário." });
+                    }
+
+                    // Monta o objeto do novo usuário
+                    const newUser = { id: insertId, email, username };
+                    const token = generateAppToken(newUser);
+
+                    return res.status(200).json({
+                        success: true,
+                        message: "Conta criada e login realizado via Google!",
+                        token: token,
+                        user: newUser
+                    });
+                });
+
+            } else {
+                // Usuário já existe, apenas gera o token e loga!
+                const token = generateAppToken(user);
+
+                // Registra histórico de login, assim como na função login padrão
+                LoginHistory.logVisit(user.id, (err) => {
+                    if (err) console.error("Erro ao registrar histórico de login:", err);
+                });
+
+                return res.status(200).json({
+                    success: true,
+                    message: "Login via Google realizado com sucesso!",
+                    token: token,
+                    user: {
+                        id: user.id,
+                        email: user.email,
+                        username: user.username,
+                        leveling_completed: user.leveling_completed,
+                        level: user.level,
+                        tipo: user.tipo || 'aluno'
+                    }
+                });
+            }
         });
 
     } catch (error) {
-        console.error('Erro na validação do token do Google:', error);
-        return res.status(401).json({ success: false, message: 'Token do Google inválido ou expirado.' });
+        console.error("Erro na autenticação via Google:", error);
+        return res.status(401).json({ error: "Falha ao autenticar com o Google. Token inválido ou expirado." });
     }
 };
 
