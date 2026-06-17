@@ -91,7 +91,7 @@ body.cw-homepage-system :is(p, span, label, .description, .sub-text, .intro-text
   letter-spacing: 0;
 }
 
-body.cw-homepage-system :is(.header, .sidebar, .right-sidebar, .main-content, .panel, .settings-panel, .confirmation-card, .highlight-card, .card, .module-card, .modules-wrapper, .knowledge-trail, .stat-card, .chart-container, .details-container, .calendar-wrapper, .daily-missions, .stats, .stats-missions-container, .content, .left-section, .right-section, .profile-main, .store-panel, .ranking-container, .support-container, .question-card, .result-card, .reward-card, .intro-content, .modal, .chat-modal) {
+body.cw-homepage-system :is(.header, .sidebar, .right-sidebar, .main-content, .panel, .settings-panel, .confirmation-card, .highlight-card, .card, .module-card, .modules-wrapper, .knowledge-trail, .stat-card, .chart-container, .details-container, .calendar-wrapper, .daily-missions, .stats, .stats-missions-container, .content, .profile-main, .store-panel, .ranking-container, .support-container, .question-card, .result-card, .reward-card, .intro-content, .modal, .chat-modal) {
   border: 1px solid rgba(124, 58, 237, 0.14);
   border-radius: var(--cw-radius);
   background: var(--cw-surface);
@@ -100,7 +100,7 @@ body.cw-homepage-system :is(.header, .sidebar, .right-sidebar, .main-content, .p
   backdrop-filter: blur(10px);
 }
 
-body.cw-homepage-system :is(.panel, .settings-panel, .confirmation-card, .highlight-card, .card, .module-card, .stat-card, .chart-container, .details-container, .daily-missions, .stats, .content, .left-section, .right-section, .question-card, .result-card, .reward-card):hover {
+body.cw-homepage-system :is(.panel, .settings-panel, .confirmation-card, .highlight-card, .card, .module-card, .stat-card, .chart-container, .details-container, .daily-missions, .stats, .content, .question-card, .result-card, .reward-card):hover {
   border-color: rgba(124, 58, 237, 0.22);
   box-shadow: var(--cw-shadow-md);
 }
