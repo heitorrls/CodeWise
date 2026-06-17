@@ -808,24 +808,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Injeta vidas na barra lateral (home/modulos) se existir
-  function ensureLivesInSidebar() {
-    const sidebarLives = document.querySelector(".right-sidebar .lives-pill");
-    if (sidebarLives) return;
-    const container = document.querySelector(".right-sidebar .stats-missions-container");
-    if (container) {
-      const pill = document.createElement("div");
-      pill.className = "lives-pill";
-      pill.id = "livesCounterSidebar";
-      pill.textContent = "❤️ 5/5 vidas";
-      container.prepend(pill);
-    }
-  }
-  if (
-    window.location.pathname.endsWith("home.html") ||
-    window.location.pathname.endsWith("modulos.html")
-  ) {
-    ensureLivesInSidebar();
+  if (window.location.pathname.endsWith("modulos.html")) {
     updateLivesUI();
   }
 
@@ -1484,7 +1467,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       advanceBtn.innerHTML = `
           <div class="loading">
             <div class="spinner"></div>
-            Avançando para a criação de avatar...
+            Avançando
           </div>
         `;
       advanceBtn.disabled = true;

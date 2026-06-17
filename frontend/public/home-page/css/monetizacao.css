@@ -6,6 +6,38 @@
     width: 100%;
 }
 
+.header-container {
+    max-width: 1440px;
+    min-height: 76px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.header-title .header-logo {
+    width: 52px;
+    height: auto;
+    display: block;
+    flex: 0 0 auto;
+}
+
+.header-title h1 {
+    margin: 0;
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0;
+    color: var(--text-dark);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 .pricing-hero,
 .premium-benefits,
 .comparison-section,
