@@ -3150,3 +3150,53 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 });
+
+
+// Logica do botao entrar com google (login.html)
+// 1. Função que o Google dispara automaticamente quando o usuário faz login
+function handleGoogleResponse(response) {
+    // Aqui está o token gigante que o Google nos devolve
+    const tokenDoGoogle = response.credential;
+    console.log("Sucesso! Token recebido:", tokenDoGoogle);
+
+    // 2. Vamos enviar este token para o nosso backend Node.js validar
+    fetch('http://localhost:3001/api/auth/google', { // Coloque a URL certa do seu backend
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token: tokenDoGoogle })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Se o backend validou e criou a sessão, salvamos o token do CodeWise
+            localStorage.setItem('codewise_token', data.token);
+            // Redireciona para a página interna
+            window.location.href = '/intro_nivelamento.html'; 
+        } else {
+            alert('Falha na autenticação.');
+        }
+    })
+    .catch(error => {
+        console.error('Erro na requisição para o backend:', error);
+    });
+}
+
+// 3. Inicializar o botão assim que a página carregar
+window.onload = function () {
+    google.accounts.id.initialize({
+        // Substitua pela chave que você acabou de gerar no Google Cloud Console
+        client_id: "302930330479-adsf9nav3ink0genmpc3aj2vuv33cit2.apps.googleusercontent.com",
+        callback: handleGoogleResponse
+    });
+
+    // Pinta o botão oficial do Google dentro da nossa div vazia
+    google.accounts.id.renderButton(
+        document.getElementById("googleButtonDiv"),
+        { theme: "outline", size: "large", text: "continue_with" } // Estilos do botão
+    );
+
+    // (Opcional) Mostra aquele pop-up automático no canto direito superior
+    google.accounts.id.prompt(); 
+};
