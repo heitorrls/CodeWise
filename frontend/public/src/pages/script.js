@@ -1,11 +1,3 @@
-/*
- * ARQUIVO MODIFICADO - LÓGICA DO FIREBASE REMOVIDA
- */
-
-// 1. Importações e inicialização do Firebase REMOVIDAS.
-// Não há mais 'app', 'auth' ou 'db'.
-
-// Toast global (substitui alert por card)
 (function setupGlobalToast() {
   const style = document.createElement("style");
   style.textContent = `
@@ -241,7 +233,6 @@ window.alert = function (msg) {
     "intro_nivelamento.html",
     "qst_nivelamento.html",
     "resultado_nivelamento.html",
-    "intro_criacao-avatar.html",
     "intro_modulo.html",
     "qst_modulo.html",
     "resultado_modulo.html",
@@ -260,7 +251,6 @@ window.logout = function logout(showConfirm = true) {
   if (showConfirm && !confirm("Deseja realmente sair?")) return;
   localStorage.removeItem("userId");
   localStorage.removeItem("userEmail");
-  localStorage.removeItem("cw_avatar_data");
   localStorage.removeItem("pendingAchievement");
   localStorage.removeItem("achievements_state");
   window.location.replace("login.html");
@@ -288,8 +278,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       badge: "Módulo 1",
       title: "JavaScript Básico",
       description: "Sintaxe, variáveis e primeiros passos com funções.",
-      totalLessons: 2, // preview: só duas lições jogáveis
-      displayLessons: 5, // mostra 5 nós, mas só 2 liberadas
+      totalLessons: 5,
+      playableLessons: 2,
+      displayLessons: 5,
       unlockWith: null,
     },
     {
@@ -311,46 +302,75 @@ document.addEventListener("DOMContentLoaded", async () => {
   ];
 
   const userScopedKey = (key) => (userId ? `${key}_${userId}` : key);
-  const progressKey = (moduleId) => userScopedKey(`module_progress_${moduleId}`);
   const lessonIndexKey = (moduleId) => userScopedKey(`currentLessonIndex_${moduleId || "default"}`);
   const selectedModuleKey = () => userScopedKey("selectedModule");
+  const moduleProgressCache = new Map();
 
   function resolveLessonIndex(moduleId, availableLessons, completedLessons) {
     const stored = Number(localStorage.getItem(lessonIndexKey(moduleId)));
+    const highestUnlocked = Math.max(
+      0,
+      Math.min(
+        Number(completedLessons) || 0,
+        Math.max(availableLessons - 1, 0)
+      )
+    );
     if (!Number.isNaN(stored)) {
-      return Math.max(0, Math.min(stored, Math.max(availableLessons - 1, 0)));
+      return Math.max(0, Math.min(stored, highestUnlocked));
     }
-    return Math.max(0, Math.min(completedLessons || 0, Math.max(availableLessons - 1, 0)));
+    return highestUnlocked;
   }
 
   function getModuleProgress(moduleId) {
     const mod = moduleCatalog.find((m) => m.id === moduleId);
-    const fallbackTotal = mod?.totalLessons || 1;
-    try {
-      const raw = localStorage.getItem(progressKey(moduleId));
-      if (!raw) {
-        return { completedLessons: 0, totalLessons: fallbackTotal };
-      }
-      const parsed = JSON.parse(raw);
-      const total = Math.max(1, Math.min(Number(parsed.totalLessons) || fallbackTotal, fallbackTotal));
-      const completed = Math.max(0, Math.min(Number(parsed.completedLessons) || 0, total));
-      return {
-        completedLessons: completed,
-        totalLessons: total,
-      };
-    } catch (e) {
-      return { completedLessons: 0, totalLessons: fallbackTotal };
-    }
+    const total = mod?.displayLessons || mod?.totalLessons || 1;
+    const completed = Math.max(
+      0,
+      Math.min(Number(moduleProgressCache.get(moduleId)) || 0, total)
+    );
+    return { completedLessons: completed, totalLessons: total };
   }
 
   function saveModuleProgress(moduleId, completedLessons, totalLessons) {
-    localStorage.setItem(
-      progressKey(moduleId),
-      JSON.stringify({
-        completedLessons: Math.max(0, Number(completedLessons) || 0),
-        totalLessons: Math.max(1, Number(totalLessons) || 1),
-      })
+    moduleProgressCache.set(
+      moduleId,
+      Math.max(
+        0,
+        Math.min(
+          Number(completedLessons) || 0,
+          Number(totalLessons) || Number.MAX_SAFE_INTEGER
+        )
+      )
     );
+  }
+
+  async function loadActivityProgress() {
+    moduleCatalog.forEach((module) => {
+      moduleProgressCache.set(module.id, 0);
+      localStorage.removeItem(
+        userScopedKey(`module_progress_${module.id}`)
+      );
+    });
+
+    if (!userId) return;
+
+    try {
+      const response = await fetch(`/api/activity-progress/${userId}`);
+      if (!response.ok) throw new Error("Falha ao carregar progresso");
+      const data = await response.json();
+      (data.progress || []).forEach((progress) => {
+        const module = moduleCatalog.find(
+          (item) => item.id === progress.moduleId
+        );
+        saveModuleProgress(
+          progress.moduleId,
+          progress.completedActivities,
+          module?.displayLessons || module?.totalLessons || 1
+        );
+      });
+    } catch (error) {
+      console.warn("Progresso remoto indisponível; usando estado inicial.", error);
+    }
   }
 
   function isModuleUnlocked(mod) {
@@ -359,12 +379,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!mod.unlockWith) return true;
     const req = getModuleProgress(mod.unlockWith);
     return req.completedLessons >= (req.totalLessons || 0);
-  }
-
-  function markModuleCompleted(moduleId) {
-    const mod = moduleCatalog.find((m) => m.id === moduleId);
-    const total = mod?.totalLessons || getModuleProgress(moduleId).totalLessons || 1;
-    saveModuleProgress(moduleId, total, total);
   }
 
   function persistSelection(mod) {
@@ -504,6 +518,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     ],
   };
 
+  await loadActivityProgress();
+
   // SISTEMA DE VIDAS
   const MAX_LIVES = 5;
   const LIFE_PRICE = 50;
@@ -517,24 +533,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (e) {
       return { lives: MAX_LIVES, max: MAX_LIVES };
     }
-  }
-
-  async function setLivesRemote(count) {
-    if (!userId) return count;
-    try {
-      const resp = await fetch("/api/profile/lives/refill", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        updateLivesUI(data.lives || count);
-        return data.lives || count;
-      }
-    } catch (e) {}
-    updateLivesUI(count);
-    return count;
   }
 
   async function consumeLifeRemote() {
@@ -574,11 +572,36 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateLivesUI();
 
   async function attemptBuyLifeRecharge() {
-    const ok = await updateCoins(-LIFE_PRICE);
-    if (!ok) return false;
-    await setLivesRemote(MAX_LIVES);
-    if (window.showToast) window.showToast("Vidas recarregadas!");
-    return true;
+    if (!userId) return false;
+
+    try {
+      const response = await fetch("/api/profile/inventory/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          nome: "Recarga de Vidas",
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        if (window.showToast) {
+          window.showToast(data.message || "Compra não realizada.");
+        }
+        return false;
+      }
+
+      updateLivesUI(data.lives ?? MAX_LIVES);
+      updateCoinBalanceUI(data.saldo);
+      if (window.showToast) window.showToast("Vidas recarregadas!");
+      return true;
+    } catch (error) {
+      if (window.showToast) {
+        window.showToast("Não foi possível concluir a compra.");
+      }
+      return false;
+    }
   }
 
   async function promptRechargeFlow() {
@@ -774,6 +797,42 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     modulesGrid.appendChild(card);
   });
+
+    const selectedModule = resolveSelectedModule();
+    const selectedProgress = selectedModule
+      ? getModuleProgress(selectedModule.id)
+      : { completedLessons: 0, totalLessons: 0 };
+    const nextModules = moduleCatalog
+      .filter((mod) => {
+        const progress = getModuleProgress(mod.id);
+        return progress.completedLessons < (mod.totalLessons || 0);
+      })
+      .map((mod) => mod.title);
+
+    window.CodeBuddyContext?.updateContext?.({
+      student: {
+        currentModule: selectedModule?.title || "",
+        currentLesson: "",
+      },
+      page: {
+        type: "module",
+        title: "Módulos",
+        description: [
+          selectedModule
+            ? `Módulo selecionado: ${selectedModule.title}`
+            : "Nenhum módulo selecionado",
+          `Progresso: ${selectedProgress.completedLessons || 0}/${
+            selectedProgress.totalLessons || selectedModule?.totalLessons || 0
+          } lições concluídas`,
+          nextModules.length
+            ? `Próximos conteúdos: ${nextModules.join(", ")}`
+            : "Não há próximos conteúdos disponíveis",
+        ].join("\n"),
+        moduleId: selectedModule?.id ?? null,
+        lessonId: null,
+        exerciseId: null,
+      },
+    });
 }
 
   // Intro da lição (intro_modulo.html) - preenche textos conforme lição atual
@@ -796,6 +855,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const meta = metaList[Math.min(rawLessonIndex, metaList.length - 1)] || metaList[0];
     if (meta) {
       const titleEl = document.querySelector(".highlight-card .title");
+      const descriptionEl = document.getElementById("lessonIntroDesc");
       const focusEl = document.getElementById("lessonFocus");
       const goalEl = document.getElementById("lessonGoal");
       const timeEl = document.getElementById("estimatedTime");
@@ -805,6 +865,44 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (goalEl) goalEl.textContent = meta.goal;
       if (timeEl) timeEl.textContent = meta.estimatedTime;
       if (pillEl) pillEl.textContent = meta.pill || "Lição";
+
+      let studentLevel = "";
+      try {
+        const result = JSON.parse(
+          localStorage.getItem("lastTestResult") || "{}"
+        );
+        studentLevel = result.classification || "";
+      } catch (error) {
+        studentLevel = "";
+      }
+
+      window.CodeBuddyContext?.updateContext?.({
+        student: {
+          level: studentLevel,
+          currentModule: selectedModule?.title || "",
+          currentLesson: meta.pill || titleEl?.textContent || "",
+        },
+        page: {
+          type: "lesson",
+          title: meta.pill || titleEl?.textContent || "",
+          description: [
+            descriptionEl?.textContent?.trim(),
+            meta.focus ? `Foco: ${meta.focus}` : "",
+            meta.goal ? `Objetivo: ${meta.goal}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+          moduleId: selectedModule?.id ?? null,
+          lessonId: meta.id ?? null,
+          exerciseId: null,
+        },
+      });
+
+      window.addEventListener(
+        "pagehide",
+        () => window.CodeBuddyContext?.resetContext?.(),
+        { once: true }
+      );
     }
   }
 
@@ -1253,6 +1351,55 @@ document.addEventListener("DOMContentLoaded", async () => {
     const nextBtn = document.querySelector(".next-btn");
     const backBtn = document.querySelector(".back-btn");
 
+    function updateQuizContext() {
+      if (!window.CodeBuddyContext?.updateContext) return;
+
+      const questionData = testQuestions[currentQuestion] || {};
+      const answeredCount = userAnswers.filter(
+        (answer) => answer !== undefined && answer !== null
+      ).length;
+      let studentLevel = "";
+
+      try {
+        const result = JSON.parse(
+          localStorage.getItem("lastTestResult") || "{}"
+        );
+        studentLevel = result.classification || "";
+      } catch (error) {
+        studentLevel = "";
+      }
+
+      const alternatives = (questionData.options || [])
+        .map((option) => `${option.letter}: ${option.text}`)
+        .join("\n");
+
+      window.CodeBuddyContext.updateContext({
+        student: {
+          level: studentLevel,
+          currentModule:
+            document.querySelector(".header-title h1")?.textContent?.trim() ||
+            "",
+          currentLesson: "",
+        },
+        page: {
+          type: "quiz",
+          title: `Teste de Nivelamento - Questão ${currentQuestion + 1}`,
+          description: [
+            `Pergunta: ${questionData.question || ""}`,
+            alternatives ? `Alternativas:\n${alternatives}` : "",
+            `Progresso: Questão ${currentQuestion + 1} de ${
+              testQuestions.length
+            }; ${answeredCount} respondida(s)`,
+          ]
+            .filter(Boolean)
+            .join("\n\n"),
+          moduleId: null,
+          lessonId: null,
+          exerciseId: null,
+        },
+      });
+    }
+
     window.goBackQuestion = function () {
       if (currentQuestion > 0) {
         currentQuestion--;
@@ -1268,6 +1415,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       userAnswers[currentQuestion] = selectedAnswer;
       const isCorrect =
         testQuestions[currentQuestion].options[selectedAnswer].correct;
+      updateQuizContext();
       if (isCorrect) {
         score++;
       }
@@ -1301,6 +1449,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         optionsContainer.appendChild(optionElement);
       });
+      updateQuizContext();
     }
 
     function selectOption(index, element) {
@@ -1374,6 +1523,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateButtons();
 
       nextBtn.addEventListener("click", window.nextQuestion);
+
+      window.addEventListener(
+        "pagehide",
+        () => window.CodeBuddyContext?.resetContext?.(),
+        { once: true }
+      );
       backBtn.addEventListener("click", window.goBackQuestion);
     }
 
@@ -1494,7 +1649,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         } finally {
           // Redireciona independentemente do resultado da chamada
           setTimeout(() => {
-            transitionToPage("intro_criacao-avatar.html");
+            transitionToPage("modulos.html");
             advanceBtn.textContent = originalText;
             advanceBtn.disabled = false;
           }, 1200);
@@ -1544,12 +1699,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       bestCategoryElement.textContent = bestCategory.name;
     }
 
-    // Marca o módulo selecionado como concluído (desbloqueia o próximo)
-    const currentModule = resolveSelectedModule();
-    if (currentModule) {
-      markModuleCompleted(currentModule.id);
-    }
-
     // Atualiza classificação
     const classificationElement = document.getElementById(
       "finalClassification"
@@ -1587,56 +1736,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     localStorage.setItem("lastTestResult", JSON.stringify(resultData));
   }
 
-  // 10. PÁGINA DE INTRODUÇÃO À CRIAÇÃO DE AVATAR (intro_criacao-avatar.html)
-  // ... (lógica mantida)
-  const avatarBtn = document.querySelector(".avatar-btn");
-  if (avatarBtn) {
-    avatarBtn.addEventListener("click", () => {
-      // Futuramente, redirecionar para a página de criação de avatar
-      transitionToPage("modulos.html"); // Placeholder
-    });
-  }
-
-  // 11. LÓGICA DO BOTÃO PULAR (skipBtn)
-  // ... (lógica mantida)
-  const skipBtn = document.getElementById("skipBtn");
-  if (skipBtn) {
-    skipBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      // Mostra um estado de carregamento
-      skipBtn.innerHTML = `
-        <div class="loading">
-          <div class="spinner"></div>
-          <span>Carregando...</span>
-        </div>
-      `;
-      skipBtn.disabled = true;
-      // Redireciona para a home após um pequeno atraso
-      setTimeout(() => {
-        transitionToPage("modulos.html");
-      }, 1500);
-    });
-  }
-
-  (function(){
-    try {
-      const el = document.getElementById('userLevel');
-      const stored = localStorage.getItem('lastTestResult');
-      let level = 'Iniciante';
-      if (stored) {
-        const data = JSON.parse(stored);
-        if (data && typeof data.classification === 'string' && data.classification.trim()) {
-          level = data.classification;
-        }
-      }
-      if (el) el.textContent = level;
-    } catch (e) {
-      const el = document.getElementById('userLevel');
-      if (el) el.textContent = 'Iniciante';
-    }
-  })();
-
-  // 12. QUESTIONÁRIO DO MÓDULO (qst_modulo.html) - fluxo inspirado no nivelamento
+  // 10. QUESTIONÁRIO DO MÓDULO (qst_modulo.html) - fluxo inspirado no nivelamento
   const lessonQuizPage = document.querySelector(".quiz-page");
   if (lessonQuizPage) {
     const questionText = document.getElementById("questionText");
@@ -1697,6 +1797,114 @@ document.addEventListener("DOMContentLoaded", async () => {
       let answeredFlags = [];
       let score = 0;
 
+      function getStudentLevel() {
+        try {
+          const result = JSON.parse(
+            localStorage.getItem("lastTestResult") || "{}"
+          );
+          return result.classification || "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      function updateExerciseContext() {
+        if (!window.CodeBuddyContext?.updateContext) return;
+
+        const exercise = lessonQuestions[currentQuestion] || {};
+        const answeredIndexes = answeredFlags
+          .map((answered, index) => (answered ? index : -1))
+          .filter((index) => index >= 0);
+        const testsPassed = answeredIndexes.filter((index) => {
+          const answer = userAnswers[index];
+          return lessonQuestions[index]?.options?.[answer]?.correct === true;
+        }).length;
+
+        window.CodeBuddyContext.updateContext({
+          student: {
+            level: getStudentLevel(),
+            currentModule: selectedModule?.title || "",
+            currentLesson: meta?.pill || lessonTitleEl?.textContent || "",
+          },
+          page: {
+            type: "exercise",
+            title: `${meta?.pill || "Exercício"} - Questão ${
+              currentQuestion + 1
+            }`,
+            description: exercise.question || "",
+            moduleId: selectedModule?.id ?? null,
+            lessonId: meta?.id ?? null,
+            exerciseId: exercise.id ?? null,
+          },
+          editor: {
+            language: "javascript",
+            code: "",
+          },
+          execution: {
+            lastError: "",
+            testsPassed,
+            testsFailed: answeredIndexes.length - testsPassed,
+            attempts: answeredIndexes.length,
+          },
+        });
+      }
+
+      async function loadSavedActivityAnswers() {
+        if (!userId || !selectedModule?.id) return;
+
+        try {
+          const params = new URLSearchParams({
+            userId,
+            moduleId: selectedModule.id,
+            lessonIndex: String(currentLessonIndex),
+          });
+          const response = await fetch(`/api/activity-answers?${params}`);
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || !Array.isArray(data.answers)) return;
+
+          data.answers.forEach((answer) => {
+            const questionIndex = Number(answer.questionIndex);
+            const selected = Number(answer.selectedAnswer);
+            if (
+              Number.isInteger(questionIndex) &&
+              questionIndex >= 0 &&
+              questionIndex < lessonQuestions.length &&
+              Number.isInteger(selected)
+            ) {
+              userAnswers[questionIndex] = selected;
+              answeredFlags[questionIndex] = true;
+            }
+          });
+        } catch (error) {
+          console.warn("Não foi possível carregar respostas da atividade.", error);
+        }
+      }
+
+      async function saveActivityAnswer(questionIndex, answerIndex) {
+        const response = await fetch("/api/activity-answers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            moduleId: selectedModule?.id,
+            lessonIndex: currentLessonIndex,
+            questionIndex,
+            selectedAnswer: answerIndex,
+          }),
+        });
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data.answer) {
+          throw new Error(data.message || "Não foi possível registrar a resposta.");
+        }
+
+        return data.answer;
+      }
+
+      function getFirstUnansweredQuestionIndex() {
+        return lessonQuestions.findIndex((_, index) => !answeredFlags[index]);
+      }
+
       function displayQuestion() {
         const data = lessonQuestions[currentQuestion];
         questionText.textContent = data.question;
@@ -1725,6 +1933,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         nextBtnLesson.disabled = !answeredFlags[currentQuestion];
         backBtn.disabled = currentQuestion === 0;
+        updateExerciseContext();
       }
 
       function selectOption(idx) {
@@ -1766,27 +1975,45 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       async function goToNext() {
-        if (selectedAnswer === null) return;
-        userAnswers[currentQuestion] = selectedAnswer;
-        const isCorrect =
-          lessonQuestions[currentQuestion].options[selectedAnswer].correct;
-        showAnswerFeedback(
-          isCorrect
-        );
-        if (!isCorrect) {
-          const lives = await consumeLifeRemote();
-          updateLivesUI(lives);
-          if (lives <= 0) {
+        if (!answeredFlags[currentQuestion]) {
+          if (selectedAnswer === null) return;
+
+          const proposedAnswer = selectedAnswer;
+          try {
             nextBtnLesson.disabled = true;
-            const wants = await promptRechargeFlow();
-            if (!wants) {
-              transitionToPage("home.html");
-              return;
-            } else {
-              nextBtnLesson.disabled = false;
+            const savedAnswer = await saveActivityAnswer(
+              currentQuestion,
+              proposedAnswer
+            );
+            selectedAnswer = Number(savedAnswer.selectedAnswer);
+            userAnswers[currentQuestion] = selectedAnswer;
+            answeredFlags[currentQuestion] = true;
+            showAnswerFeedback(!!savedAnswer.isCorrect);
+            updateExerciseContext();
+
+            if (!savedAnswer.isCorrect && savedAnswer.inserted !== false) {
+              const lives = await consumeLifeRemote();
+              updateLivesUI(lives);
+              if (lives <= 0) {
+                nextBtnLesson.disabled = true;
+                const wants = await promptRechargeFlow();
+                if (!wants) {
+                  transitionToPage("home.html");
+                  return;
+                } else {
+                  nextBtnLesson.disabled = false;
+                }
+              }
             }
+          } catch (error) {
+            nextBtnLesson.disabled = false;
+            if (window.showToast) {
+              window.showToast(error.message || "Não foi possível registrar a resposta.");
+            }
+            return;
           }
         }
+
         setTimeout(() => {
           if (currentQuestion < lessonQuestions.length - 1) {
             currentQuestion++;
@@ -1808,10 +2035,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       function skipQuestion() {
-        userAnswers[currentQuestion] = null;
-        selectedAnswer = null;
         if (currentQuestion < lessonQuestions.length - 1) {
           currentQuestion++;
+          selectedAnswer = userAnswers[currentQuestion] ?? null;
           displayQuestion();
           updateProgress();
         } else {
@@ -1820,70 +2046,76 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       async function finishQuiz() {
+        const firstUnanswered = getFirstUnansweredQuestionIndex();
+        if (firstUnanswered >= 0) {
+          currentQuestion = firstUnanswered;
+          selectedAnswer = userAnswers[currentQuestion] ?? null;
+          displayQuestion();
+          updateProgress();
+          if (window.showToast) {
+            window.showToast("Responda todas as questões antes de finalizar.");
+          }
+          return;
+        }
+
         // Recalcula o score com base em todas as respostas marcadas
-        score = userAnswers.reduce((total, answer, idx) => {
-          const question = lessonQuestions[idx];
-          if (
-            typeof answer === "number" &&
-            question?.options?.[answer] &&
-            question.options[answer].correct
-          ) {
-            return total + 1;
-          }
-          return total;
-        }, 0);
         // Persistir estatísticas desta lição
-        try {
-          const uid = localStorage.getItem('userId');
-          if (uid) {
-            const answered = lessonQuestions.length;
-            const correct = score;
-            const wrong = Math.max(0, answered - correct);
-            await fetch('/api/progress', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ userId: uid, answeredCount: answered, correctCount: correct, wrongCount: wrong })
-            }).catch(() => {});
-          }
-        } catch (e) { /* ignora erros */ }
         // Marca primeira lição concluída (para conquistas) e agenda modal ao voltar à home
         if (!localStorage.getItem("ach_first_lesson")) {
           localStorage.setItem("ach_first_lesson", "1");
           localStorage.setItem("pendingAchievement", JSON.stringify({ title: "Primeira Lição" }));
         }
-        // Atualiza progresso do módulo (incrementa uma lição)
-        const currentModule = resolveSelectedModule();
-        if (currentModule) {
-          const prog = getModuleProgress(currentModule.id);
-          const availableLessons =
-            (lessonsByModule[currentModule.id] &&
-              lessonsByModule[currentModule.id].length) ||
-            prog.totalLessons ||
-            currentModule.totalLessons ||
-            lessonQuestions.length;
-          const nextCompleted = Math.min(
-            (prog.completedLessons || 0) + 1,
-            availableLessons
-          );
-          saveModuleProgress(
-            currentModule.id,
-            nextCompleted,
-            availableLessons
-          );
-          if (nextCompleted >= availableLessons) {
-            markModuleCompleted(currentModule.id);
+        let rewardCoins = 0;
+        let completionRegistered = false;
+        try {
+          const rewardResponse = await fetch("/api/profile/rewards/lesson", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId,
+              moduleId: selectedModule?.id,
+              lessonIndex: currentLessonIndex,
+            }),
+          });
+          const rewardData = await rewardResponse.json().catch(() => ({}));
+
+          if (rewardResponse.ok) {
+            completionRegistered = true;
+            score = Number(rewardData.correctCount) || 0;
+            rewardCoins = Number(rewardData.reward) || 0;
+            updateCoinBalanceUI(rewardData.saldo);
+            const completedActivities =
+              Number(rewardData.completedActivities) || 0;
+            saveModuleProgress(
+              selectedModule.id,
+              completedActivities,
+              selectedModule.displayLessons || selectedModule.totalLessons
+            );
+            localStorage.setItem(
+              lessonIndexKey(selectedModule.id),
+              String(
+                Math.min(
+                  completedActivities,
+                  (selectedModule.displayLessons || 1) - 1
+                )
+              )
+            );
+            if (!rewardData.awarded && window.showToast) {
+              window.showToast("Esta lição já recebeu recompensa.");
+            }
+          } else if (window.showToast) {
+            window.showToast(
+              rewardData.message || "Não foi possível registrar a recompensa."
+            );
           }
-          // avança o índice para a próxima lição disponível
-          const nextIndex = Math.min(
-            nextCompleted,
-            availableLessons - 1
-          );
-          localStorage.setItem(lessonIndexKey(currentModule.id), String(nextIndex));
+        } catch (error) {
+          if (window.showToast) {
+            window.showToast("Não foi possível registrar a recompensa.");
+          }
         }
-        // recompensa de moedas
-        const rewardCoins = 75;
-        updateCoins(rewardCoins);
+        if (!completionRegistered) return;
         localStorage.setItem("lastRewardCoins", String(rewardCoins));
+        window.markPremiumAdAfterActivity?.();
         transitionToPage(
           `resultado_modulo.html?score=${score}&total=${lessonQuestions.length}`
         );
@@ -1896,9 +2128,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (exitBtn) exitBtn.addEventListener("click", () => transitionToPage("home.html"));
 
       (async () => {
+        await loadSavedActivityAnswers();
         const state = await fetchLivesState();
         updateLivesUI(state.lives);
-        if ((state.lives ?? MAX_LIVES) <= 0) {
+        if (
+          (state.lives ?? MAX_LIVES) <= 0 &&
+          getFirstUnansweredQuestionIndex() >= 0
+        ) {
           const wants = await promptRechargeFlow();
           if (!wants) {
             transitionToPage("home.html");
@@ -1952,9 +2188,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const rewardDescription = document.getElementById("rewardDescription");
   if (rewardTitle && rewardDescription) {
     const coins = parseInt(localStorage.getItem("lastRewardCoins"), 10) || 0;
-    const value = coins > 0 ? coins : 75;
-    rewardTitle.textContent = `+${value} moedas`;
-    rewardDescription.textContent = "Você ganhou moedas por completar a atividade.";
+    rewardTitle.textContent = coins > 0 ? `+${coins} moedas` : "Atividade concluída";
+    rewardDescription.textContent =
+      coins > 0
+        ? "Você ganhou moedas por concluir a atividade e pelas respostas corretas."
+        : "Esta atividade já havia recebido recompensa.";
   }
 
   // 14. Ações de senha em perfil.html
@@ -2065,14 +2303,64 @@ document.addEventListener("DOMContentLoaded", async () => {
   const chatInput = document.getElementById("chatInput"); // ID do novo modal
 
   if (chatFloatBtn && chatModalOverlay && chatCloseBtn && chatInput) {
-    const DEFAULT_CHAT_WIDTH = 420;
+    const activityPages = [
+      "intro_modulo.html",
+      "qst_modulo.html",
+      "qst_nivelamento.html",
+    ];
+    const chatPage = window.location.pathname.split("/").pop();
+    document.body.classList.toggle(
+      "codebuddy-activity",
+      activityPages.includes(chatPage)
+    );
+
+    const CHAT_SIZE_KEY = "codeBuddyPanelSize";
+    const DEFAULT_CHAT_WIDTH = Math.round(
+      Math.min(960, Math.max(480, window.innerWidth * 0.38))
+    );
+    const DEFAULT_CHAT_HEIGHT = Math.round(window.innerHeight * 0.88);
+
+    function getStoredChatSize() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(CHAT_SIZE_KEY) || "{}");
+        return {
+          width: Number(stored.width) || DEFAULT_CHAT_WIDTH,
+          height: Number(stored.height) || DEFAULT_CHAT_HEIGHT,
+        };
+      } catch (error) {
+        return {
+          width: DEFAULT_CHAT_WIDTH,
+          height: DEFAULT_CHAT_HEIGHT,
+        };
+      }
+    }
+
+    function applyStoredChatSize() {
+      const stored = getStoredChatSize();
+      const maxWidth = Math.min(960, Math.max(320, window.innerWidth - 32));
+      const maxHeight = Math.max(320, window.innerHeight - 32);
+      const minWidth = Math.min(420, maxWidth);
+      const minHeight = Math.min(520, maxHeight);
+      const width = Math.min(Math.max(stored.width, minWidth), maxWidth);
+      const height = Math.min(Math.max(stored.height, minHeight), maxHeight);
+      const modal = chatModalOverlay.querySelector(".chat-modal");
+
+      if (modal) {
+        modal.style.width = `${width}px`;
+        modal.style.height = `${height}px`;
+      }
+
+      document.documentElement.style.setProperty("--chat-width", `${width}px`);
+      document.documentElement.style.setProperty("--chat-height", `${height}px`);
+      document.documentElement.style.setProperty(
+        "--chat-input-height",
+        `${Math.min(120, Math.max(48, Math.round(height * 0.1)))}px`
+      );
+    }
 
     // Abrir
     chatFloatBtn.addEventListener("click", () => {
-      document.documentElement.style.setProperty(
-        "--chat-width",
-        `${DEFAULT_CHAT_WIDTH}px`
-      );
+      applyStoredChatSize();
       chatModalOverlay.classList.add("active");
       chatInput.focus();
       // Mantemos o scroll normal e interação com o quiz
@@ -2084,10 +2372,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       chatModalOverlay.classList.remove("active");
       document.body.style.overflow = "auto"; // Restaura scroll
       document.body.classList.remove("chat-open");
-      document.documentElement.style.setProperty(
-        "--chat-width",
-        `${DEFAULT_CHAT_WIDTH}px`
-      );
     }
 
     // Fechar pelo botão X
@@ -2151,14 +2435,57 @@ document.addEventListener("DOMContentLoaded", async () => {
     const progressBarFill = document.querySelector(".progress-bar-fill");
     if (progressBarFill) progressBarFill.style.width = `${percent}%`;
 
+    const completedLessons = (lessonMeta[selectedModule.id] || [])
+      .slice(0, completed)
+      .map((lesson) => lesson.pill)
+      .filter(Boolean);
+    const nextContents = (lessonMeta[selectedModule.id] || [])
+      .slice(completed)
+      .map((lesson) => lesson.pill)
+      .filter(Boolean);
+
+    window.CodeBuddyContext?.updateContext?.({
+      student: {
+        currentModule: selectedModule.title || "",
+        currentLesson: "",
+        completedConcepts: completedLessons,
+      },
+      page: {
+        type: "module",
+        title: selectedModule.title || "Trilha de módulos",
+        description: [
+          selectedModule.description || "",
+          `Progresso: ${completed}/${displayTotal} lições concluídas (${percent}%)`,
+          completedLessons.length
+            ? `Lições concluídas: ${completedLessons.join(", ")}`
+            : "Nenhuma lição concluída",
+          nextContents.length
+            ? `Próximos conteúdos: ${nextContents.join(", ")}`
+            : "Não há próximos conteúdos disponíveis",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+        moduleId: selectedModule.id ?? null,
+        lessonId: null,
+        exerciseId: null,
+      },
+    });
+
     const exerciseTree = document.querySelector(".exercise-tree");
     if (exerciseTree) {
       exerciseTree.innerHTML = "";
+      const playableLessons =
+        selectedModule.playableLessons || availableLessons;
+      const sequentiallyAvailable = Math.min(
+        displayTotal,
+        playableLessons + 1
+      );
+
       for (let i = 0; i < displayTotal; i++) {
         const status =
           i < completed
             ? "completed"
-            : i === completed && i < availableLessons
+            : i === completed && i < sequentiallyAvailable
             ? "current"
             : "locked";
 
@@ -2180,6 +2507,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const btn = node.querySelector("button");
         if (status !== "locked" && btn) {
           btn.addEventListener("click", () => {
+            if (i >= playableLessons) {
+              if (window.showToast) {
+                window.showToast("Esta atividade estará disponível em breve.");
+              }
+              return;
+            }
             localStorage.setItem(lessonIndexKey(selectedModule.id), String(i));
             transitionToPage("intro_modulo.html");
           });
@@ -2192,39 +2525,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   const balanceDisplay = document.querySelector(".balance-amount");
   const buyButtons = document.querySelectorAll(".buy-button");
 
+  function updateCoinBalanceUI(balance) {
+    if (balance === undefined || balance === null) return;
+    if (balanceDisplay) balanceDisplay.textContent = balance;
+    document
+      .querySelectorAll(
+        ".daily-missions .stat-item:nth-child(2) .stat-value, .stats .stat-item:nth-child(2) .stat-value"
+      )
+      .forEach((element) => {
+        element.textContent = balance;
+      });
+  }
+
   async function fetchBalance() {
     if (!userId) return;
     try {
       const resp = await fetch(`/api/profile/${userId}`);
       if (resp.ok) {
         const data = await resp.json();
-        if (balanceDisplay) balanceDisplay.textContent = data?.moedas ?? 0;
-        const statCoins = document.querySelector(".daily-missions .stat-item:nth-child(2) .stat-value, .stats .stat-item:nth-child(2) .stat-value");
-        if (statCoins) statCoins.textContent = data?.moedas ?? 0;
+        updateCoinBalanceUI(data?.moedas ?? 0);
       }
     } catch (e) {
       // ignore
-    }
-  }
-
-  async function updateCoins(delta) {
-    if (!userId) return false;
-    try {
-      const resp = await fetch("/api/profile/coins", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, delta: Number(delta) }),
-      });
-      const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) {
-        if (window.showToast) window.showToast(data.message || "Saldo insuficiente.");
-        return false;
-      }
-      if (balanceDisplay) balanceDisplay.textContent = data.saldo ?? 0;
-      return true;
-    } catch (e) {
-      if (window.showToast) window.showToast("Erro ao atualizar saldo.");
-      return false;
     }
   }
 
@@ -2260,44 +2582,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         const itemName = btn.dataset.name || "Item";
         const itemType = btn.dataset.type || "utilizavel";
         const itemDesc = btn.dataset.description || "";
-        if (itemType === "visual" && btn.disabled) return;
+        const decorationType = btn.dataset.decorationType || "";
+        if (itemType === "decoracao" && btn.disabled) return;
 
         if (window.showConfirmBox) {
           window.showConfirmBox({
             title: "Confirmar compra",
             message: `Deseja comprar "${itemName}" por ${price} moedas?`,
             onConfirm: async () => {
-              const ok = await updateCoins(-price);
-              if (ok) {
-                if (userId) {
-                  await fetch("/api/profile/inventory", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      userId,
-                      tipo: itemType,
-                      nome: itemName,
-                      descricao: itemDesc,
-                      quantidade: 1,
-                    }),
-                  }).catch(() => {});
-                }
-                if (itemName.toLowerCase().includes("recarga de vidas")) {
-                  setLivesRemote(MAX_LIVES);
-                  if (window.showToast) window.showToast("Recarga de vidas aplicada!");
-                } else if (window.showToast) window.showToast("Item comprado!");
-                if (itemType === "visual") {
-                  btn.disabled = true;
-                  btn.textContent = "Adquirido";
-                }
-              }
-            },
-          });
-        } else {
-          const ok = await updateCoins(-price);
-          if (ok) {
-            if (userId) {
-              await fetch("/api/profile/inventory", {
+              const response = await fetch("/api/profile/inventory/purchase", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -2305,35 +2598,98 @@ document.addEventListener("DOMContentLoaded", async () => {
                   tipo: itemType,
                   nome: itemName,
                   descricao: itemDesc,
-                  quantidade: 1,
+                  preco: price,
+                  meta:
+                    itemType === "decoracao"
+                      ? { decorationType }
+                      : null,
                 }),
-              }).catch(() => {});
-            }
+              });
+              const purchase = await response.json().catch(() => ({}));
+              if (response.ok) {
+                updateCoinBalanceUI(purchase.saldo);
+                if (itemName.toLowerCase().includes("recarga de vidas")) {
+                  updateLivesUI(purchase.lives ?? MAX_LIVES);
+                  if (window.showToast) window.showToast("Recarga de vidas aplicada!");
+                } else if (window.showToast) window.showToast("Decoração comprada!");
+                if (itemType === "decoracao") {
+                  btn.disabled = true;
+                  btn.textContent = "Adquirido";
+                }
+              } else if (window.showToast) {
+                window.showToast(purchase.message || "Compra não realizada.");
+              }
+            },
+          });
+        } else {
+          const response = await fetch("/api/profile/inventory/purchase", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId,
+              tipo: itemType,
+              nome: itemName,
+              descricao: itemDesc,
+              preco: price,
+              meta:
+                itemType === "decoracao" ? { decorationType } : null,
+            }),
+          });
+          const purchase = await response.json().catch(() => ({}));
+          if (response.ok) {
+            updateCoinBalanceUI(purchase.saldo);
             if (itemName.toLowerCase().includes("recarga de vidas")) {
-              setLivesRemote(MAX_LIVES);
+              updateLivesUI(purchase.lives ?? MAX_LIVES);
               if (window.showToast) window.showToast("Recarga de vidas aplicada!");
-            } else if (window.showToast) window.showToast("Item comprado!");
-            if (itemType === "visual") {
+            } else if (window.showToast) window.showToast("Decoração comprada!");
+            if (itemType === "decoracao") {
               btn.disabled = true;
               btn.textContent = "Adquirido";
             }
+          } else if (window.showToast) {
+            window.showToast(purchase.message || "Compra não realizada.");
           }
         }
       });
     });
+
+    if (userId) {
+      fetch(`/api/profile/inventory/${userId}`)
+        .then((response) => response.json())
+        .then((items) => {
+          const ownedDecorations = new Set(
+            items
+              .filter((item) => item.tipo === "decoracao")
+              .map((item) => item.nome)
+          );
+
+          buyButtons.forEach((button) => {
+            if (
+              button.dataset.type === "decoracao" &&
+              ownedDecorations.has(button.dataset.name)
+            ) {
+              button.disabled = true;
+              button.textContent = "Adquirido";
+            }
+          });
+        })
+        .catch(() => {});
+    }
   }
 
-  // Inventário: renderiza visuais e utilizáveis
-  const visualItemsContainer = document.getElementById("visualItems");
+  // Inventário: renderiza decorações da foto e itens utilizáveis
+  const decorationItemsContainer = document.getElementById("decorationItems");
   const usableItemsContainer = document.getElementById("usableItems");
   const inventoryPreview = document.getElementById("inventoryPreview");
-  if ((visualItemsContainer || usableItemsContainer) && userId) {
+  if ((decorationItemsContainer || usableItemsContainer) && userId) {
     (async function () {
       try {
         const resp = await fetch(`/api/profile/inventory/${userId}`);
         const items = (await resp.json()) || [];
-        const visuals = items.filter((i) => i.tipo === "visual");
-        const usables = items.filter((i) => i.tipo !== "visual");
+        const decorations = items.filter((i) => i.tipo === "decoracao");
+        const usables = items.filter((i) => i.tipo !== "decoracao");
+        const profileResponse = await fetch(`/api/profile/${userId}`);
+        const profile = profileResponse.ok ? await profileResponse.json() : {};
 
         const renderList = (container, list) => {
           if (!container) return;
@@ -2346,16 +2702,79 @@ document.addEventListener("DOMContentLoaded", async () => {
             const card = document.createElement("div");
             card.className = "ach-card unlocked";
           card.innerHTML = `
-              <div class="badge">${item.tipo === "visual" ? "🎨" : "🛠"}</div>
+              <div class="badge">${item.tipo === "decoracao" ? "✨" : "🛠"}</div>
               <div>
                 <strong>${item.nome}</strong>
                 <p>${item.descricao || ""}</p>
               </div>
-              ${item.tipo !== "visual" ? '<button class="use-item-btn" data-item-id="' + item.id + '">Usar</button>' : ""}
+              ${
+                item.tipo === "decoracao"
+                  ? `<button class="equip-decoration-btn" data-item-id="${item.id}" ${
+                      Number(profile.decoracao_foto_id) === Number(item.id)
+                        ? "disabled"
+                        : ""
+                    }>${
+                      Number(profile.decoracao_foto_id) === Number(item.id)
+                        ? "Equipado"
+                        : "Equipar"
+                    }</button>`
+                  : '<button class="use-item-btn" data-item-id="' +
+                    item.id +
+                    '">Usar</button>'
+              }
             `;
             container.appendChild(card);
 
-            if (item.tipo !== "visual") {
+            if (item.tipo === "decoracao") {
+              const equipButton = card.querySelector(".equip-decoration-btn");
+              equipButton?.addEventListener("click", async () => {
+                const response = await fetch("/api/profile/decoration", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ userId, itemId: item.id }),
+                });
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok && response.status !== 501) {
+                  if (window.showToast) {
+                    window.showToast(data.message || "Não foi possível equipar.");
+                  }
+                  return;
+                }
+
+                let meta = item.meta || {};
+                if (typeof meta === "string") {
+                  try {
+                    meta = JSON.parse(meta);
+                  } catch (_) {
+                    meta = {};
+                  }
+                }
+                localStorage.setItem(
+                  `cw_profile_decoration_${userId}`,
+                  JSON.stringify({
+                    id: item.id,
+                    decorationType: meta.decorationType || "",
+                  })
+                );
+
+                document
+                  .querySelectorAll(".equip-decoration-btn")
+                  .forEach((button) => {
+                    button.disabled = false;
+                    button.textContent = "Equipar";
+                  });
+                equipButton.disabled = true;
+                equipButton.textContent = "Equipado";
+                if (window.showToast) {
+                  window.showToast(
+                    response.ok
+                      ? "Decoração equipada."
+                      : "Decoração aplicada neste navegador."
+                  );
+                }
+              });
+            } else {
               const btn = card.querySelector(".use-item-btn");
               btn?.addEventListener("click", () => {
                 if ((item.nome || "").toLowerCase().includes("recarga de vidas")) {
@@ -2366,16 +2785,30 @@ document.addEventListener("DOMContentLoaded", async () => {
                       return;
                     }
                     const itemId = btn.getAttribute("data-item-id");
-                    await setLivesRemote(MAX_LIVES);
                     if (itemId && userId) {
-                      await fetch("/api/profile/inventory/consume", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ userId, itemId }),
-                      }).catch(() => {});
+                      const response = await fetch(
+                        "/api/profile/inventory/use-life-refill",
+                        {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ userId, itemId }),
+                        }
+                      );
+                      const data = await response.json().catch(() => ({}));
+                      if (!response.ok) {
+                        if (window.showToast) {
+                          window.showToast(
+                            data.message || "Não foi possível usar a recarga."
+                          );
+                        }
+                        return;
+                      }
+                      updateLivesUI(data.lives);
+                      if (window.showToast) {
+                        window.showToast("Vidas recarregadas!");
+                      }
+                      if ((data.remaining ?? 0) <= 0) card.remove();
                     }
-                    if (window.showToast) window.showToast("Vidas recarregadas!");
-                    card.remove();
                   })();
                 } else {
                   const itemId = btn.getAttribute("data-item-id");
@@ -2394,10 +2827,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           });
         };
 
-        renderList(visualItemsContainer, visuals);
+        renderList(decorationItemsContainer, decorations);
         renderList(usableItemsContainer, usables);
       } catch (e) {
-        if (visualItemsContainer) visualItemsContainer.innerHTML = "<p>Erro ao carregar.</p>";
+        if (decorationItemsContainer) decorationItemsContainer.innerHTML = "<p>Erro ao carregar.</p>";
         if (usableItemsContainer) usableItemsContainer.innerHTML = "<p>Erro ao carregar.</p>";
       }
     })();
@@ -2416,7 +2849,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           const card = document.createElement("div");
           card.className = "ach-card unlocked";
           card.innerHTML = `
-            <div class="badge">${item.tipo === "visual" ? "🎨" : "🛠"}</div>
+            <div class="badge">${item.tipo === "decoracao" ? "✨" : "🛠"}</div>
             <div>
               <strong>${item.nome}</strong>
               <p>${item.descricao || ""}</p>
@@ -2452,12 +2885,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       try {
         // **AQUI ESTÁ A SUA LÓGICA DE API REAL**
+        const codeBuddyContext =
+          window.CodeBuddyContext?.getContext?.() || {};
+
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ prompt: message }),
+          body: JSON.stringify({
+            prompt: message,
+            question: message,
+            context: codeBuddyContext,
+          }),
         });
 
         if (!response.ok) {
@@ -2535,50 +2975,90 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Eventos de envio (Botão e Enter)
   chatSendBtn.addEventListener("click", sendMessage);
 
-  chatInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault(); // Evita que o 'Enter' pule linha no input
       sendMessage();
     }
   });
 
-  // Redimensionamento horizontal do chat (arrastando a borda esquerda)
+  // Redimensionamento do chat pela alça no canto inferior direito
   if (chatModal && chatResizeHandle) {
     let isResizing = false;
     let startX = 0;
+    let startY = 0;
     let startWidth = 0;
-    const MIN_WIDTH = 320;
-    const MAX_WIDTH = 900;
+    let startHeight = 0;
+    const MIN_WIDTH = 420;
+    const MIN_HEIGHT = 520;
+    const MAX_WIDTH = 960;
+    const CHAT_SIZE_KEY = "codeBuddyPanelSize";
 
-    const applyChatWidthVar = () => {
-      const w = chatModal.getBoundingClientRect().width;
-      document.documentElement.style.setProperty("--chat-width", `${w}px`);
+    const applyChatSize = (width, height, persist = false) => {
+      const maxWidth = Math.min(MAX_WIDTH, Math.max(320, window.innerWidth - 32));
+      const maxHeight = Math.max(320, window.innerHeight - 32);
+      const minWidth = Math.min(MIN_WIDTH, maxWidth);
+      const minHeight = Math.min(MIN_HEIGHT, maxHeight);
+      const safeWidth = Math.min(Math.max(width, minWidth), maxWidth);
+      const safeHeight = Math.min(Math.max(height, minHeight), maxHeight);
+
+      chatModal.style.width = `${safeWidth}px`;
+      chatModal.style.height = `${safeHeight}px`;
+      document.documentElement.style.setProperty(
+        "--chat-width",
+        `${safeWidth}px`
+      );
+      document.documentElement.style.setProperty(
+        "--chat-height",
+        `${safeHeight}px`
+      );
+      document.documentElement.style.setProperty(
+        "--chat-input-height",
+        `${Math.min(120, Math.max(48, Math.round(safeHeight * 0.1)))}px`
+      );
+
+      if (persist) {
+        localStorage.setItem(
+          CHAT_SIZE_KEY,
+          JSON.stringify({ width: safeWidth, height: safeHeight })
+        );
+      }
     };
 
-    chatResizeHandle.addEventListener("mousedown", (e) => {
+    chatResizeHandle.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       isResizing = true;
       startX = e.clientX;
+      startY = e.clientY;
       startWidth = chatModal.getBoundingClientRect().width;
-      applyChatWidthVar();
+      startHeight = chatModal.getBoundingClientRect().height;
+      chatResizeHandle.setPointerCapture(e.pointerId);
+      chatModal.classList.add("is-resizing");
       document.body.style.userSelect = "none";
     });
 
-    window.addEventListener("mousemove", (e) => {
+    chatResizeHandle.addEventListener("pointermove", (e) => {
       if (!isResizing) return;
-      const delta = startX - e.clientX; // arrastar para a esquerda aumenta largura
-      let newWidth = startWidth + delta;
-      newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
-      chatModal.style.width = `${newWidth}px`;
-      document.documentElement.style.setProperty("--chat-width", `${newWidth}px`);
+      const width = startWidth + (startX - e.clientX);
+      const height = startHeight + (e.clientY - startY);
+      applyChatSize(width, height);
     });
 
-    window.addEventListener("mouseup", () => {
-      if (isResizing) {
-        isResizing = false;
-        document.body.style.userSelect = "";
-        applyChatWidthVar();
-      }
+    const stopResizing = () => {
+      if (!isResizing) return;
+      isResizing = false;
+      chatModal.classList.remove("is-resizing");
+      document.body.style.userSelect = "";
+      const rect = chatModal.getBoundingClientRect();
+      applyChatSize(rect.width, rect.height, true);
+    };
+
+    chatResizeHandle.addEventListener("pointerup", stopResizing);
+    chatResizeHandle.addEventListener("pointercancel", stopResizing);
+
+    window.addEventListener("resize", () => {
+      const rect = chatModal.getBoundingClientRect();
+      applyChatSize(rect.width, rect.height, true);
     });
   }
   }
@@ -2812,7 +3292,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     const userNameEl = document.getElementById("userName");
     const userHandleEl = document.getElementById("userHandle");
     const userEmailEl = document.getElementById("userEmail");
-    const avatarImg = document.getElementById("profileAvatar");
+    const profilePhotoImg = document.getElementById("profilePhoto");
+    const profilePhotoWrapper = profilePhotoImg?.closest(
+      ".profile-photo-wrapper"
+    );
+
+    const applyProfileDecoration = (decoration) => {
+      if (!profilePhotoWrapper) return;
+      profilePhotoWrapper.dataset.decoration =
+        decoration?.decorationType || "";
+    };
+
+    try {
+      const savedDecoration = JSON.parse(
+        localStorage.getItem(`cw_profile_decoration_${userId}`) || "{}"
+      );
+      applyProfileDecoration(savedDecoration);
+    } catch (_) {
+      applyProfileDecoration(null);
+    }
 
     try {
       if (userId) {
@@ -2829,8 +3327,41 @@ document.addEventListener("DOMContentLoaded", async () => {
             } catch (_) {}
           }
           
-          if (data?.avatar && avatarImg) {
-            avatarImg.src = data.avatar;
+          if (data?.foto_perfil && profilePhotoImg) {
+            profilePhotoImg.src = data.foto_perfil;
+          }
+
+          if (data?.decoracao_foto_id) {
+            const inventoryResponse = await fetch(
+              `/api/profile/inventory/${userId}`
+            );
+            if (inventoryResponse.ok) {
+              const items = await inventoryResponse.json();
+              const equippedDecoration = items.find(
+                (item) =>
+                  item.tipo === "decoracao" &&
+                  Number(item.id) === Number(data.decoracao_foto_id)
+              );
+              if (equippedDecoration) {
+                let meta = equippedDecoration.meta || {};
+                if (typeof meta === "string") {
+                  try {
+                    meta = JSON.parse(meta);
+                  } catch (_) {
+                    meta = {};
+                  }
+                }
+                const decoration = {
+                  id: equippedDecoration.id,
+                  decorationType: meta.decorationType || "",
+                };
+                localStorage.setItem(
+                  `cw_profile_decoration_${userId}`,
+                  JSON.stringify(decoration)
+                );
+                applyProfileDecoration(decoration);
+              }
+            }
           }
         }
       }
@@ -2914,47 +3445,50 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // ==================================================================
-  // 4. GERENCIAMENTO DE AVATAR (UPLOAD)
+  // 4. GERENCIAMENTO DA FOTO DE PERFIL (UPLOAD)
   // ==================================================================
   const changePhotoBtn = document.getElementById("changePhotoBtn");
-  const avatarInput = document.getElementById("avatarInput");
-  const avatarImg = document.getElementById("profileAvatar");
+  const profilePhotoInput = document.getElementById("profilePhotoInput");
+  const profilePhotoImg = document.getElementById("profilePhoto");
 
-  if (changePhotoBtn && avatarInput) {
+  if (changePhotoBtn && profilePhotoInput) {
     changePhotoBtn.addEventListener("click", () => {
-      avatarInput.click();
+      profilePhotoInput.click();
     });
   }
 
-  if (avatarInput && avatarImg) {
-    // Carrega avatar salvo localmente ao iniciar
-    const savedAvatar = userId ? localStorage.getItem(`cw_avatar_data_${userId}`) : null;
-    if (savedAvatar) avatarImg.src = savedAvatar;
+  if (profilePhotoInput && profilePhotoImg) {
+    const savedProfilePhoto = userId
+      ? localStorage.getItem(`cw_profile_photo_${userId}`)
+      : null;
+    if (savedProfilePhoto) profilePhotoImg.src = savedProfilePhoto;
 
-    avatarInput.addEventListener("change", async (e) => {
+    profilePhotoInput.addEventListener("change", async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = async () => {
         const dataUrl = reader.result;
-        avatarImg.src = dataUrl;
-        
-        // 1. Salva localmente
-        if (userId) localStorage.setItem(`cw_avatar_data_${userId}`, dataUrl);
-        
-        // 2. Envia para o backend
+        profilePhotoImg.src = dataUrl;
+
+        if (userId) localStorage.setItem(`cw_profile_photo_${userId}`, dataUrl);
+
         if (userId) {
           try {
-            await fetch("/api/profile/avatar", {
+            const response = await fetch("/api/profile/photo", {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId: userId, avatar: dataUrl }),
+              body: JSON.stringify({ userId, foto_perfil: dataUrl }),
             });
-            if (window.showToast) window.showToast("Avatar atualizado.");
+            if (response.ok && window.showToast) {
+              window.showToast("Foto de perfil atualizada.");
+            } else if (response.status === 501 && window.showToast) {
+              window.showToast("Foto salva neste navegador.");
+            }
           } catch (err) {
             console.error(err);
-            if (window.showToast) window.showToast("Não foi possível salvar no servidor.");
+            if (window.showToast) window.showToast("Foto salva neste navegador.");
           }
         }
       };

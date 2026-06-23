@@ -42,4 +42,8 @@ app.get('/monetizacao', (req, res) => {
   res.sendFile(path.join(__dirname, '../../frontend/public/monetizacao.html'));
 });
 
+app.get('/premium', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../frontend/public/monetizacao.html'));
+});
+
 module.exports = app;

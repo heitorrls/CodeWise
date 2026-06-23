@@ -207,7 +207,7 @@ body::before {
   overflow: hidden;
 }
 
-.rank-avatar {
+.rank-profile-photo {
   width: 38px;
   height: 38px;
   border-radius: 50%;
@@ -222,17 +222,17 @@ body::before {
 }
 
 /* Cores e ícones específicos do Rank */
-.rank-avatar.gold {
+.rank-profile-photo.gold {
   background: #ffdf00;
   border-color: #ffdf00;
   color: #4a3800;
 }
-.rank-avatar.silver {
+.rank-profile-photo.silver {
   background: #d0d0d0;
   border-color: #c0c0c0;
   color: #444;
 }
-.rank-avatar.bronze {
+.rank-profile-photo.bronze {
   background: #d99058;
   border-color: #cd7f32;
   color: var(--primary-contrast);
@@ -364,7 +364,7 @@ body::before {
     gap: 10px;
     margin: 0 10px;
   }
-  .rank-avatar {
+  .rank-profile-photo {
     width: 32px;
     height: 32px;
     font-size: 14px;
@@ -393,7 +393,7 @@ body::before {
     gap: 8px;
     margin: 0 8px;
   }
-  .rank-avatar {
+  .rank-profile-photo {
     width: 28px;
     height: 28px;
     font-size: 12px;

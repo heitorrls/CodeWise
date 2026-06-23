@@ -33,7 +33,7 @@
 
     <div class="chat-modal-overlay" id="chatModalOverlay">
         <div class="chat-modal">
-          <div class="chat-resize-handle" id="chatResizeHandle" title="Arraste para ajustar a largura"></div>
+          <div class="chat-resize-handle" id="chatResizeHandle" title="Arraste para redimensionar o chat"></div>
           <div class="chat-modal-header">
             <h2>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -60,12 +60,12 @@
         </div>
 
         <div class="chat-modal-footer">
-          <input
-            type="text"
+          <textarea
             id="chatInput"
             placeholder="Digite sua dúvida..."
             autocomplete="off"
-          />
+            rows="1"
+          ></textarea>
           <button class="chat-send-btn" id="chatSendBtn">
             <i class="fas fa-paper-plane"></i>
           </button>
@@ -127,6 +127,7 @@
       </div>
     </div>
 
+    <script src="src/services/codeBuddyContext.js"></script>
     <script src="src/pages/script.js"></script>
   </body>
 </html>

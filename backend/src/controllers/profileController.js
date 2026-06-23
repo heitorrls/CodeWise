@@ -2,6 +2,31 @@ const UserProfile = require("../models/UserProfile");
 const Inventory = require("../models/Inventory");
 const Lives = require("../models/Lives");
 const { MAX_LIVES } = require("../models/Lives");
+const { Economy } = require("../models/Economy");
+const Progress = require("../models/Progress");
+const ActivityAnswer = require("../models/ActivityAnswer");
+const { getActivityDefinition } = require("../services/activityCatalog");
+
+const STORE_CATALOG = {
+  "Recarga de Vidas": {
+    tipo: "utilizavel",
+    descricao: "Recarrega todas as vidas.",
+    preco: 50,
+    meta: null,
+  },
+  "Moldura Dourada": {
+    tipo: "decoracao",
+    descricao: "Moldura dourada para a foto de perfil.",
+    preco: 200,
+    meta: { decorationType: "moldura-dourada" },
+  },
+  "Overlay Estelar": {
+    tipo: "decoracao",
+    descricao: "Overlay de estrelas para a foto de perfil.",
+    preco: 250,
+    meta: { decorationType: "overlay-estelar" },
+  },
+};
 
 // Atualiza o nome de usuário
 exports.updateUsername = (req, res) => {
@@ -25,25 +50,30 @@ exports.updateUsername = (req, res) => {
   });
 };
 
-// Atualiza avatar (base64 ou URL)
-exports.updateAvatar = (req, res) => {
-  const { userId, avatar } = req.body;
-  if (!userId || !avatar) {
+// Atualiza a foto de perfil (base64 ou URL), quando o banco oferece esse campo.
+exports.updateProfilePhoto = (req, res) => {
+  const { userId, foto_perfil: profilePhoto } = req.body;
+  if (!userId || !profilePhoto) {
     return res
       .status(400)
-      .json({ message: "ID do usuário e avatar são obrigatórios." });
+      .json({ message: "ID do usuário e foto de perfil são obrigatórios." });
   }
 
   UserProfile.ensureProfile(userId, null, (errEnsure) => {
     if (errEnsure) {
       console.error("Erro ao garantir perfil:", errEnsure);
     }
-    UserProfile.updateAvatar(userId, avatar, (err, affected) => {
+    UserProfile.updateProfilePhoto(userId, profilePhoto, (err) => {
       if (err) {
-        console.error("Erro ao atualizar avatar:", err);
-        return res.status(500).json({ message: "Erro ao salvar avatar." });
+        if (err.code === "PROFILE_PHOTO_UNAVAILABLE") {
+          return res.status(501).json({
+            message: "O banco atual não possui armazenamento de foto de perfil.",
+          });
+        }
+        console.error("Erro ao atualizar foto de perfil:", err);
+        return res.status(500).json({ message: "Erro ao salvar foto de perfil." });
       }
-      res.status(200).json({ message: "Avatar atualizado com sucesso." });
+      res.status(200).json({ message: "Foto de perfil atualizada com sucesso." });
     });
   });
 };
@@ -72,50 +102,144 @@ exports.getProfile = (req, res) => {
   });
 };
 
-// Atualiza moedas (delta positivo adiciona, negativo subtrai)
-exports.updateCoins = (req, res) => {
-  const { userId, delta } = req.body;
-  if (!userId || typeof delta !== "number") {
-    return res
-      .status(400)
-      .json({ message: "userId e delta (número) são obrigatórios." });
+exports.purchaseInventoryItem = async (req, res) => {
+  const { userId, nome } = req.body;
+  const catalogItem = STORE_CATALOG[nome];
+
+  if (!userId || !nome || !catalogItem) {
+    return res.status(400).json({
+      message: "Item da loja inválido.",
+    });
   }
 
-  UserProfile.ensureProfile(userId, null, (errEnsure) => {
-    if (errEnsure) console.error("Erro ao garantir perfil:", errEnsure);
-    UserProfile.updateCoins(userId, delta, (err, newBalance) => {
-      if (err) {
-        console.error("Erro ao atualizar moedas:", err);
-        if (err.code === "INSUFFICIENT_FUNDS") {
-          return res.status(400).json({ message: "Saldo insuficiente." });
-        }
-        return res.status(500).json({ message: "Erro ao atualizar moedas." });
-      }
-      res
-        .status(200)
-        .json({ message: "Moedas atualizadas.", saldo: newBalance });
+  try {
+    if (nome === "Recarga de Vidas") {
+      const purchase = await Economy.purchaseLifeRefill(
+        userId,
+        catalogItem.preco
+      );
+      return res.status(200).json({
+        message: "Vidas recarregadas.",
+        saldo: purchase.saldo,
+        lives: purchase.lives,
+        max: purchase.max,
+      });
+    }
+
+    const purchase = await Inventory.purchaseItem(
+      userId,
+      {
+        tipo: catalogItem.tipo,
+        nome,
+        descricao: catalogItem.descricao,
+        meta: catalogItem.meta ? JSON.stringify(catalogItem.meta) : null,
+      },
+      catalogItem.preco
+    );
+    res.status(200).json({
+      message: "Compra realizada.",
+      itemId: purchase.itemId,
+      saldo: purchase.saldo,
     });
-  });
+  } catch (err) {
+    if (err.code === "INSUFFICIENT_FUNDS") {
+      return res.status(400).json({ message: "Saldo insuficiente." });
+    }
+    if (err.code === "ALREADY_OWNED") {
+      return res.status(409).json({ message: "Decoração já adquirida." });
+    }
+    if (err.code === "LIVES_FULL") {
+      return res.status(409).json({ message: "Suas vidas já estão cheias." });
+    }
+    console.error("Erro ao comprar item:", err);
+    res.status(500).json({ message: "Erro ao realizar compra." });
+  }
 };
 
-// Adiciona item ao inventário
-exports.addInventoryItem = async (req, res) => {
-  const { userId, tipo, nome, descricao, quantidade, meta } = req.body;
-  if (!userId || !nome) {
-    return res.status(400).json({ message: "userId e nome do item são obrigatórios." });
+exports.rewardLesson = async (req, res) => {
+  const {
+    userId,
+    moduleId,
+    lessonIndex,
+  } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ message: "userId é obrigatório." });
   }
+
   try {
-    const insertId = await Inventory.addItem(userId, {
-      tipo,
-      nome,
-      descricao,
-      quantidade,
-      meta: meta ? JSON.stringify(meta) : null,
+    const activity = getActivityDefinition(moduleId, lessonIndex);
+
+    if (!activity) {
+      return res.status(400).json({
+        message: "Atividade inválida.",
+      });
+    }
+
+    const summary = await ActivityAnswer.getSummary({
+      userId,
+      moduleId,
+      lessonIndex,
+      totalQuestions: activity.totalQuestions,
     });
-    res.status(200).json({ message: "Item adicionado ao inventário.", id: insertId });
+
+    if (summary.answered < summary.total) {
+      return res.status(409).json({
+        message: "Ainda existem questões sem resposta registrada.",
+        answered: summary.answered,
+        totalQuestions: summary.total,
+      });
+    }
+
+    const result = await Economy.rewardLessonCompletion({
+      userId,
+      moduleId,
+      lessonIndex,
+      correctCount: summary.correct,
+      totalQuestions: activity.totalQuestions,
+    });
+
+    await ActivityAnswer.markCompletion({
+      userId,
+      moduleId,
+      lessonIndex,
+      totalQuestions: summary.total,
+      correctCount: summary.correct,
+      wrongCount: summary.wrong,
+      percentage: summary.percentage,
+    });
+
+    if (result.awarded) {
+      await Progress.addSession(
+        userId,
+        summary.total,
+        summary.correct,
+        summary.wrong
+      );
+    }
+
+    res.status(200).json({
+      message: result.awarded
+        ? "Recompensa concedida."
+        : "Esta atividade já foi recompensada.",
+      ...result,
+      correctCount: summary.correct,
+      wrongCount: summary.wrong,
+      totalQuestions: summary.total,
+      percentage: summary.percentage,
+    });
   } catch (err) {
-    console.error("Erro ao adicionar inventário:", err);
-    res.status(500).json({ message: "Erro ao adicionar ao inventário." });
+    if (err.code === "INVALID_REWARD") {
+      return res.status(400).json({ message: err.message });
+    }
+    if (err.code === "INVALID_SEQUENCE") {
+      return res.status(409).json({ message: err.message });
+    }
+    if (err.code === "PROFILE_NOT_FOUND") {
+      return res.status(404).json({ message: "Perfil não encontrado." });
+    }
+    console.error("Erro ao conceder recompensa:", err);
+    res.status(500).json({ message: "Erro ao conceder recompensa." });
   }
 };
 
@@ -148,6 +272,65 @@ exports.consumeInventoryItem = async (req, res) => {
   }
 };
 
+exports.useLifeRefillItem = async (req, res) => {
+  const { userId, itemId } = req.body;
+  if (!userId || !itemId) {
+    return res.status(400).json({ message: "userId e itemId são obrigatórios." });
+  }
+
+  try {
+    const result = await Economy.useLifeRefillItem(userId, itemId);
+    res.status(200).json({
+      message: "Vidas recarregadas.",
+      ...result,
+    });
+  } catch (err) {
+    if (err.code === "LIVES_FULL") {
+      return res.status(409).json({ message: "Suas vidas já estão cheias." });
+    }
+    if (err.code === "ITEM_NOT_FOUND") {
+      return res.status(404).json({ message: "Recarga não disponível." });
+    }
+    console.error("Erro ao usar recarga:", err);
+    res.status(500).json({ message: "Erro ao usar recarga." });
+  }
+};
+
+exports.equipProfileDecoration = async (req, res) => {
+  const { userId, itemId } = req.body;
+  if (!userId || !itemId) {
+    return res.status(400).json({ message: "userId e itemId são obrigatórios." });
+  }
+
+  try {
+    const decoration = await Inventory.findOwnedDecoration(userId, itemId);
+    if (!decoration) {
+      return res.status(404).json({
+        message: "Decoração não encontrada no inventário do usuário.",
+      });
+    }
+
+    UserProfile.updateProfileDecoration(userId, decoration.id, (err) => {
+      if (err?.code === "PROFILE_DECORATION_UNAVAILABLE") {
+        return res.status(501).json({
+          message: "O banco atual ainda não possui decoracao_foto_id.",
+        });
+      }
+      if (err) {
+        console.error("Erro ao equipar decoração:", err);
+        return res.status(500).json({ message: "Erro ao equipar decoração." });
+      }
+      res.status(200).json({
+        message: "Decoração equipada.",
+        decoracao_foto_id: decoration.id,
+      });
+    });
+  } catch (err) {
+    console.error("Erro ao validar decoração:", err);
+    res.status(500).json({ message: "Erro ao equipar decoração." });
+  }
+};
+
 // --- VIDAS ---
 exports.getLives = (req, res) => {
   const { userId } = req.params;
@@ -171,18 +354,6 @@ exports.consumeLife = (req, res) => {
       }
       console.error("Erro ao consumir vida:", err);
       return res.status(500).json({ message: "Erro ao consumir vida." });
-    }
-    res.status(200).json({ lives: state.lives, max: MAX_LIVES });
-  });
-};
-
-exports.refillLives = (req, res) => {
-  const { userId } = req.body;
-  if (!userId) return res.status(400).json({ message: "userId é obrigatório." });
-  Lives.updateLives(userId, { setTo: MAX_LIVES }, (err, state) => {
-    if (err) {
-      console.error("Erro ao recarregar vidas:", err);
-      return res.status(500).json({ message: "Erro ao recarregar vidas." });
     }
     res.status(200).json({ lives: state.lives, max: MAX_LIVES });
   });

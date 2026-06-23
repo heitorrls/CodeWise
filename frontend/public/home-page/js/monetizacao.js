@@ -27,3 +27,12 @@ document.querySelectorAll('[data-plan]').forEach((button) => {
         }, 3200);
     });
 });
+
+const premiumHeaderButton = document.querySelector('.header .btn-nav');
+if (premiumHeaderButton && localStorage.getItem('userId')) {
+    premiumHeaderButton.textContent = 'Voltar aos módulos';
+    premiumHeaderButton.dataset.url = 'modulos.html';
+    premiumHeaderButton.addEventListener('click', () => {
+        window.location.href = 'modulos.html';
+    });
+}

@@ -166,7 +166,7 @@ DROP TABLE IF EXISTS `inventario`;
 CREATE TABLE `inventario` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `tipo` enum('visual','utilizavel') DEFAULT 'utilizavel',
+  `tipo` enum('decoracao','utilizavel') DEFAULT 'utilizavel',
   `nome` varchar(255) NOT NULL,
   `descricao` text,
   `quantidade` int DEFAULT '1',
@@ -184,7 +184,7 @@ CREATE TABLE `inventario` (
 
 LOCK TABLES `inventario` WRITE;
 /*!40000 ALTER TABLE `inventario` DISABLE KEYS */;
-INSERT INTO `inventario` VALUES (1,7,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:22:35'),(2,7,'visual','Traje Astronauta','Visual de astronauta.',1,NULL,'2025-11-28 01:22:53'),(3,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:25:05'),(4,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:48:28'),(5,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:48:41');
+INSERT INTO `inventario` VALUES (1,7,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:22:35'),(2,7,'decoracao','Moldura Dourada','Moldura dourada para a foto de perfil.',1,'{\"decorationType\":\"moldura-dourada\"}','2025-11-28 01:22:53'),(3,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:25:05'),(4,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:48:28'),(5,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:48:41');
 /*!40000 ALTER TABLE `inventario` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -430,7 +430,8 @@ CREATE TABLE `user_profiles` (
   `username` varchar(100) DEFAULT NULL,
   `pontuacao_total` int DEFAULT '0',
   `moedas` int NOT NULL DEFAULT '0',
-  `avatar` text,
+  `foto_perfil` longtext,
+  `decoracao_foto_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `user_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
@@ -443,7 +444,7 @@ CREATE TABLE `user_profiles` (
 
 LOCK TABLES `user_profiles` WRITE;
 /*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
-INSERT INTO `user_profiles` VALUES (4,4,'bia',0,0,NULL),(6,6,'professor',0,0,NULL),(7,7,'Gabriel',0,250,NULL),(24,8,NULL,0,0,NULL);
+INSERT INTO `user_profiles` VALUES (4,4,'bia',0,0,NULL,NULL),(6,6,'professor',0,0,NULL,NULL),(7,7,'Gabriel',0,250,NULL,2),(24,8,NULL,0,0,NULL,NULL);
 /*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 

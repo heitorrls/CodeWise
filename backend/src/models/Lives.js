@@ -1,4 +1,5 @@
 const db = require("../config/database");
+const { withTransaction } = require("../utils/transaction");
 
 const MAX_LIVES = 5;
 const REGEN_MS = 5 * 60 * 1000; // 5 minutos
@@ -82,17 +83,36 @@ function updateLives(userId, { delta, setTo }, cb) {
 
 function consume(userId, amount, cb) {
   const qty = Math.max(1, amount || 1);
-  getState(userId, (err, state) => {
-    if (err) return cb(err);
-    if ((state.lives ?? 0) < qty) {
-      const error = new Error("Sem vidas suficientes");
-      error.code = "NO_LIVES";
-      return cb(error);
-    }
-    setLives(userId, state.lives - qty, new Date(), (err2, lives) => {
-      if (err2) return cb(err2);
-      cb(null, { lives });
-    });
+  ensureRow(userId, (ensureErr) => {
+    if (ensureErr) return cb(ensureErr);
+
+    withTransaction(async (transaction) => {
+      const rows = await transaction.query(
+        `SELECT lives, updated_at
+         FROM user_lives
+         WHERE user_id = ?
+         FOR UPDATE`,
+        [userId]
+      );
+
+      const state = applyRegen(
+        rows[0] || { lives: MAX_LIVES, updated_at: new Date() }
+      );
+      if ((state.lives ?? 0) < qty) {
+        const error = new Error("Sem vidas suficientes");
+        error.code = "NO_LIVES";
+        throw error;
+      }
+
+      const lives = state.lives - qty;
+      await transaction.query(
+        `UPDATE user_lives
+         SET lives = ?, updated_at = NOW()
+         WHERE user_id = ?`,
+        [lives, userId]
+      );
+      return { lives };
+    }).then((state) => cb(null, state), cb);
   });
 }
 

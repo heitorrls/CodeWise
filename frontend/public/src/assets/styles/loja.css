@@ -281,8 +281,8 @@ body::before {
    color: #a89bd1;
    border: 1px solid rgba(139, 124, 200, 0.2);
 }
-.store-item-image.astronaut { background-color: #5c6a9c; color: #dfe3f0;}
-.store-item-image.ninja { background-color: #444; color: #ccc;}
+.store-item-image.profile-frame { background-color: #7c5b18; color: #ffe59a;}
+.store-item-image.profile-overlay { background-color: #49357d; color: #eadcff;}
 
 /* Título */
 .item-title {

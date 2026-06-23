@@ -367,6 +367,8 @@ CREATE TABLE `user_profiles` (
   `username` varchar(100) DEFAULT NULL,
   `pontuacao_total` int DEFAULT '0',
   `moedas` int DEFAULT '0',
+  `foto_perfil` longtext,
+  `decoracao_foto_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `user_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
@@ -379,7 +381,7 @@ CREATE TABLE `user_profiles` (
 
 LOCK TABLES `user_profiles` WRITE;
 /*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
-INSERT INTO `user_profiles` VALUES (4,4,'bia',0,0),(6,6,'professor',0,0);
+INSERT INTO `user_profiles` VALUES (4,4,'bia',0,0,NULL,NULL),(6,6,'professor',0,0,NULL,NULL);
 /*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
 UNLOCK TABLES;
 

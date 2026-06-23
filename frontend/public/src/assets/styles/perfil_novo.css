@@ -113,7 +113,7 @@ body {
   min-width: 0;
 }
 
-.avatar-area {
+.profile-photo-area {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -121,13 +121,13 @@ body {
   flex: 1 1 360px;
 }
 
-.avatar-wrapper {
+.profile-photo-wrapper {
   position: relative;
   width: 88px;
   height: 88px;
 }
 
-.avatar-wrapper img {
+.profile-photo-wrapper img {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -135,7 +135,27 @@ body {
   border: 2px solid var(--border);
 }
 
-.edit-avatar-btn {
+.profile-photo-wrapper[data-decoration="moldura-dourada"] img {
+  border: 5px solid #f6c453;
+  box-shadow: 0 0 0 3px #8d6513, 0 10px 24px rgba(246, 196, 83, 0.35);
+}
+
+.profile-photo-wrapper[data-decoration="overlay-estelar"]::after {
+  content: "✦  ✧";
+  position: absolute;
+  inset: 4px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 4px;
+  border-radius: 50%;
+  color: #ffe59a;
+  font-size: 1.15rem;
+  text-shadow: 0 1px 5px #5b21b6;
+  pointer-events: none;
+}
+
+.edit-profile-photo-btn {
   position: absolute;
   bottom: -6px;
   right: -6px;
@@ -405,7 +425,7 @@ body {
 }
 
 @media (max-width: 720px) {
-  .avatar-area {
+  .profile-photo-area {
     width: 100%;
   }
   .hero-card {
