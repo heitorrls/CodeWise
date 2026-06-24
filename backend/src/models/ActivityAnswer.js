@@ -212,6 +212,24 @@ const ActivityAnswer = {
       );
     });
   },
+
+  async deleteAnswers({ userId, moduleId, lessonIndex }) {
+    await ensureTables();
+
+    return new Promise((resolve, reject) => {
+      db.query(
+        `DELETE FROM activity_answers
+         WHERE user_id = ?
+           AND module_key = ?
+           AND lesson_index = ?`,
+        [userId, moduleId, Number(lessonIndex)],
+        (err, result) => {
+          if (err) return reject(err);
+          resolve(result);
+        }
+      );
+    });
+  },
 };
 
 module.exports = ActivityAnswer;

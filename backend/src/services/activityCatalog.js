@@ -11,6 +11,8 @@ const ACTIVITY_CATALOG = {
   ],
 };
 
+const MIN_LESSON_PASS_PERCENTAGE = 70;
+
 const normalizeIndex = (value) => {
   const number = Number(value);
   return Number.isInteger(number) ? number : null;
@@ -61,6 +63,7 @@ function getAnswerResult({
 }
 
 module.exports = {
+  MIN_LESSON_PASS_PERCENTAGE,
   getActivityDefinition,
   getAnswerResult,
 };

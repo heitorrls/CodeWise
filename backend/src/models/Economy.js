@@ -3,6 +3,9 @@ const { MAX_LIVES, REGEN_MS } = require("./Lives");
 const { withTransaction } = require("../utils/transaction");
 const ActivityProgress = require("./ActivityProgress");
 const Inventory = require("./Inventory");
+const {
+  MIN_LESSON_PASS_PERCENTAGE,
+} = require("../services/activityCatalog");
 
 const LESSON_REWARD_BASE = 25;
 const COINS_PER_CORRECT_ANSWER = 10;
@@ -212,6 +215,14 @@ const Economy = {
     }
 
     const eventKey = `${moduleId}:lesson:${lesson}`;
+    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+    if (percentage < MIN_LESSON_PASS_PERCENTAGE) {
+      throw createError(
+        "Pontuação mínima não atingida para avançar.",
+        "MIN_SCORE_NOT_REACHED"
+      );
+    }
+
     const reward =
       LESSON_REWARD_BASE + correct * COINS_PER_CORRECT_ANSWER;
 
@@ -305,4 +316,5 @@ module.exports = {
   Economy,
   LESSON_REWARD_BASE,
   COINS_PER_CORRECT_ANSWER,
+  MIN_LESSON_PASS_PERCENTAGE,
 };

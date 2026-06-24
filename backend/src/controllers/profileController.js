@@ -2,7 +2,10 @@ const UserProfile = require("../models/UserProfile");
 const Inventory = require("../models/Inventory");
 const Lives = require("../models/Lives");
 const { MAX_LIVES } = require("../models/Lives");
-const { Economy } = require("../models/Economy");
+const {
+  Economy,
+  MIN_LESSON_PASS_PERCENTAGE,
+} = require("../models/Economy");
 const Progress = require("../models/Progress");
 const ActivityAnswer = require("../models/ActivityAnswer");
 const { getActivityDefinition } = require("../services/activityCatalog");
@@ -191,13 +194,30 @@ exports.rewardLesson = async (req, res) => {
       });
     }
 
-    const result = await Economy.rewardLessonCompletion({
-      userId,
-      moduleId,
-      lessonIndex,
-      correctCount: summary.correct,
-      totalQuestions: activity.totalQuestions,
-    });
+    let result;
+    try {
+      result = await Economy.rewardLessonCompletion({
+        userId,
+        moduleId,
+        lessonIndex,
+        correctCount: summary.correct,
+        totalQuestions: activity.totalQuestions,
+      });
+    } catch (error) {
+      if (error.code === "MIN_SCORE_NOT_REACHED") {
+        return res.status(409).json({
+          message: `Pontuação mínima de ${MIN_LESSON_PASS_PERCENTAGE}% não atingida.`,
+          code: error.code,
+          correctCount: summary.correct,
+          wrongCount: summary.wrong,
+          totalQuestions: summary.total,
+          percentage: summary.percentage,
+          minPercentage: MIN_LESSON_PASS_PERCENTAGE,
+        });
+      }
+
+      throw error;
+    }
 
     await ActivityAnswer.markCompletion({
       userId,
