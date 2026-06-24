@@ -16,12 +16,7 @@
     } else if (pageDefault === 'dark') {
         root.removeAttribute('data-theme');
     } else {
-        // If no theme is saved, check for system preference
-        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-        if (prefersLight) {
-            root.setAttribute('data-theme', 'light');
-        } else {
-            root.removeAttribute('data-theme');
-        }
+        // Default CodeWise theme is light when the user has not chosen one yet.
+        root.setAttribute('data-theme', 'light');
     }
 })();

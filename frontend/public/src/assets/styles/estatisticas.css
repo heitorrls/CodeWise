@@ -50,7 +50,7 @@ body::before {
 @keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
 
 /* Header Fixo */
-.header {
+body:not(.cw-homepage-system) .header {
   background: rgba(26, 27, 58, 0.95);
   border-bottom: 2px solid rgba(139, 124, 200, 0.3);
   padding: 20px 40px;
@@ -62,10 +62,10 @@ body::before {
   backdrop-filter: blur(10px);
 }
 
-.header h1 { font-size: 1.6rem; font-weight: bold; color: #8b7cc8; text-align: center; }
+body:not(.cw-homepage-system) .header h1 { font-size: 1.6rem; font-weight: bold; color: #8b7cc8; text-align: center; }
 
 /* Container Principal */
-.container {
+body:not(.cw-homepage-system) .container {
   display: grid;
   grid-template-columns: 250px 1fr 300px;
   grid-template-rows: 70px 1fr;
@@ -83,7 +83,7 @@ body::before {
 }
 
 /* Sidebar */
-.sidebar {
+body:not(.cw-homepage-system) .sidebar {
   grid-area: sidebar;
   background: rgba(40, 42, 70, 0.6);
   border: 1px solid rgba(139, 124, 200, 0.15);
@@ -96,7 +96,7 @@ body::before {
   gap: 12px;
 }
 
-.nav-item {
+body:not(.cw-homepage-system) .nav-item {
   background: rgba(139, 124, 200, 0.1);
   border: 2px solid rgba(139, 124, 200, 0.3);
   border-radius: 15px;
@@ -112,9 +112,9 @@ body::before {
   gap: 12px;
 }
 
-.nav-item:hover { background: rgba(139, 124, 200, 0.12); transform: translateX(4px); }
-.nav-item.active { background: linear-gradient(135deg, #8b7cc8, #a89bd1); border-color: transparent; color: #fff; }
-.nav-item i { font-size: 1.1rem; min-width: 22px; text-align: center; }
+body:not(.cw-homepage-system) .nav-item:hover { background: rgba(139, 124, 200, 0.12); transform: translateX(4px); }
+body:not(.cw-homepage-system) .nav-item.active { background: linear-gradient(135deg, #8b7cc8, #a89bd1); border-color: transparent; color: #fff; }
+body:not(.cw-homepage-system) .nav-item i { font-size: 1.1rem; min-width: 22px; text-align: center; }
 
 /* --- CONTEÚDO PRINCIPAL --- */
 .main-content {
@@ -217,22 +217,22 @@ body::before {
 :root[data-theme="light"] body { background: var(--background); color: var(--text); }
 :root[data-theme="light"] body::before { opacity: 0; }
 
-:root[data-theme="light"] .header,
-:root[data-theme="light"] .sidebar,
+:root[data-theme="light"] body:not(.cw-homepage-system) .header,
+:root[data-theme="light"] body:not(.cw-homepage-system) .sidebar,
 :root[data-theme="light"] .main-content {
     background: var(--surface);
     border-color: var(--border-subtle);
     box-shadow: var(--shadow-md);
 }
-:root[data-theme="light"] .header h1 { color: var(--primary); text-shadow: none; }
+:root[data-theme="light"] body:not(.cw-homepage-system) .header h1 { color: var(--primary); text-shadow: none; }
 
-:root[data-theme="light"] .nav-item {
+:root[data-theme="light"] body:not(.cw-homepage-system) .nav-item {
     background: var(--surface-elev-1); color: var(--text); border-color: var(--border-subtle);
 }
-:root[data-theme="light"] .nav-item:hover {
+:root[data-theme="light"] body:not(.cw-homepage-system) .nav-item:hover {
     background: var(--surface-elev-2); color: var(--primary); border-color: var(--primary-soft);
 }
-:root[data-theme="light"] .nav-item.active {
+:root[data-theme="light"] body:not(.cw-homepage-system) .nav-item.active {
     background: var(--primary); color: white;
 }
 
@@ -263,22 +263,22 @@ body::before {
     .chart-box { height: 250px; }
 }
 @media (max-width: 992px) {
-    .container {
+    body:not(.cw-homepage-system) .container {
         grid-template-columns: 1fr;
         grid-template-rows: 70px 1fr 70px;
         grid-template-areas: "header" "main" "sidebar";
         padding: 70px 12px 80px;
     }
-    .sidebar {
+    body:not(.cw-homepage-system) .sidebar {
         position: fixed; bottom: 0; left: 0; right: 0;
         flex-direction: row; justify-content: space-around;
         height: 66px; border-radius: 14px 14px 0 0;
         z-index: 1000; padding: 6px;
     }
-    .nav-item { flex-direction: column; font-size: 0.85rem; padding: 6px; border: none; justify-content: center; }
-    .nav-item:hover { transform: none; }
+    body:not(.cw-homepage-system) .nav-item { flex-direction: column; font-size: 0.85rem; padding: 6px; border: none; justify-content: center; }
+    body:not(.cw-homepage-system) .nav-item:hover { transform: none; }
 }
 @media (max-width: 768px) {
-    .header h1 { font-size: 1.4rem; }
+    body:not(.cw-homepage-system) .header h1 { font-size: 1.4rem; }
     .stats-overview { grid-template-columns: 1fr; }
 }

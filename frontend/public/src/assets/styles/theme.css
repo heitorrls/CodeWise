@@ -1,5 +1,6 @@
 :root {
   /* Dark theme (default) */
+  color-scheme: dark;
   --bg: #0f1222;
   --bg-elevated: #1a1f35;
   --card: #222743;
@@ -11,9 +12,35 @@
   --accent: #ff6b6b;
   --border: #2a3154;
   --shadow: rgba(0, 0, 0, 0.35);
+
+  /* Extended semantic tokens used across pages */
+  --background: #111326;
+  --surface: #1b2038;
+  --surface-elev-1: #242a44;
+  --surface-elev-2: #2d3454;
+  --border-subtle: #30375c;
+  --text-primary: #f4f5ff;
+  --text-secondary: #c8cbee;
+  --primary-hover: #b8a5ff;
+  --primary-soft: rgba(156, 131, 255, 0.18);
+  --secondary: #f472b6;
+  --info: #7db7ff;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --input-bg: #151a2f;
+  --input-border: #3a4268;
+  --input-focus: #a78bfa;
+  --focus-ring: 0 0 0 4px rgba(167, 139, 250, 0.18);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 18px 52px rgba(0, 0, 0, 0.42);
+  --primary-gradient: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%);
+  --sidebar-active: linear-gradient(180deg, #7c3aed 0%, #6d28d9 100%);
 }
 
 :root[data-theme="light"] {
+  color-scheme: light;
   /* 
     NEW LIGHT THEME PALETTE 
     Mapped to old variables and extended with new ones.
@@ -30,7 +57,7 @@
   --primary-contrast: #FFFFFF;
   --accent: #E85C5C; /* Mapped from 'danger' */
   --border: #E3E3EE;
-  --shadow: 0 6px 16px rgba(18, 21, 26, 0.08); /* Mapped from 'shadow-md' */
+  --shadow: rgba(18, 21, 26, 0.08);
 
   /* Base/neutros */
   --background: #F7F7FA;

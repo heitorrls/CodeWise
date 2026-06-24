@@ -1,49 +1,231 @@
-(function setupGlobalToast() {
+(function setupGlobalFeedback() {
+  const TOAST_QUEUE_KEY = "cw_pending_toasts";
+  const toastIcons = {
+    info: "•",
+    success: "✓",
+    error: "!",
+    warning: "!",
+    coins: "💎",
+    lives: "❤️",
+    unlock: "🔓",
+    achievement: "★",
+    loading: "…",
+  };
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   const style = document.createElement("style");
   style.textContent = `
-    .cw-toast {
+    .cw-toast-stack {
       position: fixed;
-      top: 50%;
+      top: clamp(18px, 4vh, 32px);
       left: 50%;
-      transform: translate(-50%, -30px);
-      background: var(--card, #222743);
+      z-index: 10020;
+      display: grid;
+      gap: 10px;
+      width: min(460px, calc(100vw - 28px));
+      pointer-events: none;
+      transform: translateX(-50%);
+    }
+    .cw-toast {
+      --toast-accent: #8b7cc8;
+      transform: translateY(-14px) scale(.98);
+      background: var(--surface, var(--card, #222743));
       color: var(--text, #fff);
-      border: 1px solid var(--border, rgba(255,255,255,0.08));
-      border-radius: 14px;
-      padding: 14px 16px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.3);
-      z-index: 9999;
-      min-width: 260px;
-      max-width: 460px;
+      border: 1px solid color-mix(in srgb, var(--toast-accent) 34%, transparent);
+      border-radius: 16px;
+      padding: 13px 15px;
+      box-shadow: 0 18px 42px rgba(0,0,0,0.28);
       opacity: 0;
-      transition: opacity .2s ease, transform .2s ease;
+      transition: opacity .22s ease, transform .22s ease;
       display: flex;
       gap: 10px;
       align-items: center;
       text-align: left;
+      pointer-events: auto;
+      overflow: hidden;
+      position: relative;
     }
-    .cw-toast.show { opacity: 1; transform: translate(-50%, 0); }
-    .cw-toast .dot { width: 10px; height: 10px; border-radius: 50%; background: #8b7cc8; box-shadow: 0 0 8px rgba(139,124,200,0.6); }
-    .cw-toast .msg { flex: 1; font-weight: 600; }
+    .cw-toast::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--toast-accent);
+    }
+    .cw-toast.show { opacity: 1; transform: translateY(0) scale(1); }
+    .cw-toast .dot {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--toast-accent) 18%, transparent);
+      color: var(--toast-accent);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--toast-accent) 28%, transparent);
+      font-size: .9rem;
+      font-weight: 900;
+    }
+    .cw-toast .msg { flex: 1; font-weight: 700; line-height: 1.35; }
+    .cw-toast.success { --toast-accent: #10b981; }
+    .cw-toast.error { --toast-accent: #ef4444; }
+    .cw-toast.warning { --toast-accent: #f59e0b; }
+    .cw-toast.coins { --toast-accent: #8b5cf6; }
+    .cw-toast.lives { --toast-accent: #f43f5e; }
+    .cw-toast.unlock { --toast-accent: #3b82f6; }
+    .cw-toast.achievement { --toast-accent: #f59e0b; }
+    .cw-feedback-pop { animation: cwFeedbackPop .38s ease; }
+    .cw-button-loading { position: relative; cursor: progress !important; }
+    .cw-button-loading::after {
+      content: "";
+      width: 1em;
+      height: 1em;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 999px;
+      animation: cwFeedbackSpin .7s linear infinite;
+    }
+    .cw-skeleton {
+      position: relative;
+      overflow: hidden;
+      color: transparent !important;
+      background: color-mix(in srgb, var(--cw-primary, #8b5cf6) 10%, transparent) !important;
+      border-radius: 12px;
+    }
+    .cw-skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.26), transparent);
+      animation: cwFeedbackSheen 1.2s linear infinite;
+    }
+    @keyframes cwFeedbackSpin { to { transform: rotate(360deg); } }
+    @keyframes cwFeedbackSheen { to { transform: translateX(100%); } }
+    @keyframes cwFeedbackPop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
   `;
   document.head.appendChild(style);
 
-  function showToast(message) {
+  function getToastStack() {
+    let stack = document.querySelector(".cw-toast-stack");
+    if (!stack) {
+      stack = document.createElement("div");
+      stack.className = "cw-toast-stack";
+      document.body.appendChild(stack);
+    }
+    return stack;
+  }
+
+  function showToast(message, options = {}) {
+    const type = options.type || "info";
     const toast = document.createElement("div");
-    toast.className = "cw-toast";
-    toast.innerHTML = `<span class="dot"></span><span class="msg">${message}</span>`;
-    document.body.appendChild(toast);
+    toast.className = `cw-toast ${type}`;
+    toast.setAttribute("role", type === "error" ? "alert" : "status");
+    toast.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
+    toast.innerHTML = `<span class="dot">${toastIcons[type] || toastIcons.info}</span><span class="msg">${escapeHtml(message)}</span>`;
+    getToastStack().appendChild(toast);
     requestAnimationFrame(() => toast.classList.add("show"));
     setTimeout(() => {
       toast.classList.remove("show");
       setTimeout(() => toast.remove(), 200);
-    }, 3000);
+    }, options.duration || 3200);
   }
 
-window.alert = function (msg) {
-    showToast(msg);
+  function queueToast(message, options = {}) {
+    try {
+      const queued = JSON.parse(localStorage.getItem(TOAST_QUEUE_KEY) || "[]");
+      queued.push({ message, options });
+      localStorage.setItem(TOAST_QUEUE_KEY, JSON.stringify(queued.slice(-5)));
+    } catch (error) {
+      // Feedback is non-critical.
+    }
+  }
+
+  function flushQueuedToasts() {
+    let queued = [];
+    try {
+      queued = JSON.parse(localStorage.getItem(TOAST_QUEUE_KEY) || "[]");
+      localStorage.removeItem(TOAST_QUEUE_KEY);
+    } catch (error) {
+      queued = [];
+    }
+    queued.forEach((item, index) => {
+      setTimeout(() => showToast(item.message, item.options || {}), 250 + index * 180);
+    });
+  }
+
+  function setButtonLoading(button, isLoading, loadingText = "Carregando...") {
+    if (!button) return;
+    if (isLoading) {
+      if (!button.dataset.originalText) {
+        button.dataset.originalText = button.textContent;
+      }
+      button.disabled = true;
+      button.classList.add("cw-button-loading");
+      button.setAttribute("aria-busy", "true");
+      button.textContent = loadingText;
+    } else {
+      button.disabled = false;
+      button.classList.remove("cw-button-loading");
+      button.removeAttribute("aria-busy");
+      if (button.dataset.originalText) {
+        button.textContent = button.dataset.originalText;
+        delete button.dataset.originalText;
+      }
+    }
+  }
+
+  function pulseElement(element) {
+    if (!element) return;
+    element.classList.remove("cw-feedback-pop");
+    void element.offsetWidth;
+    element.classList.add("cw-feedback-pop");
+  }
+
+  window.alert = function (msg) {
+    const normalized = String(msg || "").toLowerCase();
+    const type =
+      normalized.includes("sucesso") ||
+      normalized.includes("conclu") ||
+      normalized.includes("salv")
+        ? "success"
+        : normalized.includes("erro") ||
+          normalized.includes("falha") ||
+          normalized.includes("inválid") ||
+          normalized.includes("inval") ||
+          normalized.includes("não foi") ||
+          normalized.includes("nao foi")
+        ? "error"
+        : normalized.includes("preencha") ||
+          normalized.includes("informe") ||
+          normalized.includes("atenção") ||
+          normalized.includes("atencao")
+        ? "warning"
+        : "info";
+    showToast(msg, { type });
   };
   window.showToast = showToast;
+  window.queueToast = queueToast;
+  window.setButtonLoading = setButtonLoading;
+  window.pulseFeedbackElement = pulseElement;
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", flushQueuedToasts);
+  } else {
+    setTimeout(flushQueuedToasts, 0);
+  }
 })();
 
 // Modal de conquista
@@ -64,7 +246,7 @@ window.alert = function (msg) {
     }
     .cw-achievement-overlay.show { opacity: 1; pointer-events: all; }
     .cw-achievement-card {
-      background: var(--card, #222743);
+      background: var(--surface, var(--card, #222743));
       color: var(--text, #fff);
       border: 1px solid var(--border, rgba(255,255,255,0.1));
       border-radius: 16px;
@@ -147,7 +329,7 @@ window.alert = function (msg) {
     }
     .cw-confirm-overlay.show { opacity: 1; pointer-events: all; }
     .cw-confirm-card {
-      background: var(--card, #222743);
+      background: var(--surface, var(--card, #222743));
       color: var(--text, #fff);
       border: 1px solid var(--border, rgba(255,255,255,0.1));
       border-radius: 14px;
@@ -181,7 +363,7 @@ window.alert = function (msg) {
   `;
   document.head.appendChild(style);
 
-  window.showConfirmBox = function ({ title, message, onConfirm, onCancel }) {
+  window.showConfirmBox = function ({ title, message, onConfirm, onCancel, confirmText, cancelText }) {
     const overlay = document.createElement("div");
     overlay.className = "cw-confirm-overlay";
     overlay.innerHTML = `
@@ -189,8 +371,8 @@ window.alert = function (msg) {
         <h3>${title || "Confirmação"}</h3>
         <p>${message || ""}</p>
         <div class="cw-confirm-actions">
-          <button class="close-btn">Cancelar</button>
-          <button class="primary confirm-btn">Confirmar</button>
+          <button class="close-btn">${cancelText || "Cancelar"}</button>
+          <button class="primary confirm-btn">${confirmText || "Confirmar"}</button>
         </div>
       </div>
     `;
@@ -206,9 +388,16 @@ window.alert = function (msg) {
       close();
       if (onCancel) onCancel();
     });
-    overlay.querySelector(".confirm-btn").addEventListener("click", () => {
-      close();
-      if (onConfirm) onConfirm();
+    overlay.querySelector(".confirm-btn").addEventListener("click", async () => {
+      const confirmButton = overlay.querySelector(".confirm-btn");
+      window.setButtonLoading?.(confirmButton, true, "Processando...");
+      try {
+        if (onConfirm) await onConfirm();
+        close();
+      } catch (error) {
+        window.showToast?.("Não foi possível concluir a ação.", { type: "error" });
+        window.setButtonLoading?.(confirmButton, false);
+      }
     });
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) {
@@ -217,6 +406,112 @@ window.alert = function (msg) {
       }
     });
   };
+})();
+
+// Sidebar única do CodeWise: normaliza todas as navbars laterais duplicadas.
+(function setupCodeWiseSidebar() {
+  const sidebarItems = [
+    {
+      key: "modulos",
+      label: "Módulos",
+      href: "modulos.html",
+      icon: "fas fa-map",
+      pages: ["modulos.html", "home.html", "intro_modulo.html", "qst_modulo.html", "resultado_modulo.html", "recompensa_modulo.html"],
+    },
+    {
+      key: "perfil",
+      label: "Perfil",
+      href: "perfil.html",
+      icon: "fas fa-user",
+      pages: ["perfil.html", "inventario.html", "conquistas.html"],
+    },
+    {
+      key: "loja",
+      label: "Loja",
+      href: "loja.html",
+      icon: "fas fa-store",
+      pages: ["loja.html"],
+    },
+    {
+      key: "rank",
+      label: "Rank",
+      href: "rank.html",
+      icon: "fas fa-trophy",
+      pages: ["rank.html"],
+    },
+    {
+      key: "calendario",
+      label: "Calendário",
+      href: "calendario.html",
+      icon: "fas fa-calendar-alt",
+      pages: ["calendario.html"],
+    },
+    {
+      key: "estatisticas",
+      label: "Estatísticas",
+      href: "estatisticas.html",
+      icon: "fas fa-chart-pie",
+      pages: ["estatisticas.html"],
+    },
+    {
+      key: "configuracoes",
+      label: "Configurações",
+      href: "configuracoes.html",
+      icon: "fas fa-cog",
+      pages: ["configuracoes.html", "conta.html", "suporte.html"],
+    },
+  ];
+
+  function getCurrentPage() {
+    return window.location.pathname.split("/").pop() || "modulos.html";
+  }
+
+  function isItemActive(item, currentPage) {
+    return item.pages.includes(currentPage);
+  }
+
+  function renderSidebar(nav) {
+    const currentPage = getCurrentPage();
+    nav.classList.add("cw-sidebar");
+    nav.dataset.component = "codewise-sidebar";
+    nav.setAttribute("aria-label", "Navegação principal");
+    nav.innerHTML = sidebarItems
+      .map((item) => {
+        const active = isItemActive(item, currentPage);
+        return `
+          <button
+            class="nav-item${active ? " active" : ""}"
+            type="button"
+            data-sidebar-key="${item.key}"
+            data-href="${item.href}"
+            ${active ? 'aria-current="page"' : ""}
+          >
+            <i class="${item.icon}" aria-hidden="true"></i>
+            <span>${item.label}</span>
+          </button>
+        `;
+      })
+      .join("");
+
+    nav.querySelectorAll(".nav-item").forEach((button) => {
+      button.addEventListener("click", () => {
+        const href = button.dataset.href;
+        if (href && !button.classList.contains("active")) {
+          window.location.href = href;
+        }
+      });
+    });
+  }
+
+  function normalizeSidebars() {
+    document.querySelectorAll("nav.sidebar").forEach(renderSidebar);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", normalizeSidebars);
+  } else {
+    normalizeSidebars();
+  }
 })();
 
 // Controle de sessão simples para páginas protegidas
@@ -248,12 +543,26 @@ window.alert = function (msg) {
 
 // Logout global (limpa sessão e evita retornar logado)
 window.logout = function logout(showConfirm = true) {
+  const finishLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("pendingAchievement");
+    localStorage.removeItem("achievements_state");
+    window.location.replace("login.html");
+  };
+
+  if (showConfirm && window.showConfirmBox) {
+    window.showConfirmBox({
+      title: "Sair da conta",
+      message: "Deseja realmente sair do CodeWise?",
+      confirmText: "Sair",
+      onConfirm: finishLogout,
+    });
+    return;
+  }
+
   if (showConfirm && !confirm("Deseja realmente sair?")) return;
-  localStorage.removeItem("userId");
-  localStorage.removeItem("userEmail");
-  localStorage.removeItem("pendingAchievement");
-  localStorage.removeItem("achievements_state");
-  window.location.replace("login.html");
+  finishLogout();
 };
 
 // Fallback global for buttons that use inline `onclick="continuar()"` before the script initializes.
@@ -523,6 +832,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // SISTEMA DE VIDAS
   const MAX_LIVES = 5;
   const LIFE_PRICE = 50;
+  let lastKnownLives = null;
 
   async function fetchLivesState() {
     if (!userId) return { lives: MAX_LIVES, max: MAX_LIVES };
@@ -561,10 +871,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     const state = forcedLives !== undefined
       ? { lives: forcedLives }
       : await fetchLivesState();
+    const currentLives = state.lives ?? MAX_LIVES;
+    const shouldAnimateLives =
+      forcedLives !== undefined &&
+      lastKnownLives !== null &&
+      currentLives !== lastKnownLives;
     const livesEls = document.querySelectorAll("#livesCounter, #livesCounterHome, #livesCounterModules, #livesCounterSidebar, .lives-pill");
     livesEls.forEach((el) => {
-      el.textContent = `❤️ ${state.lives ?? MAX_LIVES}/${MAX_LIVES} vidas`;
+      el.textContent = `❤️ ${currentLives}/${MAX_LIVES} vidas`;
+      if (shouldAnimateLives) {
+        window.pulseFeedbackElement?.(el);
+      }
     });
+    lastKnownLives = currentLives;
   }
 
   // Atualiza vidas periodicamente para refletir regeneração do backend
@@ -923,6 +1242,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (loginForm) {
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
+    const submitButton = loginForm.querySelector("button[type='submit']");
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -946,6 +1266,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!hasError) {
         // LÓGICA DE LOGIN MODIFICADA (sem Firebase)
         try {
+          window.setButtonLoading?.(submitButton, true, "Entrando...");
           const response = await fetch("/api/auth/login", {
             method: "POST",
             headers: {
@@ -987,6 +1308,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           // Erro de rede ou fetch
           console.error("Erro de rede:", error);
           alert("Erro ao conectar ao servidor. Tente novamente.");
+        } finally {
+          window.setButtonLoading?.(submitButton, false);
         }
       }
     }); // Fim do 'submit'
@@ -1994,6 +2317,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!savedAnswer.isCorrect && savedAnswer.inserted !== false) {
               const lives = await consumeLifeRemote();
               updateLivesUI(lives);
+              window.showToast?.("Você perdeu 1 vida.", { type: "lives" });
               if (lives <= 0) {
                 nextBtnLesson.disabled = true;
                 const wants = await promptRechargeFlow();
@@ -2084,6 +2408,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             score = Number(rewardData.correctCount) || 0;
             rewardCoins = Number(rewardData.reward) || 0;
             updateCoinBalanceUI(rewardData.saldo);
+            window.queueToast?.("Atividade concluída!", { type: "success" });
+            if (rewardCoins > 0) {
+              window.queueToast?.(`+${rewardCoins} moedas recebidas.`, {
+                type: "coins",
+              });
+            }
             const completedActivities =
               Number(rewardData.completedActivities) || 0;
             saveModuleProgress(
@@ -2091,6 +2421,26 @@ document.addEventListener("DOMContentLoaded", async () => {
               completedActivities,
               selectedModule.displayLessons || selectedModule.totalLessons
             );
+            const currentModuleIndex = moduleCatalog.findIndex(
+              (mod) => mod.id === selectedModule?.id
+            );
+            const nextModule = moduleCatalog[currentModuleIndex + 1];
+            const moduleFullyCompleted =
+              completedActivities >=
+              (selectedModule.displayLessons || selectedModule.totalLessons || 1);
+            const unlockToastKey = nextModule
+              ? `cw_unlock_toast_${userId || "anon"}_${nextModule.id}`
+              : "";
+            if (
+              nextModule &&
+              moduleFullyCompleted &&
+              !localStorage.getItem(unlockToastKey)
+            ) {
+              localStorage.setItem(unlockToastKey, "1");
+              window.queueToast?.(`Módulo desbloqueado: ${nextModule.title}`, {
+                type: "unlock",
+              });
+            }
             localStorage.setItem(
               lessonIndexKey(selectedModule.id),
               String(
