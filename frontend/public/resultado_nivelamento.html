@@ -16,9 +16,6 @@
         <img src="home-page/images/logo-codewise.png" alt="CodeWise" class="header-logo" />
         <h1>Resultado</h1>
       </div>
-      <div class="header-actions">
-        <div class="lives-pill" id="livesCounter">5/5 vidas</div>
-      </div>
     </header>
 
     <div class="container">
@@ -37,21 +34,57 @@
 
           <div class="details-section">
             <div class="category-scores" id="categoryScores">
-              <div class="category-item">
-                <span class="category-name">Variáveis e Tipos de Dados</span>
-                <span class="category-score">8/10</span>
+              <div class="category-item category-strength-strong">
+                <div class="category-main">
+                  <span class="category-name">Variáveis e Tipos de Dados</span>
+                  <span class="category-status">Ponto forte</span>
+                </div>
+                <div class="category-progress" aria-hidden="true">
+                  <span class="category-progress-fill" style="width: 80%"></span>
+                </div>
+                <div class="category-meta">
+                  <span class="category-score">8/10</span>
+                  <span class="category-percent">80%</span>
+                </div>
               </div>
-              <div class="category-item">
-                <span class="category-name">Operadores e Condicionais</span>
-                <span class="category-score">4/10</span>
+              <div class="category-item category-strength-low">
+                <div class="category-main">
+                  <span class="category-name">Operadores e Condicionais</span>
+                  <span class="category-status">Estudar</span>
+                </div>
+                <div class="category-progress" aria-hidden="true">
+                  <span class="category-progress-fill" style="width: 40%"></span>
+                </div>
+                <div class="category-meta">
+                  <span class="category-score">4/10</span>
+                  <span class="category-percent">40%</span>
+                </div>
               </div>
-              <div class="category-item">
-                <span class="category-name">Funções e Escopo</span>
-                <span class="category-score">6/10</span>
+              <div class="category-item category-strength-medium">
+                <div class="category-main">
+                  <span class="category-name">Funções e Escopo</span>
+                  <span class="category-status">Revisar</span>
+                </div>
+                <div class="category-progress" aria-hidden="true">
+                  <span class="category-progress-fill" style="width: 60%"></span>
+                </div>
+                <div class="category-meta">
+                  <span class="category-score">6/10</span>
+                  <span class="category-percent">60%</span>
+                </div>
               </div>
-              <div class="category-item">
-                <span class="category-name">Laços de Repetição</span>
-                <span class="category-score">9/10</span>
+              <div class="category-item category-strength-strong">
+                <div class="category-main">
+                  <span class="category-name">Laços de Repetição</span>
+                  <span class="category-status">Ponto forte</span>
+                </div>
+                <div class="category-progress" aria-hidden="true">
+                  <span class="category-progress-fill" style="width: 90%"></span>
+                </div>
+                <div class="category-meta">
+                  <span class="category-score">9/10</span>
+                  <span class="category-percent">90%</span>
+                </div>
               </div>
             </div>
 
@@ -62,15 +95,24 @@
           </div>
 
           <div class="classification-section">
-            <p>Classificação Final:</p>
+            <div class="completion-badge" aria-hidden="true">
+              <span class="completion-badge-icon">✓</span>
+            </div>
+            <p class="classification-label">Classificação Final:</p>
             <strong class="final-classification" id="finalClassification"
               >Avançado</strong
             >
+            <p class="classification-description" id="classificationDescription">
+              Sua trilha será ajustada de acordo com seu nível inicial.
+            </p>
+            <p class="classification-motivation" id="classificationMotivation">
+              Continue avançando: sua trilha de aprendizagem começa agora.
+            </p>
           </div>
         </div>
 
         <button class="advance-btn" onclick="proceedToNextStep()">
-          Avançar
+          Ir para meus módulos
         </button>
       </div>
     </div>

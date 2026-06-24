@@ -1706,6 +1706,986 @@ body.cw-homepage-system :is(.toast, .cw-toast, .plan-toast, .modal, .modal-conte
   color: #c8cbee;
 }
 
+/* Nivelamento flow */
+body.cw-homepage-system:has(:is(.intro-title, .test-card, .result-card:not(.lesson))) {
+  --cw-leveling-shell-width: 1180px;
+  --cw-leveling-card-width: 980px;
+  --cw-leveling-gap: clamp(1.5rem, 4vw, 3rem);
+  --cw-leveling-muted-panel: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(236, 72, 153, 0.05));
+  min-height: 100vh;
+  display: block;
+  overflow-x: hidden;
+}
+
+body.cw-homepage-system:has(:is(.intro-title, .test-card, .result-card:not(.lesson))) > .header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  width: 100% !important;
+  min-height: var(--cw-header-height) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  padding: 0.75rem max(1rem, calc((100vw - var(--cw-shell-max)) / 2 + var(--cw-shell-gutter))) !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.12) !important;
+  border-radius: 0 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: var(--cw-shadow-sm) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(:is(.intro-title, .test-card, .result-card:not(.lesson))) > .header {
+  border-bottom-color: rgba(167, 139, 250, 0.18) !important;
+  background: rgba(27, 32, 56, 0.92) !important;
+}
+
+body.cw-homepage-system:has(:is(.intro-title, .test-card, .result-card:not(.lesson))) > .header .header-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+  color: var(--cw-text) !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+}
+
+body.cw-homepage-system:has(:is(.intro-title, .test-card, .result-card:not(.lesson))) > .header .header-logo {
+  width: 52px !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+}
+
+body.cw-homepage-system:has(:is(.intro-title, .test-card, .result-card:not(.lesson))) > .header h1 {
+  margin: 0 !important;
+  font-size: clamp(1.25rem, 2vw, 1.65rem) !important;
+  line-height: 1.1 !important;
+  color: var(--cw-text) !important;
+  background: linear-gradient(135deg, var(--cw-primary) 0%, var(--cw-secondary) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body.cw-homepage-system:has(:is(.intro-title, .test-card, .result-card:not(.lesson))) > .container {
+  width: min(var(--cw-leveling-shell-width), calc(100% - (var(--cw-shell-gutter) * 2))) !important;
+  max-width: var(--cw-leveling-shell-width) !important;
+  min-height: calc(100vh - var(--cw-header-height)) !important;
+  margin: 0 auto !important;
+  padding: var(--cw-shell-gap) 0 2rem !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body.cw-homepage-system:has(.intro-title) > .container {
+  display: grid !important;
+  grid-template-columns: minmax(260px, 0.82fr) minmax(0, 1.18fr) !important;
+  align-items: center !important;
+  gap: var(--cw-leveling-gap) !important;
+}
+
+body.cw-homepage-system:has(.intro-title) :is(.left-section, .right-section) {
+  min-width: 0 !important;
+}
+
+body.cw-homepage-system:has(.intro-title) .left-section {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+body.cw-homepage-system:has(.intro-title) .right-section {
+  display: block !important;
+  width: 100% !important;
+  max-width: 640px !important;
+  padding: var(--cw-component-padding) !important;
+  border: var(--cw-component-border) !important;
+  border-radius: var(--cw-component-radius) !important;
+  background: var(--cw-card-bg) !important;
+  color: var(--cw-text) !important;
+  box-shadow: var(--cw-shadow-sm) !important;
+}
+
+body.cw-homepage-system:has(.intro-title) .mascot-container {
+  width: min(340px, 100%) !important;
+  height: 320px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+body.cw-homepage-system:has(.intro-title) .mascot-container img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+body.cw-homepage-system:has(.intro-title) .intro-title {
+  margin: 0 0 1rem !important;
+  color: var(--cw-text) !important;
+  font-size: clamp(2rem, 4vw, 3rem) !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0 !important;
+  background: linear-gradient(135deg, var(--cw-primary) 0%, var(--cw-secondary) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body.cw-homepage-system:has(.intro-title) .intro-text {
+  margin: 0 0 1.75rem !important;
+  max-width: 58ch !important;
+  color: var(--cw-muted) !important;
+  font-size: clamp(1rem, 1.4vw, 1.12rem) !important;
+  line-height: 1.65 !important;
+  opacity: 1 !important;
+}
+
+body.cw-homepage-system:has(.intro-title) .intro-list {
+  display: grid !important;
+  gap: 0.75rem !important;
+  margin: 0 0 1.75rem !important;
+  padding: 1rem !important;
+  border: 1px solid var(--cw-control-border) !important;
+  border-radius: var(--cw-component-radius-sm) !important;
+  background: var(--cw-control-muted-bg) !important;
+}
+
+body.cw-homepage-system:has(.intro-title) .intro-list-item {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 0.65rem !important;
+  color: var(--cw-text) !important;
+  font-size: 0.98rem !important;
+  line-height: 1.45 !important;
+}
+
+body.cw-homepage-system:has(.intro-title) .intro-list-dot {
+  width: 0.6rem !important;
+  height: 0.6rem !important;
+  margin-top: 0.45rem !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, var(--cw-primary), var(--cw-secondary)) !important;
+  box-shadow: 0 0 0 4px var(--cw-primary-soft) !important;
+}
+
+body.cw-homepage-system:has(:is(.test-card, .result-card:not(.lesson))) > .container {
+  display: grid !important;
+  align-content: start !important;
+  gap: 1.25rem !important;
+}
+
+body.cw-homepage-system:has(.test-card) .test-card,
+body.cw-homepage-system:has(.result-card:not(.lesson)) .result-card {
+  width: min(100%, var(--cw-leveling-card-width)) !important;
+  max-width: var(--cw-leveling-card-width) !important;
+  margin: 0 auto !important;
+  padding: var(--cw-component-padding) !important;
+  border: var(--cw-component-border) !important;
+  border-radius: var(--cw-component-radius) !important;
+  background: var(--cw-card-bg) !important;
+  color: var(--cw-text) !important;
+  box-shadow: var(--cw-shadow-sm) !important;
+  text-align: left !important;
+  animation: none !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .result-card {
+  width: min(100%, 1040px) !important;
+  max-width: 1040px !important;
+  padding: clamp(1rem, 2vw, 1.45rem) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .question-section {
+  margin: 0 0 1.5rem !important;
+}
+
+body.cw-homepage-system:has(.test-card) .question-title,
+body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.result-title, .result-header h1) {
+  margin: 0 0 1.25rem !important;
+  color: var(--cw-text) !important;
+  font-size: clamp(1.35rem, 2.2vw, 2rem) !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .result-header {
+  max-width: 760px !important;
+  margin: 0 auto 0.9rem !important;
+  text-align: center !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .result-subtitle,
+body.cw-homepage-system:has(.result-card:not(.lesson)) .result-header p {
+  margin: 0 !important;
+  color: var(--cw-muted) !important;
+  font-size: 1rem !important;
+  opacity: 1 !important;
+}
+
+body.cw-homepage-system:has(.test-card) .options-container {
+  display: grid !important;
+  gap: 0.85rem !important;
+}
+
+body.cw-homepage-system:has(.test-card) .option {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 0.8rem !important;
+  min-height: auto !important;
+  padding: 1rem !important;
+  border: 1px solid var(--cw-control-border) !important;
+  border-radius: var(--cw-component-radius-sm) !important;
+  background: var(--cw-control-muted-bg) !important;
+  color: var(--cw-text) !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+body.cw-homepage-system:has(.test-card) .option:hover {
+  border-color: rgba(124, 58, 237, 0.28) !important;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(236, 72, 153, 0.06)) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--cw-shadow-sm) !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.test-card) .option:hover {
+  border-color: rgba(167, 139, 250, 0.32) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .option.selected {
+  border-color: var(--cw-primary) !important;
+  background: var(--cw-primary-soft) !important;
+  box-shadow: var(--cw-focus-ring) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .option.locked {
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+body.cw-homepage-system:has(.test-card) .option.locked:not(.selected) {
+  opacity: 0.72 !important;
+}
+
+body.cw-homepage-system:has(.test-card) .option.correct {
+  border-color: var(--cw-success) !important;
+  background: var(--cw-success-bg) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .option.incorrect {
+  border-color: var(--cw-danger) !important;
+  background: var(--cw-error-bg) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .option-letter {
+  min-width: 2rem !important;
+  color: var(--cw-primary) !important;
+  font-family: inherit !important;
+  font-weight: 800 !important;
+}
+
+body.cw-homepage-system:has(.test-card) .option-text {
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--cw-text) !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+body.cw-homepage-system:has(.test-card) .buttons-section {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  margin-top: 1.25rem !important;
+}
+
+body.cw-homepage-system:has(.test-card) :is(.back-btn, .next-btn),
+body.cw-homepage-system:has(.intro-title) .start-btn,
+body.cw-homepage-system:has(.result-card:not(.lesson)) .advance-btn {
+  min-height: var(--cw-control-height) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 150px !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0.75rem 1.35rem !important;
+  border-radius: var(--cw-component-radius) !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  transition:
+    transform var(--cw-transition),
+    box-shadow var(--cw-transition),
+    background var(--cw-transition),
+    border-color var(--cw-transition),
+    color var(--cw-transition),
+    opacity var(--cw-transition) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .back-btn {
+  border: 1px solid var(--cw-control-border) !important;
+  background: var(--cw-control-muted-bg) !important;
+  color: var(--cw-primary-dark) !important;
+  box-shadow: none !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.test-card) .back-btn {
+  color: var(--cw-primary-light) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .next-btn,
+body.cw-homepage-system:has(.intro-title) .start-btn,
+body.cw-homepage-system:has(.result-card:not(.lesson)) .advance-btn {
+  border: 1px solid transparent !important;
+  background: linear-gradient(135deg, var(--cw-primary) 0%, var(--cw-primary-dark) 100%) !important;
+  color: #fff !important;
+  box-shadow: var(--cw-shadow-md) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .next-btn:hover:not(:disabled),
+body.cw-homepage-system:has(.intro-title) .start-btn:hover:not(:disabled),
+body.cw-homepage-system:has(.result-card:not(.lesson)) .advance-btn:hover:not(:disabled),
+body.cw-homepage-system:has(.test-card) .back-btn:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--cw-shadow-md) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .next-btn:disabled {
+  opacity: var(--cw-disabled-opacity) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+body.cw-homepage-system:has(.test-card) .progress-section {
+  width: min(100%, var(--cw-leveling-card-width)) !important;
+  display: grid !important;
+  gap: 0.65rem !important;
+  margin: -0.25rem auto 0 !important;
+  padding: 0.9rem 1rem !important;
+  border: 1px solid var(--cw-control-border) !important;
+  border-radius: var(--cw-component-radius-sm) !important;
+  background: var(--cw-control-muted-bg) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
+  text-align: left !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.test-card) .progress-section {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .progress-bar {
+  width: 100% !important;
+  height: 0.9rem !important;
+  margin: 0 !important;
+  border: 1px solid rgba(124, 58, 237, 0.18) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.12), rgba(124, 58, 237, 0.06)) !important;
+  box-shadow:
+    inset 0 1px 2px rgba(31, 41, 55, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.55) !important;
+  overflow: hidden !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.test-card) .progress-bar {
+  border-color: rgba(167, 139, 250, 0.24) !important;
+  background: linear-gradient(180deg, rgba(167, 139, 250, 0.16), rgba(167, 139, 250, 0.08)) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.24) !important;
+}
+
+body.cw-homepage-system:has(.test-card) .progress-fill {
+  min-width: 0.7rem !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.28), transparent 42%),
+    linear-gradient(90deg, var(--cw-primary), var(--cw-secondary)) !important;
+  box-shadow:
+    0 0 16px rgba(124, 58, 237, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+  transition: width 0.45s ease !important;
+}
+
+body.cw-homepage-system:has(.test-card) .progress-text {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  color: var(--cw-muted) !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  text-align: right !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .result-body {
+  display: grid !important;
+  grid-template-columns: minmax(136px, 176px) minmax(0, 1fr) !important;
+  grid-template-areas:
+    "classification classification"
+    "score categories"
+    "best best" !important;
+  gap: 0.8rem !important;
+  margin: 0 0 1rem !important;
+  padding: 0.85rem !important;
+  border: 1px solid var(--cw-control-border) !important;
+  border-radius: var(--cw-component-radius-sm) !important;
+  background: var(--cw-control-muted-bg) !important;
+  color: var(--cw-text) !important;
+  box-shadow: none !important;
+  align-items: stretch !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.score-section, .details-section, .classification-section) {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  padding: 0.85rem !important;
+  border: 0 !important;
+  border-radius: var(--cw-component-radius-sm) !important;
+  background: var(--cw-card-bg) !important;
+  color: var(--cw-text) !important;
+  text-align: left !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .score-section {
+  grid-area: score !important;
+  align-items: center !important;
+  text-align: center !important;
+  min-height: 100% !important;
+  align-self: stretch !important;
+  border: 1px solid var(--cw-control-border) !important;
+  background: linear-gradient(180deg, var(--cw-card-bg), var(--cw-control-muted-bg)) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .details-section {
+  display: contents !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .classification-section {
+  grid-area: classification !important;
+  position: relative !important;
+  width: min(100%, 720px) !important;
+  min-height: 0 !important;
+  justify-self: center !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas:
+    "label"
+    "level"
+    "description"
+    "motivation" !important;
+  align-items: center !important;
+  justify-items: center !important;
+  row-gap: 0.38rem !important;
+  padding: clamp(0.9rem, 1.8vw, 1.15rem) clamp(1rem, 3vw, 1.45rem) !important;
+  border: 1px solid rgba(124, 58, 237, 0.2) !important;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(124, 58, 237, 0.16), transparent 18rem),
+    linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(236, 72, 153, 0.08)) !important;
+  text-align: center !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.result-card:not(.lesson)) .classification-section {
+  border-color: rgba(196, 181, 253, 0.26) !important;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(167, 139, 250, 0.18), transparent 18rem),
+    linear-gradient(135deg, rgba(167, 139, 250, 0.14), rgba(244, 114, 182, 0.1)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .classification-section p {
+  margin: 0 0 0.45rem !important;
+  color: var(--cw-muted) !important;
+  font-size: 0.92rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .classification-label {
+  grid-area: label !important;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .completion-badge {
+  position: absolute !important;
+  top: 1.05rem !important;
+  left: 1.05rem !important;
+  width: 2.3rem !important;
+  height: 2.3rem !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, var(--cw-success), #22c55e) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 10px 28px rgba(16, 185, 129, 0.28),
+    0 0 0 8px rgba(16, 185, 129, 0.1) !important;
+  animation: cwCompletionBadgeIn 0.6s ease-out both, cwCompletionBadgePulse 2.4s ease-in-out 0.8s infinite !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .completion-badge-icon {
+  font-size: 1.25rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .classification-description {
+  grid-area: description !important;
+  max-width: 660px !important;
+  margin: 0.55rem auto 0 !important;
+  color: var(--cw-muted) !important;
+  font-size: clamp(0.95rem, 1.4vw, 1.05rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.42 !important;
+  text-align: center !important;
+  text-transform: none !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .classification-motivation {
+  grid-area: motivation !important;
+  max-width: 640px !important;
+  margin: 0.35rem auto 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--cw-text) !important;
+  font-size: clamp(0.9rem, 1.25vw, 0.98rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.38 !important;
+  text-align: center !important;
+  text-transform: none !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.result-card:not(.lesson)) .classification-motivation {
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+@keyframes cwCompletionBadgeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.82);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(0) scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cwCompletionBadgePulse {
+  0%,
+  100% {
+    box-shadow:
+      0 10px 28px rgba(16, 185, 129, 0.26),
+      0 0 0 8px rgba(16, 185, 129, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 12px 30px rgba(16, 185, 129, 0.32),
+      0 0 0 12px rgba(16, 185, 129, 0.06);
+  }
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .score-percentage {
+  color: var(--cw-primary-dark) !important;
+  font-size: clamp(2.35rem, 4.6vw, 3.35rem) !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .score-section::before {
+  content: "Acertos" !important;
+  display: block !important;
+  margin-bottom: 0.45rem !important;
+  color: var(--cw-muted) !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.result-card:not(.lesson)) .score-percentage {
+  color: var(--cw-primary-light) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .score-percentage::after {
+  content: none !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.category-scores, #categoryScores) {
+  grid-area: categories !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(2, minmax(112px, 1fr)) !important;
+  gap: 0.8rem !important;
+  align-self: stretch !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.category-item, #categoryScores li) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas:
+    "main"
+    "bar"
+    "meta" !important;
+  align-items: stretch !important;
+  gap: 0.55rem !important;
+  height: 100% !important;
+  min-height: 112px !important;
+  padding: 0.8rem !important;
+  border: 1px solid var(--cw-control-border) !important;
+  border-radius: var(--cw-component-radius-sm) !important;
+  background:
+    linear-gradient(180deg, var(--cw-card-bg), var(--cw-control-muted-bg)) !important;
+  color: var(--cw-muted) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38) !important;
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.category-item, #categoryScores li) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .category-main {
+  grid-area: main !important;
+  min-width: 0 !important;
+  display: grid !important;
+  align-content: start !important;
+  gap: 0.25rem !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.category-name, #categoryScores li span:first-child) {
+  color: var(--cw-text) !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .category-status {
+  width: fit-content !important;
+  padding: 0.15rem 0.45rem !important;
+  border-radius: 999px !important;
+  background: rgba(124, 58, 237, 0.1) !important;
+  color: var(--cw-primary-dark) !important;
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.result-card:not(.lesson)) .category-status {
+  background: rgba(167, 139, 250, 0.14) !important;
+  color: var(--cw-primary-light) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .category-strength-strong .category-status {
+  background: var(--cw-success-bg) !important;
+  color: var(--cw-success) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .category-strength-low .category-status {
+  background: var(--cw-error-bg) !important;
+  color: var(--cw-danger) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .category-progress {
+  grid-area: bar !important;
+  height: 0.45rem !important;
+  border-radius: 999px !important;
+  background: rgba(124, 58, 237, 0.12) !important;
+  overflow: hidden !important;
+  align-self: center !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.result-card:not(.lesson)) .category-progress {
+  background: rgba(167, 139, 250, 0.14) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .category-progress-fill {
+  display: block !important;
+  height: 100% !important;
+  min-width: 0.35rem !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, var(--cw-primary), var(--cw-secondary)) !important;
+  transition: width 0.45s ease !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .category-strength-strong .category-progress-fill {
+  background: linear-gradient(90deg, var(--cw-success), #22c55e) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .category-strength-low .category-progress-fill {
+  background: linear-gradient(90deg, var(--cw-danger), #f97316) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .category-meta {
+  grid-area: meta !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.55rem !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.category-score, .category-percent, #categoryScores li span:last-child) {
+  flex: 0 0 auto !important;
+  min-width: 52px !important;
+  padding: 0.28rem 0.6rem !important;
+  border: 1px solid var(--cw-control-border) !important;
+  border-radius: 999px !important;
+  background: var(--cw-control-muted-bg) !important;
+  color: var(--cw-primary-dark) !important;
+  font-size: 0.86rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  box-shadow: none !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.category-score, .category-percent, #categoryScores li span:last-child) {
+  color: var(--cw-primary-light) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.best-category, .classification-section) {
+  color: var(--cw-muted) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .best-category {
+  grid-area: best !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0.75rem 0.85rem !important;
+  border: 1px solid var(--cw-control-border) !important;
+  border-radius: var(--cw-component-radius-sm) !important;
+  background: var(--cw-control-muted-bg) !important;
+  display: grid !important;
+  grid-template-columns: max-content minmax(0, 1fr) !important;
+  align-items: center !important;
+  justify-content: start !important;
+  gap: 1rem !important;
+  text-align: left !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .best-category p {
+  margin: 0 !important;
+  color: var(--cw-muted) !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.best-category strong, .final-classification, .classification-section strong) {
+  color: var(--cw-primary-dark) !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .best-category strong {
+  justify-self: start !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  font-size: clamp(1rem, 2vw, 1.2rem) !important;
+  line-height: 1.2 !important;
+  text-align: left !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.best-category strong, .final-classification, .classification-section strong) {
+  color: var(--cw-primary-light) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .final-classification {
+  grid-area: level !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: min(100%, 320px) !important;
+  width: fit-content !important;
+  margin: 0 !important;
+  padding: 0.62rem 1rem !important;
+  border: 1px solid rgba(124, 58, 237, 0.18) !important;
+  border-radius: 999px !important;
+  background: var(--cw-card-bg) !important;
+  color: var(--cw-primary-dark) !important;
+  font-size: clamp(1.65rem, 4vw, 2.65rem) !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  box-shadow: var(--cw-shadow-sm) !important;
+}
+
+body.cw-homepage-system:has(.result-card:not(.lesson)) .advance-btn {
+  min-width: min(100%, 260px) !important;
+  margin: 0 auto !important;
+}
+
+:root:not([data-theme="light"]) body.cw-homepage-system:has(.result-card:not(.lesson)) .final-classification {
+  border-color: rgba(196, 181, 253, 0.22) !important;
+  color: var(--cw-primary-light) !important;
+}
+
+@media (max-width: 992px) {
+  body.cw-homepage-system:has(.intro-title) > .container {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+  }
+
+  body.cw-homepage-system:has(.intro-title) .left-section {
+    order: 2 !important;
+  }
+
+  body.cw-homepage-system:has(.intro-title) .right-section {
+    order: 1 !important;
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+
+  body.cw-homepage-system:has(.intro-title) .mascot-container {
+    width: 220px !important;
+    height: 200px !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) .result-body {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "classification"
+      "score"
+      "categories"
+      "best" !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body.cw-homepage-system:has(:is(.intro-title, .test-card, .result-card:not(.lesson))) > .header {
+    padding: 0.75rem 1rem !important;
+  }
+
+  body.cw-homepage-system:has(:is(.intro-title, .test-card, .result-card:not(.lesson))) > .container {
+    width: min(calc(100% - 1rem), 760px) !important;
+    padding: 1rem 0 2rem !important;
+  }
+
+  body.cw-homepage-system:has(.intro-title) .right-section,
+  body.cw-homepage-system:has(.test-card) .test-card,
+  body.cw-homepage-system:has(.result-card:not(.lesson)) .result-card {
+    padding: 1rem !important;
+  }
+
+  body.cw-homepage-system:has(.test-card) .option {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.cw-homepage-system:has(.test-card) .buttons-section {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  body.cw-homepage-system:has(.test-card) :is(.back-btn, .next-btn),
+  body.cw-homepage-system:has(.intro-title) .start-btn,
+  body.cw-homepage-system:has(.result-card:not(.lesson)) .advance-btn {
+    width: 100% !important;
+  }
+
+  body.cw-homepage-system:has(.test-card) .progress-text {
+    text-align: center !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.score-section, .details-section, .classification-section) {
+    padding: 0.85rem !important;
+    text-align: center !important;
+    align-items: center !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.category-scores, #categoryScores) {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: none !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.category-item, #categoryScores li) {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "main"
+      "bar"
+      "meta" !important;
+    align-items: stretch !important;
+    text-align: center !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) :is(.category-main, .category-meta) {
+    justify-content: center !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) .category-status {
+    justify-self: center !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) .classification-section {
+    min-height: 0 !important;
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "badge"
+      "label"
+      "level"
+      "description"
+      "motivation" !important;
+    justify-items: center !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) .completion-badge {
+    position: static !important;
+    grid-area: badge !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) .best-category {
+    grid-template-columns: 1fr !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) .best-category strong {
+    justify-self: center !important;
+    text-align: center !important;
+  }
+
+  body.cw-homepage-system:has(.result-card:not(.lesson)) .classification-label {
+    text-align: center !important;
+  }
+}
+
 /* Password recovery auth screens */
 body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) {
   --cw-recovery-bg:
@@ -1865,6 +2845,270 @@ body.cw-homepage-system :is(.confirmation-card, .verification-card, .password-ca
 
 body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .success-message {
   color: var(--cw-recovery-success) !important;
+}
+
+/* Recovery layout normalization: scoped to password recovery screens only. */
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) {
+  min-height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: clamp(1.25rem, 3vw, 2.5rem) !important;
+  overflow-x: hidden !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card))::before {
+  display: none !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .theme-toggle-auth {
+  position: fixed !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  z-index: 5 !important;
+  color: var(--cw-recovery-label) !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) > .container {
+  width: min(100%, 1040px) !important;
+  min-height: min(680px, calc(100vh - 5rem)) !important;
+  display: grid !important;
+  grid-template-columns: minmax(360px, 460px) minmax(260px, 1fr) !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(2rem, 6vw, 5rem) !important;
+  margin: 0 auto !important;
+  padding: clamp(1rem, 3vw, 2rem) !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) :is(.left-section, .right-section) {
+  width: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .left-section {
+  justify-content: center !important;
+  position: relative !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .right-section {
+  justify-content: center !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) :is(.confirmation-card, .verification-card, .password-card) {
+  width: min(100%, 430px) !important;
+  min-height: 360px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  padding: clamp(2rem, 4vw, 2.75rem) !important;
+  border-radius: 18px !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .password-card {
+  min-height: 430px !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) :is(.confirmation-card, .verification-card, .password-card) .title {
+  margin: 0 0 1.5rem !important;
+  font-size: clamp(1.75rem, 2.4vw, 2.15rem) !important;
+  line-height: 1.12 !important;
+  text-align: left !important;
+  letter-spacing: 0 !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) :is(form, .input-group, .code-group) {
+  width: 100% !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) form {
+  display: grid !important;
+  gap: 1.05rem !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .input-group {
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) :is(.input-group label, .code-group label) {
+  display: block !important;
+  margin: 0 0 0.45rem !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) :is(.input-group input, .code-input) {
+  min-height: 3.25rem !important;
+  border-width: 1px !important;
+  border-radius: 12px !important;
+  font-family: inherit !important;
+  transition:
+    border-color var(--cw-transition),
+    background var(--cw-transition),
+    box-shadow var(--cw-transition),
+    color var(--cw-transition) !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .input-group input {
+  width: 100% !important;
+  padding: 0.85rem 1rem !important;
+  font-size: 1rem !important;
+}
+
+body.cw-homepage-system:has(.verification-card) .code-input-container {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 0.55rem !important;
+}
+
+body.cw-homepage-system:has(.verification-card) .code-input {
+  min-width: 0 !important;
+  min-height: 3.25rem !important;
+  aspect-ratio: 1 !important;
+  padding: 0 !important;
+  font-size: clamp(1.15rem, 2vw, 1.35rem) !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) :is(.send-btn, .confirm-btn) {
+  width: 100% !important;
+  min-height: 3.25rem !important;
+  margin: 0 !important;
+  padding: 0.85rem 1rem !important;
+  border-radius: 14px !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.6rem !important;
+}
+
+body.cw-homepage-system:has(.verification-card) .resend-section {
+  margin: 0.2rem 0 0 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+  text-align: center !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .back-button {
+  position: absolute !important;
+  top: -3.5rem !important;
+  left: 0 !important;
+  width: 2.75rem !important;
+  height: 2.75rem !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transform: none !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .back-button:hover {
+  transform: translateX(-2px) !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .mascot-container {
+  width: clamp(240px, 26vw, 320px) !important;
+  height: clamp(240px, 26vw, 320px) !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .mascot-container img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) :is(.error-message, .success-message) {
+  width: 100% !important;
+  margin: 0.35rem 0 0 !important;
+  padding: 0.65rem 0.75rem !important;
+  border-radius: 10px !important;
+  font-size: 0.9rem !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .error-message {
+  background: var(--cw-recovery-error-bg) !important;
+  color: var(--cw-recovery-error) !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .success-message {
+  background: var(--cw-recovery-success-bg) !important;
+  color: var(--cw-recovery-success) !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .loading {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.6rem !important;
+}
+
+body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .spinner {
+  width: 1rem !important;
+  height: 1rem !important;
+  border-width: 2px !important;
+}
+
+@media (max-width: 1024px) {
+  body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) > .container {
+    grid-template-columns: minmax(340px, 430px) minmax(220px, 320px) !important;
+    gap: 2.5rem !important;
+  }
+}
+
+@media (max-width: 820px) {
+  body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) {
+    align-items: flex-start !important;
+    padding: 5rem 1rem 2rem !important;
+  }
+
+  body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) > .container {
+    min-height: auto !important;
+    grid-template-columns: minmax(0, 430px) !important;
+    gap: 1.5rem !important;
+    padding: 0 !important;
+  }
+
+  body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .right-section {
+    display: none !important;
+  }
+
+  body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .back-button {
+    top: -3.35rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) {
+    padding-inline: 0.9rem !important;
+  }
+
+  body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) :is(.confirmation-card, .verification-card, .password-card) {
+    min-height: 0 !important;
+    padding: 1.35rem !important;
+  }
+
+  body.cw-homepage-system:has(:is(.confirmation-card, .verification-card, .password-card)) .title {
+    text-align: left !important;
+  }
+
+  body.cw-homepage-system:has(.verification-card) .code-input-container {
+    gap: 0.4rem !important;
+  }
 }
 
 @media (max-width: 768px) {

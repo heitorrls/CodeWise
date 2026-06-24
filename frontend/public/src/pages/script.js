@@ -578,6 +578,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const userEmail = localStorage.getItem("userEmail") || "";
   const storedUsername = localStorage.getItem("userName") || localStorage.getItem("username");
   const fallbackUserName = storedUsername || (userEmail ? userEmail.split("@")[0] : "");
+  const currentPageName = window.location.pathname.split("/").pop() || "";
+  const isLevelingFlowPage = [
+    "intro_nivelamento.html",
+    "qst_nivelamento.html",
+    "resultado_nivelamento.html",
+  ].includes(currentPageName);
   // -------------------------------------------------------------------------------
 
   // Catálogo simples de módulos (frontend) enquanto o backend não envia a lista.
@@ -887,8 +893,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Atualiza vidas periodicamente para refletir regeneração do backend
-  setInterval(() => updateLivesUI(), 30000);
-  updateLivesUI();
+  if (!isLevelingFlowPage) {
+    setInterval(() => updateLivesUI(), 30000);
+    updateLivesUI();
+  }
 
   async function attemptBuyLifeRecharge() {
     if (!userId) return false;
@@ -1566,11 +1574,39 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ... (lógica mantida)
   const startBtn = document.querySelector(".start-btn");
   if (startBtn) {
-    window.startLevelTest = function () {
-      transitionToPage("qst_nivelamento.html");
-    };
+    let isLevelConfirmOpen = false;
 
-    startBtn.addEventListener("click", window.startLevelTest);
+    window.startLevelTest = function () {
+      if (isLevelConfirmOpen) return;
+      isLevelConfirmOpen = true;
+
+      const startLeveling = () => transitionToPage("qst_nivelamento.html");
+      const resetConfirmState = () => {
+        isLevelConfirmOpen = false;
+      };
+
+      if (window.showConfirmBox) {
+        window.showConfirmBox({
+          title: "Iniciar nivelamento",
+          message:
+            "Responda com atenção: depois de avançar para a próxima questão, sua resposta não poderá ser alterada. O resultado será usado para definir seu nível inicial.",
+          confirmText: "Iniciar nivelamento",
+          cancelText: "Cancelar",
+          onConfirm: startLeveling,
+          onCancel: resetConfirmState,
+        });
+        return;
+      }
+
+      const confirmed = window.confirm(
+        "Depois de avançar para a próxima questão, sua resposta não poderá ser alterada. O resultado será usado para definir seu nível inicial. Iniciar nivelamento?"
+      );
+      if (confirmed) {
+        startLeveling();
+      } else {
+        resetConfirmState();
+      }
+    };
 
     const leftSection = document.querySelector(".left-section");
     if (leftSection) {
@@ -1665,7 +1701,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     let currentQuestion = 0;
     let selectedAnswer = null;
     let userAnswers = [];
-    let score = 0;
+    let answeredFlags = [];
+    let isNavigatingQuestion = false;
 
     const questionTitle = document.getElementById("questionTitle");
     const optionsContainer = document.getElementById("optionsContainer");
@@ -1674,59 +1711,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const nextBtn = document.querySelector(".next-btn");
     const backBtn = document.querySelector(".back-btn");
 
-    function updateQuizContext() {
-      if (!window.CodeBuddyContext?.updateContext) return;
-
-      const questionData = testQuestions[currentQuestion] || {};
-      const answeredCount = userAnswers.filter(
-        (answer) => answer !== undefined && answer !== null
-      ).length;
-      let studentLevel = "";
-
-      try {
-        const result = JSON.parse(
-          localStorage.getItem("lastTestResult") || "{}"
-        );
-        studentLevel = result.classification || "";
-      } catch (error) {
-        studentLevel = "";
-      }
-
-      const alternatives = (questionData.options || [])
-        .map((option) => `${option.letter}: ${option.text}`)
-        .join("\n");
-
-      window.CodeBuddyContext.updateContext({
-        student: {
-          level: studentLevel,
-          currentModule:
-            document.querySelector(".header-title h1")?.textContent?.trim() ||
-            "",
-          currentLesson: "",
-        },
-        page: {
-          type: "quiz",
-          title: `Teste de Nivelamento - Questão ${currentQuestion + 1}`,
-          description: [
-            `Pergunta: ${questionData.question || ""}`,
-            alternatives ? `Alternativas:\n${alternatives}` : "",
-            `Progresso: Questão ${currentQuestion + 1} de ${
-              testQuestions.length
-            }; ${answeredCount} respondida(s)`,
-          ]
-            .filter(Boolean)
-            .join("\n\n"),
-          moduleId: null,
-          lessonId: null,
-          exerciseId: null,
-        },
-      });
-    }
-
     window.goBackQuestion = function () {
+      if (isNavigatingQuestion) return;
       if (currentQuestion > 0) {
         currentQuestion--;
-        selectedAnswer = userAnswers[currentQuestion] || null;
+        selectedAnswer = userAnswers[currentQuestion] ?? null;
         displayQuestion();
         updateProgress();
         updateButtons();
@@ -1734,19 +1723,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     window.nextQuestion = function () {
-      if (selectedAnswer === null) return;
-      userAnswers[currentQuestion] = selectedAnswer;
-      const isCorrect =
-        testQuestions[currentQuestion].options[selectedAnswer].correct;
-      updateQuizContext();
-      if (isCorrect) {
-        score++;
+      if (isNavigatingQuestion) return;
+
+      if (!answeredFlags[currentQuestion]) {
+        if (selectedAnswer === null) return;
+        userAnswers[currentQuestion] = selectedAnswer;
+        answeredFlags[currentQuestion] = true;
+        showAnswerFeedback(
+          !!testQuestions[currentQuestion].options[selectedAnswer]?.correct
+        );
+      } else {
+        lockCurrentQuestion();
       }
-      showAnswerFeedback(isCorrect);
+
+      isNavigatingQuestion = true;
+      updateButtons();
+
       setTimeout(() => {
+        isNavigatingQuestion = false;
         if (currentQuestion < testQuestions.length - 1) {
           currentQuestion++;
-          selectedAnswer = userAnswers[currentQuestion] || null;
+          selectedAnswer = userAnswers[currentQuestion] ?? null;
           displayQuestion();
           updateProgress();
           updateButtons();
@@ -1758,6 +1755,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function displayQuestion() {
       const questionData = testQuestions[currentQuestion];
+      const isAnswered = !!answeredFlags[currentQuestion];
       questionTitle.textContent = questionData.question;
       optionsContainer.innerHTML = "";
       questionData.options.forEach((option, index) => {
@@ -1766,16 +1764,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (selectedAnswer === index) {
           optionElement.classList.add("selected");
         }
+        if (isAnswered) {
+          optionElement.classList.add("locked");
+          optionElement.setAttribute("aria-disabled", "true");
+          if (option.correct) {
+            optionElement.classList.add("correct");
+          }
+          if (selectedAnswer === index && !option.correct) {
+            optionElement.classList.add("incorrect");
+          }
+        }
         optionElement.innerHTML = `<span class=\"option-letter\">${option.letter}-</span> <span class=\"option-text\">${option.text}</span>`;
-        optionElement.addEventListener("click", () =>
-          selectOption(index, optionElement)
-        );
+        if (!isAnswered) {
+          optionElement.addEventListener("click", () =>
+            selectOption(index, optionElement)
+          );
+        }
         optionsContainer.appendChild(optionElement);
       });
-      updateQuizContext();
     }
 
     function selectOption(index, element) {
+      if (answeredFlags[currentQuestion]) return;
       const previousSelected =
         optionsContainer.querySelector(".option.selected");
       if (previousSelected) {
@@ -1790,6 +1800,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const options = optionsContainer.querySelectorAll(".option");
       options.forEach((option, index) => {
         option.style.pointerEvents = "none";
+        option.classList.add("locked");
+        option.setAttribute("aria-disabled", "true");
         if (testQuestions[currentQuestion].options[index].correct) {
           option.classList.add("correct");
         }
@@ -1797,7 +1809,15 @@ document.addEventListener("DOMContentLoaded", async () => {
           option.classList.add("incorrect");
         }
       });
-      nextBtn.disabled = true;
+    }
+
+    function lockCurrentQuestion() {
+      const options = optionsContainer.querySelectorAll(".option");
+      options.forEach((option) => {
+        option.style.pointerEvents = "none";
+        option.classList.add("locked");
+        option.setAttribute("aria-disabled", "true");
+      });
     }
 
     function updateProgress() {
@@ -1809,14 +1829,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function updateButtons() {
-      backBtn.disabled = currentQuestion === 0;
-      backBtn.style.opacity = currentQuestion === 0 ? "0.5" : "1";
-      nextBtn.disabled = selectedAnswer === null;
+      backBtn.disabled = isNavigatingQuestion || currentQuestion === 0;
+      backBtn.style.opacity = backBtn.disabled ? "0.5" : "1";
+      nextBtn.disabled = isNavigatingQuestion || (!answeredFlags[currentQuestion] && selectedAnswer === null);
       nextBtn.textContent =
         currentQuestion < testQuestions.length - 1 ? "Avançar" : "Finalizar";
     }
 
     async function finishTest() {
+      const score = testQuestions.reduce((total, question, index) => {
+        const answerIndex = userAnswers[index];
+        return total + (question.options?.[answerIndex]?.correct ? 1 : 0);
+      }, 0);
       const percentage = Math.round((score / testQuestions.length) * 100);
       console.log(
         `Teste finalizado! Pontuação: ${score}/${testQuestions.length} (${percentage}%)`
@@ -1844,15 +1868,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       displayQuestion();
       updateProgress();
       updateButtons();
-
-      nextBtn.addEventListener("click", window.nextQuestion);
-
-      window.addEventListener(
-        "pagehide",
-        () => window.CodeBuddyContext?.resetContext?.(),
-        { once: true }
-      );
-      backBtn.addEventListener("click", window.goBackQuestion);
     }
 
     testCard.style.opacity = "0";
@@ -1945,7 +1960,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       advanceBtn.innerHTML = `
           <div class="loading">
             <div class="spinner"></div>
-            Avançando
+            Abrindo módulos
           </div>
         `;
       advanceBtn.disabled = true;
@@ -2005,12 +2020,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (categoryScoresElement) {
       categoryScoresElement.innerHTML = "";
       categories.forEach((category, index) => {
+        const categoryPercent = category.total
+          ? Math.round((category.correct / category.total) * 100)
+          : 0;
+        const categoryStatus =
+          categoryPercent >= 70
+            ? "Ponto forte"
+            : categoryPercent >= 50
+            ? "Revisar"
+            : "Estudar";
+        const categoryStatusClass =
+          categoryPercent >= 70
+            ? "strong"
+            : categoryPercent >= 50
+            ? "medium"
+            : "low";
         const categoryItem = document.createElement("div");
-        categoryItem.className = "category-item";
+        categoryItem.className = `category-item category-strength-${categoryStatusClass}`;
         categoryItem.style.animationDelay = `${0.3 + index * 0.2}s`;
         categoryItem.innerHTML = `
-          <span class="category-name">${category.name}</span>
-          <span class="category-score">${category.correct}/${category.total}</span>
+          <div class="category-main">
+            <span class="category-name">${category.name}</span>
+            <span class="category-status">${categoryStatus}</span>
+          </div>
+          <div class="category-progress" aria-hidden="true">
+            <span class="category-progress-fill" style="width: ${categoryPercent}%"></span>
+          </div>
+          <div class="category-meta">
+            <span class="category-score">${category.correct}/${category.total}</span>
+            <span class="category-percent">${categoryPercent}%</span>
+          </div>
         `;
         categoryScoresElement.appendChild(categoryItem);
       });
@@ -2029,6 +2068,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (classificationElement) {
       classificationElement.textContent = classification.level;
       classificationElement.className = `final-classification classification-${classification.class}`;
+    }
+
+    const classificationDescriptionElement = document.getElementById(
+      "classificationDescription"
+    );
+    if (classificationDescriptionElement) {
+      const descriptions = {
+        iniciante:
+          "Você está começando agora ou ainda precisa reforçar os fundamentos. A trilha recomendada vai priorizar conceitos essenciais e avançar no seu ritmo.",
+        intermediario:
+          "Você já domina parte dos fundamentos e pode seguir para desafios um pouco mais práticos. A trilha recomendada vai revisar pontos importantes e acelerar sua evolução.",
+        avancado:
+          "Você demonstrou boa base nos conteúdos avaliados. A trilha recomendada pode começar por tópicos mais desafiadores e aprofundar sua prática.",
+      };
+      classificationDescriptionElement.textContent =
+        descriptions[classification.class] ||
+        "Sua trilha será ajustada de acordo com seu nível inicial.";
+    }
+
+    const classificationMotivationElement = document.getElementById(
+      "classificationMotivation"
+    );
+    if (classificationMotivationElement) {
+      const motivations = {
+        iniciante:
+          "Comece pela base e construa confiança a cada etapa. Sua trilha vai te ajudar a evoluir com clareza desde os primeiros conceitos.",
+        intermediario:
+          "Você já tem uma boa base para seguir em frente. Continue praticando e use sua trilha para transformar conhecimento em domínio.",
+        avancado:
+          "Você está pronto para desafios maiores. Inicie sua trilha para aprofundar a prática e consolidar seu próximo nível.",
+      };
+      classificationMotivationElement.textContent =
+        motivations[classification.class] ||
+        "Continue avançando: sua trilha de aprendizagem começa agora.";
     }
 
     // Adiciona evento ao botão avançar
@@ -2656,7 +2729,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const activityPages = [
       "intro_modulo.html",
       "qst_modulo.html",
-      "qst_nivelamento.html",
     ];
     const chatPage = window.location.pathname.split("/").pop();
     document.body.classList.toggle(
