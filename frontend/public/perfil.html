@@ -7,10 +7,10 @@
     <link rel="icon" type="image/png" href="home-page/images/codewise-monkey.png">
     <link rel="stylesheet" href="src/assets/styles/theme.css" />
     <link rel="stylesheet" href="src/assets/styles/home.css" />
-    <link rel="stylesheet" href="src/assets/styles/perfil_novo.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script src="src/assets/js/theme-loader.js"></script>
     <link rel="stylesheet" href="src/assets/styles/homepage-system.css" />
+    <link rel="stylesheet" href="src/assets/styles/perfil_novo.css" />
   </head>
   <body class="cw-homepage-system">
     <header class="header">
@@ -55,12 +55,23 @@
                 alt="Foto de perfil"
               />
               <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" />
-              <button class="edit-profile-photo-btn" id="changePhotoBtn">Trocar foto</button>
+              <button
+                class="edit-profile-photo-btn"
+                id="changePhotoBtn"
+                type="button"
+                aria-label="Alterar foto de perfil"
+                title="Alterar foto"
+              >
+                <i class="fas fa-pen"></i>
+              </button>
             </div>
             <div class="user-info">
+              <span class="profile-kicker">Meu perfil</span>
               <h1 id="userName"></h1>
-              <p class="username" id="userHandle"></p>
-              <p class="email" id="userEmail"></p>
+              <div class="profile-identity">
+                <p class="username" id="userHandle"></p>
+                <p class="email" id="userEmail"></p>
+              </div>
             </div>
           </div>
           <div class="quick-actions">
@@ -81,21 +92,25 @@
             </div>
             <div class="stat-grid">
               <div class="stat-card">
+                <span class="stat-icon"><i class="fas fa-list-check"></i></span>
                 <span class="label">Questões respondidas</span>
                 <strong id="statTotal">0</strong>
-            </div>
-            <div class="stat-card">
-              <span class="label">Taxa de acerto</span>
-              <strong id="statAccuracy">0%</strong>
-            </div>
-            <div class="stat-card">
-              <span class="label">Lições concluídas</span>
-              <strong id="statLessons">0</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-icon"><i class="fas fa-bullseye"></i></span>
+                <span class="label">Taxa de acerto</span>
+                <strong id="statAccuracy">0%</strong>
+              </div>
+              <div class="stat-card">
+                <span class="stat-icon"><i class="fas fa-graduation-cap"></i></span>
+                <span class="label">Lições concluídas</span>
+                <strong id="statLessons">0</strong>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="panel achievements">
+        <div class="panel achievements profile-section-card">
           <div class="panel-header">
             <h2>Conquistas</h2>
             <a href="conquistas.html">Ver todas</a>
@@ -103,7 +118,7 @@
           <div class="achievements-list" id="achievementsPreview"></div>
         </div>
 
-        <div class="panel achievements">
+        <div class="panel achievements profile-section-card">
           <div class="panel-header">
             <h2>Inventário</h2>
             <a href="inventario.html">Abrir inventário</a>
