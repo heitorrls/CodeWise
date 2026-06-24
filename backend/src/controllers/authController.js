@@ -22,7 +22,7 @@ const generateAppToken = (user) => {
 // --- LOGIN COM GOOGLE ---
 exports.googleLogin = async (req, res) => {
     try {
-        const { credential } = req.body; 
+        const credential = req.body.credential || req.body.token;
 
         if (!credential) {
             return res.status(400).json({ error: "Token do Google não fornecido." });
