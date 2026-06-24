@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-default-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,48 +10,63 @@
     <link rel="stylesheet" href="src/assets/styles/email-confirmation.css" />
     <link rel="stylesheet" href="src/assets/styles/homepage-system.css" />
   </head>
-  <body class="cw-homepage-system">
+  <body class="cw-homepage-system" data-default-theme="light">
+    <div class="theme-toggle-auth">
+      <label class="toggle-switch">
+        <input type="checkbox" id="authThemeToggle" data-setting="theme-light" />
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label">Tema claro</span>
+    </div>
     <div class="container">
-      <div class="back-button" onclick="goBack()">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M19 12H5M12 19L5 12L12 5"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+      <div class="left-section">
+        <button type="button" class="back-button" onclick="goBack()" aria-label="Voltar">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 12H5M12 19L5 12L12 5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+
+        <div class="confirmation-card">
+          <h1 class="title">
+            Recuperar senha
+          </h1>
+
+          <form id="confirmationForm">
+            <div class="input-group">
+              <label for="email">Email:</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Digite seu email"
+                required
+              />
+            </div>
+
+            <button type="submit" class="send-btn">Enviar</button>
+          </form>
+        </div>
       </div>
 
-      <div class="confirmation-card">
-        <h1 class="title">
-          Informe seu email para receber código de confirmação
-        </h1>
-
-        <form id="confirmationForm">
-          <div class="input-group">
-            <label for="email">Email:</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Digite seu email"
-              required
-            />
-          </div>
-
-          <button type="submit" class="send-btn">
-            Enviar
-            <a href="login.html"></a>
-          </button>
-        </form>
+      <div class="right-section">
+        <div class="mascot-container">
+          <img
+            src="src/assets/images/macaquinho-removebg-preview.png"
+            alt="Mascote CodeWise"
+          />
+        </div>
       </div>
     </div>
 

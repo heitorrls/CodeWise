@@ -12,7 +12,71 @@ body {
   justify-content: center;
   align-items: center;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+}
+
+.theme-toggle-auth {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+  color: #e6e6f5;
+}
+
+.theme-toggle-auth .toggle-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.theme-toggle-auth .toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.theme-toggle-auth .toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-toggle-auth .toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.35);
+  transition: 0.2s;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.theme-toggle-auth .toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 2px;
+  background-color: #ffffff;
+  transition: 0.2s;
+  border-radius: 50%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.theme-toggle-auth input:checked + .toggle-slider {
+  background-color: #8b7cc8;
+  border-color: #8b7cc8;
+}
+
+.theme-toggle-auth input:checked + .toggle-slider:before {
+  transform: translateX(22px);
 }
 
 body::before {
@@ -49,40 +113,31 @@ body::before {
 }
 
 .container {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 600px;
-  padding: 40px;
-}
-
-.back-button {
-  position: fixed;
-  top: 40px;
-  left: 40px;
-  width: 50px;
-  height: 50px;
-  background: rgba(139, 124, 200, 0.2);
-  border: 1px solid rgba(139, 124, 200, 0.3);
-  border-radius: 50%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  width: 100%;
+  padding: 40px;
+  gap: 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.left-section,
+.right-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.left-section {
+  justify-content: flex-start;
+  position: relative;
+}
+
+.right-section {
   justify-content: center;
-  color: #8b7cc8;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  z-index: 1000;
-}
-
-.back-button:hover {
-  background: rgba(139, 124, 200, 0.3);
-  border-color: rgba(139, 124, 200, 0.5);
-  transform: translateX(-3px);
-}
-
-.back-button:active {
-  transform: translateX(-1px);
 }
 
 .confirmation-card {
@@ -90,31 +145,19 @@ body::before {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(139, 124, 200, 0.2);
   border-radius: 20px;
-  padding: 60px 50px;
-  text-align: center;
-  box-shadow: 
-      0 20px 40px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  animation: slideUp 0.6s ease-out;
-}
-
-@keyframes slideUp {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  padding: 50px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .title {
   color: white;
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   font-weight: bold;
-  margin-bottom: 50px;
-  line-height: 1.4;
+  text-align: left;
+  margin-bottom: 40px;
   background: linear-gradient(135deg, #ffffff, #e0d8f0);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -122,26 +165,26 @@ body::before {
 }
 
 .input-group {
-  margin-bottom: 40px;
+  margin-bottom: 25px;
   text-align: left;
 }
 
 .input-group label {
   display: block;
   color: #b8b0d0;
-  font-size: 1.2rem;
-  margin-bottom: 12px;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
   font-weight: 500;
 }
 
 .input-group input {
   width: 100%;
-  padding: 18px 24px;
+  padding: 15px 20px;
   background: rgba(139, 124, 200, 0.1);
   border: 2px solid rgba(139, 124, 200, 0.3);
-  border-radius: 15px;
+  border-radius: 12px;
   color: white;
-  font-size: 1.1rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
   outline: none;
 }
@@ -153,45 +196,50 @@ body::before {
 .input-group input:focus {
   border-color: #8b7cc8;
   background: rgba(139, 124, 200, 0.2);
-  box-shadow: 0 0 0 4px rgba(139, 124, 200, 0.1);
-  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(139, 124, 200, 0.1);
+}
+
+.send-btn,
+.back-button {
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .send-btn {
   width: 100%;
-  max-width: 300px;
   background: linear-gradient(135deg, #8b7cc8, #a89bd1);
   color: white;
   border: none;
-  padding: 20px 40px;
-  font-size: 1.4rem;
+  padding: 18px;
+  font-size: 1.3rem;
   font-weight: bold;
   border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 
-      0 8px 25px rgba(139, 124, 200, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 25px rgba(139, 124, 200, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
 }
 
 .send-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s ease;
 }
 
 .send-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 
-      0 12px 35px rgba(139, 124, 200, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(139, 124, 200, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .send-btn:hover::before {
@@ -199,7 +247,7 @@ body::before {
 }
 
 .send-btn:active {
-  transform: translateY(-1px);
+  transform: translateY(0);
 }
 
 .send-btn:disabled {
@@ -208,55 +256,72 @@ body::before {
   transform: none;
 }
 
-/* ---------------- LIGHT THEME OVERRIDES ---------------- */
-:root[data-theme="light"] body {
-  background: var(--background);
-  color: var(--text);
+.back-button {
+  position: absolute;
+  top: -62px;
+  left: 0;
+  width: 44px;
+  height: 44px;
+  background: rgba(139, 124, 200, 0.2);
+  border: 1px solid rgba(139, 124, 200, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8b7cc8;
+  backdrop-filter: blur(10px);
 }
-:root[data-theme="light"] body::before {
-  opacity: 0;
+
+.back-button:hover {
+  background: rgba(139, 124, 200, 0.3);
+  border-color: rgba(139, 124, 200, 0.5);
+  transform: translateX(-3px);
 }
-:root[data-theme="light"] .back-button {
-  background: var(--surface-elev-1);
-  border: 1px solid var(--border-subtle);
-  color: var(--text);
+
+.mascot-container {
+  width: 300px;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: float 3s ease-in-out infinite;
 }
-:root[data-theme="light"] .confirmation-card {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-md);
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
-:root[data-theme="light"] .title {
-  background: none;
-  color: var(--text);
-  -webkit-text-fill-color: var(--text);
-}
-:root[data-theme="light"] .input-group label {
-  color: var(--text);
-}
-:root[data-theme="light"] .input-group input {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  color: var(--text);
-  box-shadow: none;
-}
-:root[data-theme="light"] .input-group input::placeholder {
-  color: var(--text-muted);
-}
-:root[data-theme="light"] .input-group input:focus {
-  border-color: var(--input-focus);
-  background: #ffffff;
-  box-shadow: var(--focus-ring);
-  transform: none;
-}
-:root[data-theme="light"] .send-btn {
-  box-shadow: var(--shadow-sm);
+
+.mascot-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.3));
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
 }
 
 .shake {
@@ -270,22 +335,17 @@ body::before {
 
 .error-message {
   color: #ff6b6b;
-  font-size: 1rem;
-  margin-top: 8px;
-  text-align: left;
-  display: none;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  display: block;
 }
 
 .success-message {
   color: #4caf50;
-  font-size: 1rem;
+  font-size: 0.9rem;
   text-align: center;
-  margin-bottom: 20px;
-  display: none;
-  padding: 15px;
-  background: rgba(76, 175, 80, 0.1);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  border-radius: 10px;
+  margin-bottom: 15px;
+  display: block;
 }
 
 .loading {
@@ -304,39 +364,187 @@ body::before {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+    gap: 40px;
+    padding: 30px;
+  }
+
+  .left-section,
+  .right-section {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .confirmation-card {
+    max-width: 500px;
+  }
+
+  .back-button {
+    left: calc(50% - 250px);
+  }
 }
 
 @media (max-width: 768px) {
   .container {
     padding: 20px;
   }
-  
-  .back-button {
-    top: 20px;
-    left: 20px;
-    width: 45px;
-    height: 45px;
-    z-index: 1000;
-  }
 
   .confirmation-card {
     padding: 40px 30px;
+    max-width: 100%;
   }
 
   .title {
-    font-size: 1.5rem;
-    margin-bottom: 40px;
+    font-size: 1.8rem;
+    text-align: center;
   }
 
-  .input-group input {
-    padding: 16px 20px;
+  .mascot-container {
+    width: 250px;
+    height: 250px;
+  }
+
+  .back-button {
+    left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 20px;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
+  .theme-toggle-auth {
+    top: 15px;
+    right: 15px;
+  }
+
+  .container {
+    padding: 0;
+    margin-top: 76px;
+  }
+
+  .confirmation-card {
+    padding: 30px 25px;
+    border: none;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .title {
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
+
+  .input-group label {
     font-size: 1rem;
   }
 
+  .input-group input {
+    padding: 14px 18px;
+  }
+
   .send-btn {
-    padding: 18px 35px;
-    font-size: 1.2rem;
+    padding: 16px;
+    font-size: 1.1rem;
+  }
+
+  .right-section {
+    display: none;
+  }
+
+  .back-button {
+    top: -56px;
+  }
+}
+
+:root[data-theme="light"] body {
+  background: var(--background);
+  color: var(--text);
+}
+
+:root[data-theme="light"] body::before {
+  opacity: 0;
+}
+
+:root[data-theme="light"] .theme-toggle-auth {
+  color: var(--text);
+}
+
+:root[data-theme="light"] .theme-toggle-auth .toggle-slider {
+  background: var(--surface-elev-2);
+  border-color: var(--border-subtle);
+}
+
+:root[data-theme="light"] .theme-toggle-auth input:checked + .toggle-slider {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+:root[data-theme="light"] .theme-toggle-auth .toggle-slider:before {
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .confirmation-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+}
+
+:root[data-theme="light"] .title {
+  background: none;
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+
+:root[data-theme="light"] .input-group label {
+  color: var(--text);
+}
+
+:root[data-theme="light"] .input-group input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  box-shadow: none;
+}
+
+:root[data-theme="light"] .input-group input::placeholder {
+  color: var(--text-muted);
+}
+
+:root[data-theme="light"] .input-group input:focus {
+  border-color: var(--input-focus);
+  background: #ffffff;
+  box-shadow: var(--focus-ring);
+}
+
+:root[data-theme="light"] .send-btn {
+  box-shadow: var(--shadow-sm);
+}
+
+:root[data-theme="light"] .back-button {
+  background: var(--surface-elev-1);
+  border: 1px solid var(--border-subtle);
+  color: var(--text);
+}
+
+@media (max-width: 480px) {
+  :root[data-theme="light"] .confirmation-card {
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
 }
