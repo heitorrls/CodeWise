@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.42, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
 --
--- Host: localhost    Database: codewisedb
+-- Host: localhost    Database: codewise
 -- ------------------------------------------------------
--- Server version	8.0.34
+-- Server version	8.0.46
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,6 +14,94 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `activity_answers`
+--
+
+DROP TABLE IF EXISTS `activity_answers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `activity_answers` (
+  `user_id` int NOT NULL,
+  `module_key` varchar(100) NOT NULL,
+  `lesson_index` int NOT NULL,
+  `question_index` int NOT NULL,
+  `selected_answer` int NOT NULL,
+  `is_correct` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`,`module_key`,`lesson_index`,`question_index`),
+  CONSTRAINT `fk_activity_answers_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `activity_answers`
+--
+
+LOCK TABLES `activity_answers` WRITE;
+/*!40000 ALTER TABLE `activity_answers` DISABLE KEYS */;
+INSERT INTO `activity_answers` VALUES (7,'mod-js-basico',0,0,0,1,'2026-06-23 16:00:07'),(7,'mod-js-basico',0,1,2,0,'2026-06-23 16:00:15'),(7,'mod-js-basico',0,2,1,1,'2026-06-23 16:00:29'),(7,'mod-js-basico',0,3,2,1,'2026-06-23 16:01:02'),(7,'mod-js-basico',0,4,1,1,'2026-06-23 16:02:11'),(10,'mod-js-basico',0,0,0,1,'2026-06-23 16:26:29'),(10,'mod-js-basico',0,1,0,0,'2026-06-23 16:26:42'),(10,'mod-js-basico',0,2,2,0,'2026-06-23 16:26:52'),(10,'mod-js-basico',0,3,2,1,'2026-06-23 16:27:03'),(10,'mod-js-basico',0,4,1,1,'2026-06-23 16:27:17'),(10,'mod-js-basico',1,0,0,1,'2026-06-23 16:27:51'),(10,'mod-js-basico',1,1,2,1,'2026-06-23 16:27:56'),(10,'mod-js-basico',1,2,1,1,'2026-06-23 16:28:06'),(10,'mod-js-basico',1,3,1,0,'2026-06-23 16:28:49'),(10,'mod-js-basico',1,4,0,1,'2026-06-23 16:28:56');
+/*!40000 ALTER TABLE `activity_answers` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `activity_completions`
+--
+
+DROP TABLE IF EXISTS `activity_completions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `activity_completions` (
+  `user_id` int NOT NULL,
+  `module_key` varchar(100) NOT NULL,
+  `lesson_index` int NOT NULL,
+  `total_questions` int NOT NULL,
+  `correct_count` int NOT NULL,
+  `wrong_count` int NOT NULL,
+  `percentage` int NOT NULL,
+  `completed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`,`module_key`,`lesson_index`),
+  CONSTRAINT `fk_activity_completions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `activity_completions`
+--
+
+LOCK TABLES `activity_completions` WRITE;
+/*!40000 ALTER TABLE `activity_completions` DISABLE KEYS */;
+INSERT INTO `activity_completions` VALUES (7,'mod-js-basico',0,5,4,1,80,'2026-06-23 16:02:11'),(10,'mod-js-basico',0,5,3,2,60,'2026-06-23 16:27:17'),(10,'mod-js-basico',1,5,4,1,80,'2026-06-23 16:28:56');
+/*!40000 ALTER TABLE `activity_completions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `activity_progress`
+--
+
+DROP TABLE IF EXISTS `activity_progress`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `activity_progress` (
+  `user_id` int NOT NULL,
+  `module_key` varchar(100) NOT NULL,
+  `completed_activities` int NOT NULL DEFAULT '0',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`,`module_key`),
+  CONSTRAINT `fk_activity_progress_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `activity_progress`
+--
+
+LOCK TABLES `activity_progress` WRITE;
+/*!40000 ALTER TABLE `activity_progress` DISABLE KEYS */;
+INSERT INTO `activity_progress` VALUES (7,'mod-js-basico',0,'2026-06-23 11:04:45'),(10,'mod-js-basico',2,'2026-06-23 16:28:56');
+/*!40000 ALTER TABLE `activity_progress` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `alternativas_exercicio`
@@ -123,8 +211,40 @@ CREATE TABLE `curso` (
 
 LOCK TABLES `curso` WRITE;
 /*!40000 ALTER TABLE `curso` DISABLE KEYS */;
-INSERT INTO `curso` VALUES (1,'Desenvolvedor JavaScript Fullstack','Curso completo do iniciante ao avançado em JS.',6,'2025-11-26 20:07:52');
+INSERT INTO `curso` VALUES (1,'Desenvolvedor JavaScript Fullstack','Curso completo do iniciante ao avançado em JS.',6,'2026-06-02 16:11:20');
 /*!40000 ALTER TABLE `curso` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `economy_events`
+--
+
+DROP TABLE IF EXISTS `economy_events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `economy_events` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `event_type` varchar(50) NOT NULL,
+  `event_key` varchar(190) NOT NULL,
+  `coins_delta` int NOT NULL,
+  `correct_answers` int DEFAULT NULL,
+  `total_questions` int DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `economy_event_once` (`user_id`,`event_type`,`event_key`),
+  CONSTRAINT `fk_economy_events_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `economy_events`
+--
+
+LOCK TABLES `economy_events` WRITE;
+/*!40000 ALTER TABLE `economy_events` DISABLE KEYS */;
+INSERT INTO `economy_events` VALUES (1,7,'lesson_completion','mod-js-basico:lesson:1',45,2,5,'2026-06-22 22:49:29'),(4,7,'lesson_completion','mod-js-basico:lesson:0',65,4,5,'2026-06-22 23:24:09'),(7,10,'lesson_completion','mod-js-basico:lesson:0',55,3,5,'2026-06-23 16:27:17'),(8,10,'lesson_completion','mod-js-basico:lesson:1',65,4,5,'2026-06-23 16:28:56');
+/*!40000 ALTER TABLE `economy_events` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -166,16 +286,16 @@ DROP TABLE IF EXISTS `inventario`;
 CREATE TABLE `inventario` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `tipo` enum('decoracao','utilizavel') DEFAULT 'utilizavel',
+  `tipo` enum('visual','decoracao','utilizavel') NOT NULL DEFAULT 'utilizavel',
   `nome` varchar(255) NOT NULL,
   `descricao` text,
-  `quantidade` int DEFAULT '1',
+  `quantidade` int NOT NULL DEFAULT '1',
   `meta` json DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `inventario_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `idx_inventario_user_id` (`user_id`),
+  CONSTRAINT `fk_inventario_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,7 +304,6 @@ CREATE TABLE `inventario` (
 
 LOCK TABLES `inventario` WRITE;
 /*!40000 ALTER TABLE `inventario` DISABLE KEYS */;
-INSERT INTO `inventario` VALUES (1,7,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:22:35'),(2,7,'decoracao','Moldura Dourada','Moldura dourada para a foto de perfil.',1,'{\"decorationType\":\"moldura-dourada\"}','2025-11-28 01:22:53'),(3,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:25:05'),(4,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:48:28'),(5,8,'utilizavel','Recarga de Vidas','Recarrega todas as vidas.',1,NULL,'2025-11-28 01:48:41');
 /*!40000 ALTER TABLE `inventario` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -390,6 +509,32 @@ INSERT INTO `teste_nivelamento` VALUES (1,'Qual das opções declara corretament
 UNLOCK TABLES;
 
 --
+-- Table structure for table `user_lives`
+--
+
+DROP TABLE IF EXISTS `user_lives`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_lives` (
+  `user_id` int NOT NULL,
+  `lives` int NOT NULL DEFAULT '5',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `user_id` (`user_id`),
+  CONSTRAINT `fk_user_lives_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_lives`
+--
+
+LOCK TABLES `user_lives` WRITE;
+/*!40000 ALTER TABLE `user_lives` DISABLE KEYS */;
+INSERT INTO `user_lives` VALUES (7,5,'2026-06-23 16:05:37'),(10,5,'2026-06-23 16:44:03');
+/*!40000 ALTER TABLE `user_lives` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `user_logins`
 --
 
@@ -404,7 +549,7 @@ CREATE TABLE `user_logins` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_login` (`user_id`,`login_date`),
   CONSTRAINT `user_logins_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -413,7 +558,7 @@ CREATE TABLE `user_logins` (
 
 LOCK TABLES `user_logins` WRITE;
 /*!40000 ALTER TABLE `user_logins` DISABLE KEYS */;
-INSERT INTO `user_logins` VALUES (1,7,'2025-11-26','2025-11-26 20:09:49'),(2,7,'2025-11-27','2025-11-27 19:08:57'),(4,8,'2025-11-28','2025-11-28 01:23:56');
+INSERT INTO `user_logins` VALUES (1,7,'2026-06-02','2026-06-02 16:12:43'),(4,7,'2026-06-17','2026-06-17 01:57:34'),(7,7,'2026-06-18','2026-06-18 13:32:47'),(12,7,'2026-06-22','2026-06-22 22:36:30'),(13,7,'2026-06-23','2026-06-23 11:03:05'),(15,10,'2026-06-23','2026-06-23 16:14:24');
 /*!40000 ALTER TABLE `user_logins` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -428,14 +573,14 @@ CREATE TABLE `user_profiles` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `username` varchar(100) DEFAULT NULL,
-  `pontuacao_total` int DEFAULT '0',
-  `moedas` int NOT NULL DEFAULT '0',
-  `foto_perfil` longtext,
+  `foto_perfil` varchar(255) DEFAULT NULL,
   `decoracao_foto_id` int DEFAULT NULL,
+  `pontuacao_total` int DEFAULT '0',
+  `moedas` int DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `user_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=282 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -444,8 +589,36 @@ CREATE TABLE `user_profiles` (
 
 LOCK TABLES `user_profiles` WRITE;
 /*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
-INSERT INTO `user_profiles` VALUES (4,4,'bia',0,0,NULL,NULL),(6,6,'professor',0,0,NULL,NULL),(7,7,'Gabriel',0,250,NULL,2),(24,8,NULL,0,0,NULL,NULL);
+INSERT INTO `user_profiles` VALUES (4,4,'bia',NULL,NULL,0,0),(6,6,'professor',NULL,NULL,0,0),(7,7,NULL,NULL,NULL,0,110),(205,10,NULL,NULL,NULL,0,120);
 /*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_stats`
+--
+
+DROP TABLE IF EXISTS `user_stats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_stats` (
+  `user_id` int NOT NULL,
+  `total_answered` int NOT NULL DEFAULT '0',
+  `total_correct` int NOT NULL DEFAULT '0',
+  `total_wrong` int NOT NULL DEFAULT '0',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  CONSTRAINT `fk_user_stats_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_stats`
+--
+
+LOCK TABLES `user_stats` WRITE;
+/*!40000 ALTER TABLE `user_stats` DISABLE KEYS */;
+INSERT INTO `user_stats` VALUES (7,115,51,64,'2026-06-23 11:04:45'),(10,40,19,21,'2026-06-23 16:28:56');
+/*!40000 ALTER TABLE `user_stats` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -464,11 +637,10 @@ CREATE TABLE `users` (
   `tipo` enum('aluno','admin') NOT NULL DEFAULT 'aluno',
   `leveling_completed` tinyint(1) DEFAULT '0',
   `level` varchar(50) DEFAULT NULL,
-  `nome` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -477,7 +649,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (4,'bia@gmail.com','bia','$2a$10$enQsGtg8ebvgvNgcxMD58.szHYwPfga5pPwdBhhjgeKcq6NKEdENC','2025-10-31 13:14:11','aluno',0,NULL,NULL),(6,'professor@gmail.com','professor','$2a$10$yslsQ31q2gjobuA/FVax0OhdgIq2VmWdTNPbWQJbjgcPyZV/K8Pg.','2025-10-31 13:24:37','aluno',0,NULL,NULL),(7,'gabriel@gmail.com','Gabriel','$2a$10$l6zXTflOL69modTueaIL3.oRbmM7Nmq8wEatC3MuScEHR0Y10Zw5e','2025-11-26 20:09:41','aluno',1,'Intermediário',NULL),(8,'heitor@gmail.com','heitorbundao','$2a$10$q6f4UJyRmEJUTV3q9hnVFOzp9fHTSFyiSJp7q0rBmijQiALoGC2pC','2025-11-28 01:23:51','aluno',1,'Iniciante',NULL);
+INSERT INTO `users` VALUES (4,'bia@gmail.com','bia','$2a$10$enQsGtg8ebvgvNgcxMD58.szHYwPfga5pPwdBhhjgeKcq6NKEdENC','2025-10-31 13:14:11','aluno',0,NULL),(6,'professor@gmail.com','professor','$2a$10$yslsQ31q2gjobuA/FVax0OhdgIq2VmWdTNPbWQJbjgcPyZV/K8Pg.','2025-10-31 13:24:37','aluno',0,NULL),(7,'gabriel@gmail.com','gabriel','$2a$10$LiuC6eJ6fDgnYwhu4uCYruEQDF0xt4i4mFH1nixTwSvBaREmyeNkG','2026-06-02 16:12:36','aluno',1,'Intermediário'),(8,'gabrielliduino@sempreceub.com','Gabriel Liduino Costa','$2a$10$fFhndRWiciDlNs/ugqj/d.jxg8R87/zkmpIGsgNvWE/epuaOZVbGe','2026-06-17 12:53:07','aluno',0,NULL),(9,'heitor.miranda@sempreceub.com','Heitor Luiz de Souza Carvalho de Miranda','$2a$10$KeKapZD1upRvsI9q.vklQer0xPQcqYt7vmKONi2NUSLVP.NTQSeJ2','2026-06-18 13:28:27','aluno',0,NULL),(10,'biapioli87@gmail.com','biateste','$2a$10$dXY25kPMgwfc1COUp7RG2.qUsjhNTRr36yCSaArwMlnp6.hlRYhxO','2026-06-23 16:14:06','aluno',1,'Iniciante');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -490,4 +662,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-27 22:52:11
+-- Dump completed on 2026-06-23 21:01:26
