@@ -48,13 +48,14 @@
       <main class="main-content profile-main">
         <section class="hero-card">
           <div class="profile-photo-area">
-            <div class="profile-photo-wrapper">
-              <img
-                id="profilePhoto"
-                src="src/assets/images/macaquinho-removebg-preview.png"
-                alt="Foto de perfil"
-              />
-              <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" />
+            <div class="profile-photo-frame">
+              <div class="profile-photo-wrapper">
+                <img
+                  id="profilePhoto"
+                  src="src/assets/images/macaquinho-removebg-preview.png"
+                  alt="Foto de perfil"
+                />
+              </div>
               <button
                 class="edit-profile-photo-btn"
                 id="changePhotoBtn"
@@ -64,6 +65,7 @@
               >
                 <i class="fas fa-pen"></i>
               </button>
+              <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" />
             </div>
             <div class="user-info">
               <span class="profile-kicker">Meu perfil</span>
@@ -108,7 +110,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         <div class="panel achievements profile-section-card">
           <div class="panel-header">

@@ -108,10 +108,10 @@ body {
   padding: clamp(18px, 1.8vw, 28px);
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: clamp(16px, 2vw, 28px);
-  box-shadow: 0 18px 44px var(--shadow);
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: clamp(16px, 2vw, 24px);
+  box-shadow: 0 18px 36px rgba(15, 18, 35, 0.14);
   width: 100%;
   min-width: 0;
 }
@@ -119,40 +119,50 @@ body {
 .profile-photo-area {
   display: flex;
   align-items: center;
-  gap: clamp(16px, 1.8vw, 24px);
-  min-width: min(100%, 340px);
-  flex: 1 1 360px;
+  gap: clamp(14px, 1.5vw, 20px);
+  flex: 1 1 min(360px, 100%);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.profile-photo-frame {
+  position: relative;
+  width: clamp(110px, 10vw, 128px);
+  height: clamp(110px, 10vw, 128px);
+  aspect-ratio: 1 / 1;
 }
 
 .profile-photo-wrapper {
   position: relative;
-  width: clamp(108px, 10vw, 136px);
-  height: clamp(108px, 10vw, 136px);
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
   flex: 0 0 auto;
   border-radius: 50%;
-  padding: 6px;
+  overflow: hidden;
+  padding: 0;
   background:
     linear-gradient(var(--card), var(--card)) padding-box,
     linear-gradient(135deg, #33d39f, #8b7cc8 52%, #b56cff) border-box;
   border: 2px solid transparent;
-  box-shadow:
-    0 18px 38px rgba(15, 18, 35, 0.28),
-    0 0 0 7px rgba(139, 124, 200, 0.12);
+  box-shadow: 0 8px 16px rgba(15, 18, 35, 0.12);
 }
 
 .profile-photo-wrapper img {
   width: 100%;
   height: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(139, 124, 200, 0.1);
+  object-position: center center;
+  border: none;
+  background: rgba(139, 124, 200, 0.05);
   display: block;
 }
 
 .profile-photo-wrapper[data-decoration="moldura-dourada"] img {
   border: 5px solid #f6c453;
-  box-shadow: 0 0 0 3px #8d6513, 0 10px 24px rgba(246, 196, 83, 0.35);
+  box-shadow: 0 0 0 3px #8d6513, 0 10px 24px rgba(246, 196, 83, 0.22);
 }
 
 .profile-photo-wrapper[data-decoration="overlay-estelar"]::after {
@@ -165,40 +175,40 @@ body {
   padding: 4px;
   border-radius: 50%;
   color: #ffe59a;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   text-shadow: 0 1px 5px #5b21b6;
   pointer-events: none;
 }
 
 .edit-profile-photo-btn {
   position: absolute;
-  bottom: 4px;
-  right: 2px;
-  width: 38px;
-  height: 38px;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
   display: inline-grid;
   place-items: center;
   background: linear-gradient(135deg, #8b7cc8 0%, #6f5ac8 100%);
   color: #fff;
-  border: 2px solid var(--card);
+  border: 2px solid rgba(255, 255, 255, 0.92);
   padding: 0;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 0.9rem;
-  box-shadow: 0 10px 20px rgba(139, 124, 200, 0.35);
+  font-size: 0.85rem;
+  box-shadow: 0 6px 10px rgba(15, 18, 35, 0.12);
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
 .edit-profile-photo-btn:hover {
-  transform: translateY(-2px) scale(1.04);
-  filter: brightness(1.06);
-  box-shadow: 0 14px 26px rgba(139, 124, 200, 0.42);
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 10px 18px rgba(15, 18, 35, 0.2);
 }
 
 .user-info h1 {
   font-size: clamp(1.55rem, 2.2vw, 2.35rem);
   line-height: 1.05;
-  margin: 4px 0 8px;
+  margin: 0 0 8px;
   letter-spacing: 0;
 }
 
@@ -207,6 +217,16 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 8px;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-self: flex-start;
+  flex: 0 1 auto;
 }
 
 .user-info h1,
@@ -580,10 +600,11 @@ body {
   .profile-photo-area {
     width: 100%;
     align-items: center;
+    justify-content: flex-start;
   }
   .hero-card {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
 
   .quick-actions {
@@ -612,8 +633,8 @@ body {
   }
 
   .profile-photo-wrapper {
-    width: 116px;
-    height: 116px;
+    width: 108px;
+    height: 108px;
   }
 
   .stat-grid {
