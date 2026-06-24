@@ -619,7 +619,80 @@ document.addEventListener("DOMContentLoaded", async () => {
   const userScopedKey = (key) => (userId ? `${key}_${userId}` : key);
   const lessonIndexKey = (moduleId) => userScopedKey(`currentLessonIndex_${moduleId || "default"}`);
   const selectedModuleKey = () => userScopedKey("selectedModule");
+  const lessonResultKey = (moduleId, lessonIndex) =>
+    userScopedKey(`lesson_result_${moduleId || "default"}_${lessonIndex ?? "current"}`);
+  const lastLessonResultKey = () => userScopedKey("last_lesson_result");
   const moduleProgressCache = new Map();
+
+  function normalizeLessonResultSnapshot(result = {}) {
+    result = result || {};
+    const total = Math.max(0, Number(result.total) || 0);
+    const score = Math.max(0, Math.min(Number(result.score) || 0, total || Number.MAX_SAFE_INTEGER));
+    const rawPercentage = Number(result.percentage);
+    const percentage = Number.isFinite(rawPercentage)
+      ? Math.max(0, Math.min(Math.round(rawPercentage), 100))
+      : total > 0
+      ? Math.round((score / total) * 100)
+      : 0;
+
+    return {
+      moduleId: result.moduleId || "default",
+      lessonIndex: Number.isFinite(Number(result.lessonIndex))
+        ? Number(result.lessonIndex)
+        : 0,
+      score,
+      total,
+      percentage,
+      rewardCoins: Math.max(0, Number(result.rewardCoins) || 0),
+      awarded: result.awarded === true,
+      completedAt: result.completedAt || new Date().toISOString(),
+    };
+  }
+
+  function saveLessonResultSnapshot(result = {}) {
+    const snapshot = normalizeLessonResultSnapshot(result);
+    const serialized = JSON.stringify(snapshot);
+    localStorage.setItem(
+      lessonResultKey(snapshot.moduleId, snapshot.lessonIndex),
+      serialized
+    );
+    localStorage.setItem(lastLessonResultKey(), serialized);
+    return snapshot;
+  }
+
+  function readLessonResultSnapshot(moduleId, lessonIndex) {
+    const hasSpecificTarget =
+      moduleId && lessonIndex !== null && lessonIndex !== undefined;
+    const raw = hasSpecificTarget
+      ? localStorage.getItem(lessonResultKey(moduleId, lessonIndex))
+      : localStorage.getItem(lastLessonResultKey());
+    if (!raw) return null;
+    try {
+      return normalizeLessonResultSnapshot(JSON.parse(raw));
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getLessonResultUrl(snapshot) {
+    const result = normalizeLessonResultSnapshot(snapshot);
+    const params = new URLSearchParams({
+      score: String(result.score),
+      total: String(result.total),
+      module: result.moduleId,
+      lesson: String(result.lessonIndex),
+    });
+    return `resultado_modulo.html?${params.toString()}`;
+  }
+
+  function getLessonRewardUrl(snapshot) {
+    const result = normalizeLessonResultSnapshot(snapshot);
+    const params = new URLSearchParams({
+      module: result.moduleId,
+      lesson: String(result.lessonIndex),
+    });
+    return `recompensa_modulo.html?${params.toString()}`;
+  }
 
   function resolveLessonIndex(moduleId, availableLessons, completedLessons) {
     const stored = Number(localStorage.getItem(lessonIndexKey(moduleId)));
@@ -864,7 +937,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       if (resp.ok) {
         const data = await resp.json();
-        updateLivesUI(data.lives);
         return data.lives;
       }
       return 0;
@@ -1732,11 +1804,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadQuestions();
 
+    const isLevelingReviewMode =
+      new URLSearchParams(window.location.search).get("review") === "1";
+    const levelingReviewKey = userScopedKey("leveling_review_snapshot");
+
     let currentQuestion = 0;
     let selectedAnswer = null;
     let userAnswers = [];
     let answeredFlags = [];
     let isNavigatingQuestion = false;
+    let levelingReviewSnapshot = null;
+
+    if (isLevelingReviewMode) {
+      try {
+        levelingReviewSnapshot = JSON.parse(
+          localStorage.getItem(levelingReviewKey) || "null"
+        );
+        if (Array.isArray(levelingReviewSnapshot?.questions)) {
+          testQuestions = levelingReviewSnapshot.questions;
+        }
+        if (Array.isArray(levelingReviewSnapshot?.userAnswers)) {
+          userAnswers = levelingReviewSnapshot.userAnswers;
+          answeredFlags = testQuestions.map((_, index) =>
+            Number.isInteger(Number(userAnswers[index]))
+          );
+        }
+      } catch (error) {
+        levelingReviewSnapshot = null;
+      }
+    }
 
     const questionTitle = document.getElementById("questionTitle");
     const optionsContainer = document.getElementById("optionsContainer");
@@ -1758,6 +1854,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     window.nextQuestion = function () {
       if (isNavigatingQuestion) return;
+
+      if (isLevelingReviewMode) {
+        if (currentQuestion < testQuestions.length - 1) {
+          currentQuestion++;
+          selectedAnswer = userAnswers[currentQuestion] ?? null;
+          displayQuestion();
+          updateProgress();
+          updateButtons();
+        } else {
+          const score = Number(levelingReviewSnapshot?.score) || 0;
+          const total = Number(levelingReviewSnapshot?.total) || testQuestions.length;
+          transitionToPage(`resultado_nivelamento.html?score=${score}&total=${total}`);
+        }
+        return;
+      }
 
       if (!answeredFlags[currentQuestion]) {
         if (selectedAnswer === null) return;
@@ -1789,7 +1900,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function displayQuestion() {
       const questionData = testQuestions[currentQuestion];
-      const isAnswered = !!answeredFlags[currentQuestion];
+      const isAnswered =
+        isLevelingReviewMode || !!answeredFlags[currentQuestion];
       questionTitle.textContent = questionData.question;
       optionsContainer.innerHTML = "";
       questionData.options.forEach((option, index) => {
@@ -1819,6 +1931,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function selectOption(index, element) {
+      if (isLevelingReviewMode) return;
       if (answeredFlags[currentQuestion]) return;
       const previousSelected =
         optionsContainer.querySelector(".option.selected");
@@ -1865,6 +1978,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     function updateButtons() {
       backBtn.disabled = isNavigatingQuestion || currentQuestion === 0;
       backBtn.style.opacity = backBtn.disabled ? "0.5" : "1";
+      if (isLevelingReviewMode) {
+        nextBtn.disabled = false;
+        nextBtn.textContent =
+          currentQuestion < testQuestions.length - 1
+            ? "Pr\u00f3xima quest\u00e3o"
+            : "Voltar ao resultado";
+        return;
+      }
       nextBtn.disabled = isNavigatingQuestion || (!answeredFlags[currentQuestion] && selectedAnswer === null);
       nextBtn.textContent =
         currentQuestion < testQuestions.length - 1 ? "Avançar" : "Finalizar";
@@ -1878,6 +1999,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       const percentage = Math.round((score / testQuestions.length) * 100);
       console.log(
         `Teste finalizado! Pontuação: ${score}/${testQuestions.length} (${percentage}%)`
+      );
+      localStorage.setItem(
+        levelingReviewKey,
+        JSON.stringify({
+          questions: testQuestions,
+          userAnswers,
+          score,
+          total: testQuestions.length,
+          percentage,
+        })
       );
       try {
         const uid = localStorage.getItem('userId');
@@ -2190,7 +2321,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       skipBtnLesson &&
       nextBtnLesson
     ) {
-      const selectedModule = resolveSelectedModule();
+      const pageParams = new URLSearchParams(window.location.search);
+      const isReviewMode = pageParams.get("review") === "1";
+      const reviewModuleId = isReviewMode ? pageParams.get("module") : "";
+      const selectedModule =
+        (reviewModuleId && moduleCatalog.find((mod) => mod.id === reviewModuleId)) ||
+        resolveSelectedModule();
       const progress = selectedModule ? getModuleProgress(selectedModule.id) : { completedLessons: 0, totalLessons: 1 };
       const availableLessons =
         (lessonsByModule[selectedModule?.id] &&
@@ -2206,10 +2342,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       const maxLessons =
         selectedModule?.totalLessons ||
         (lessonsByModule[selectedModule?.id]?.length || 1);
-      const currentLessonIndex = Math.max(
-        0,
-        Math.min(rawLessonIndex, availableLessons - 1)
-      );
+      const reviewLessonIndex = Number(pageParams.get("lesson"));
+      const currentLessonIndex =
+        isReviewMode && Number.isInteger(reviewLessonIndex)
+          ? Math.max(0, Math.min(reviewLessonIndex, availableLessons - 1))
+          : Math.max(0, Math.min(rawLessonIndex, availableLessons - 1));
       const questionsForModule = lessonsByModule[selectedModule?.id] || [];
       const lessonQuestions =
         questionsForModule[currentLessonIndex] ||
@@ -2219,8 +2356,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       const meta = metaList[Math.min(currentLessonIndex, metaList.length - 1)] || metaList[0];
       const lessonTitleEl = document.getElementById("lessonTitle");
       if (lessonTitleEl && meta?.pill) lessonTitleEl.textContent = meta.pill;
-      const pageParams = new URLSearchParams(window.location.search);
-      const isReviewMode = pageParams.get("review") === "1";
+      lessonQuizPage.classList.toggle("review-mode", isReviewMode);
+      document.body.classList.toggle("lesson-review-mode", isReviewMode);
+      const helperText = document.querySelector(".helper p");
+      if (helperText && isReviewMode) {
+        helperText.textContent =
+          "Modo revisão: suas respostas estão bloqueadas. Use esta tela apenas para comparar sua escolha com a alternativa correta.";
+      }
 
       const livesCounterEl = document.getElementById("livesCounter");
       updateLivesUI();
@@ -2365,35 +2507,64 @@ document.addEventListener("DOMContentLoaded", async () => {
         return lessonQuestions.findIndex((_, index) => !answeredFlags[index]);
       }
 
-      function getCurrentSavedScore() {
-        return lessonQuestions.reduce((total, question, index) => {
-          const answer = userAnswers[index];
-          return total + (question.options?.[answer]?.correct ? 1 : 0);
-        }, 0);
+      function returnToLessonResult() {
+        const snapshot =
+          readLessonResultSnapshot(selectedModule?.id, currentLessonIndex) ||
+          readLessonResultSnapshot();
+
+        if (snapshot) {
+          transitionToPage(getLessonResultUrl(snapshot));
+          return;
+        }
+
+        transitionToPage("resultado_modulo.html");
       }
 
-      function returnToLessonResult() {
-        const score = getCurrentSavedScore();
-        transitionToPage(
-          `resultado_modulo.html?score=${score}&total=${lessonQuestions.length}`
-        );
+      function createOptionFeedbackLabel(option, isSelected) {
+        if (option.correct && isSelected) {
+          return `<span class="answer-feedback correct">Sua resposta correta</span>`;
+        }
+        if (option.correct) {
+          return `<span class="answer-feedback correct">Resposta correta</span>`;
+        }
+        if (isSelected) {
+          return `<span class="answer-feedback incorrect">Sua resposta</span>`;
+        }
+        return "";
       }
 
       function displayQuestion() {
         const data = lessonQuestions[currentQuestion];
         questionText.textContent = data.question;
+        if (isReviewMode) {
+          questionPill.textContent = `Revisão ${currentQuestion + 1}`;
+        }
         questionPill.textContent = `Questão ${currentQuestion + 1}`;
         selectedAnswer = userAnswers[currentQuestion] ?? null;
+        if (isReviewMode) {
+          questionPill.textContent = `Revisão ${currentQuestion + 1}`;
+        }
         optionsList.innerHTML = "";
         data.options.forEach((opt, idx) => {
           const btn = document.createElement("button");
           btn.type = "button";
           btn.className = "option";
-          if (selectedAnswer === idx) btn.classList.add("selected");
-          btn.innerHTML = `<strong>${opt.letter})</strong> ${opt.text}`;
+          const isSelected = selectedAnswer === idx;
+          if (isSelected) btn.classList.add("selected");
+          const feedbackLabel = answeredFlags[currentQuestion]
+            ? createOptionFeedbackLabel(opt, isSelected)
+            : "";
+          btn.innerHTML = `
+            <span class="option-main">
+              <strong>${opt.letter})</strong>
+              <span>${opt.text}</span>
+            </span>
+            ${feedbackLabel}
+          `;
           if (answeredFlags[currentQuestion]) {
             // já respondida: mostra feedback e trava interação
             btn.disabled = true;
+            btn.setAttribute("aria-disabled", "true");
             btn.classList.add("locked");
             if (data.options[idx].correct) {
               btn.classList.add("correct");
@@ -2409,10 +2580,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         nextBtnLesson.disabled = !answeredFlags[currentQuestion];
         skipBtnLesson.disabled = isReviewMode || !answeredFlags[currentQuestion];
         skipBtnLesson.style.display = isReviewMode ? "none" : "";
+        skipBtnLesson.textContent = "Pular";
         backBtn.disabled = currentQuestion === 0;
         if (isReviewMode) {
           if (currentQuestion === lessonQuestions.length - 1) {
-            nextBtnLesson.textContent = "Voltar ao resultado";
+            skipBtnLesson.textContent = "Rever quest\u00f5es";
+            skipBtnLesson.style.display = "";
+            skipBtnLesson.disabled = false;
+            nextBtnLesson.textContent = "Sair da atividade";
           } else {
             nextBtnLesson.textContent = "Próxima questão";
           }
@@ -2422,6 +2597,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       function selectOption(idx) {
+        if (isReviewMode) return;
         if (answeredFlags[currentQuestion]) return;
         selectedAnswer = idx;
         const buttons = optionsList.querySelectorAll(".option");
@@ -2436,6 +2612,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         buttons.forEach((btn, i) => {
           btn.style.pointerEvents = "none";
           btn.disabled = true;
+          btn.setAttribute("aria-disabled", "true");
           btn.classList.add("locked");
           if (lessonQuestions[currentQuestion].options[i].correct) {
             btn.classList.add("correct");
@@ -2452,7 +2629,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         const progress = ((currentQuestion + 1) / lessonQuestions.length) * 100;
         const roundedProgress = Math.round(progress);
         progressFill.style.width = `${roundedProgress}%`;
-        progressPercent.textContent = `${roundedProgress}%`;
+        progressPercent.textContent = `${currentQuestion + 1}/${
+          lessonQuestions.length
+        } • ${roundedProgress}%`;
         progressFill.parentElement?.setAttribute(
           "aria-valuenow",
           String(roundedProgress)
@@ -2470,14 +2649,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         skipBtnLesson.disabled =
           !answeredFlags[currentQuestion] ||
           currentQuestion >= lessonQuestions.length - 1;
+        skipBtnLesson.textContent = "Pular";
         if (isReviewMode) {
+          questionIndicator.textContent = `Revisão ${
+            currentQuestion + 1
+          } de ${lessonQuestions.length}`;
           nextBtnLesson.textContent =
             currentQuestion < lessonQuestions.length - 1
               ? "Próxima questão"
-              : "Voltar ao resultado";
+              : "Sair da atividade";
           nextBtnLesson.disabled = false;
-          skipBtnLesson.disabled = true;
+          if (currentQuestion === lessonQuestions.length - 1) {
+            skipBtnLesson.textContent = "Rever quest\u00f5es";
+            skipBtnLesson.style.display = "";
+            skipBtnLesson.disabled = false;
+          } else {
+            skipBtnLesson.style.display = "none";
+            skipBtnLesson.disabled = true;
+          }
         }
+      }
+
+      function restartReview() {
+        currentQuestion = 0;
+        selectedAnswer = userAnswers[currentQuestion] ?? null;
+        displayQuestion();
+        updateProgress();
       }
 
       async function goToNext() {
@@ -2554,6 +2751,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       function skipQuestion() {
+        if (isReviewMode) {
+          if (currentQuestion === lessonQuestions.length - 1) {
+            restartReview();
+          }
+          return;
+        }
+
         if (!answeredFlags[currentQuestion]) {
           if (window.showToast) {
             window.showToast("Responda a questão antes de avançar.");
@@ -2587,6 +2791,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         let rewardCoins = 0;
         let completionRegistered = false;
         let rewardAwarded = false;
+        let resultSnapshot = null;
         try {
           const rewardResponse = await fetch("/api/profile/rewards/lesson", {
             method: "POST",
@@ -2602,8 +2807,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (rewardResponse.ok) {
             completionRegistered = true;
             rewardAwarded = rewardData.awarded !== false;
+            const resultTotal =
+              Number(rewardData.totalQuestions) || lessonQuestions.length;
             score = Number(rewardData.correctCount) || 0;
             rewardCoins = Number(rewardData.reward) || 0;
+            resultSnapshot = saveLessonResultSnapshot({
+              moduleId: selectedModule?.id,
+              lessonIndex: currentLessonIndex,
+              score,
+              total: resultTotal,
+              percentage: rewardData.percentage,
+              rewardCoins: rewardAwarded ? rewardCoins : 0,
+              awarded: rewardAwarded,
+            });
             updateCoinBalanceUI(rewardData.saldo);
             const completedActivities =
               Number(rewardData.completedActivities) || 0;
@@ -2665,9 +2881,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             const failedScore = Number(rewardData.correctCount) || 0;
             const failedTotal =
               Number(rewardData.totalQuestions) || lessonQuestions.length;
-            transitionToPage(
-              `resultado_modulo.html?score=${failedScore}&total=${failedTotal}`
-            );
+            const failedSnapshot = saveLessonResultSnapshot({
+              moduleId: selectedModule?.id,
+              lessonIndex: currentLessonIndex,
+              score: failedScore,
+              total: failedTotal,
+              percentage: rewardData.percentage,
+              rewardCoins: 0,
+              awarded: false,
+            });
+            transitionToPage(getLessonResultUrl(failedSnapshot));
             return;
           } else if (window.showToast) {
             window.showToast(
@@ -2682,14 +2905,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!completionRegistered) return;
         localStorage.setItem(
           "lastRewardCoins",
-          String(rewardAwarded ? rewardCoins : 0)
+          String(resultSnapshot?.rewardCoins || 0)
         );
         if (rewardAwarded) {
           window.markPremiumAdAfterActivity?.();
         }
-        transitionToPage(
-          `resultado_modulo.html?score=${score}&total=${lessonQuestions.length}`
-        );
+        transitionToPage(getLessonResultUrl(resultSnapshot));
       }
 
       backBtn.addEventListener("click", goBack);
@@ -2698,7 +2919,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const exitBtn = document.getElementById("lessonExitBtn");
       if (exitBtn) {
         if (isReviewMode) {
-          exitBtn.textContent = "Voltar ao resultado";
+          exitBtn.style.display = "none";
+          exitBtn.setAttribute("aria-hidden", "true");
           exitBtn.addEventListener("click", returnToLessonResult);
         } else {
           exitBtn.addEventListener("click", () => {
@@ -2710,6 +2932,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                   "As respostas já enviadas ficam salvas, mas você sairá da atividade atual.",
                 cancelText: "Continuar lição",
                 confirmText: "Sair da lição",
+                message:
+                  "Se sair antes de finalizar, o progresso atual pode ficar incompleto. As respostas já enviadas continuarão registradas e não poderão ser alteradas.",
                 onConfirm: leaveLesson,
               });
               return;
@@ -2730,7 +2954,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const shouldRetry =
           pageParams.get("retry") === "1";
         if (shouldRetry && !isReviewMode) {
-          await resetCurrentActivityAnswers();
+          window.showToast?.(
+            "As respostas já registradas não podem ser alteradas.",
+            { type: "warning" }
+          );
+          await loadSavedActivityAnswers();
+          returnToLessonResult();
+          return;
         }
         await loadSavedActivityAnswers();
         if (isReviewMode && getFirstUnansweredQuestionIndex() >= 0) {
@@ -2762,32 +2992,78 @@ document.addEventListener("DOMContentLoaded", async () => {
   const lessonResultCard = document.querySelector(".result-card.lesson");
   if (lessonResultCard) {
     const params = new URLSearchParams(window.location.search);
-    const score = parseInt(params.get("score"), 10);
-    const total = parseInt(params.get("total"), 10);
-    const hasValidScore =
-      Number.isFinite(score) && Number.isFinite(total) && total > 0;
-    const percentage = hasValidScore ? Math.round((score / total) * 100) : 0;
+    const moduleParam = params.get("module");
+    const lessonParam = params.get("lesson");
+    const lessonIndexParam =
+      lessonParam !== null && lessonParam !== ""
+        ? Number(lessonParam)
+        : null;
+    const urlScore = parseInt(params.get("score"), 10);
+    const urlTotal = parseInt(params.get("total"), 10);
+    const urlHasValidScore =
+      Number.isFinite(urlScore) && Number.isFinite(urlTotal) && urlTotal > 0;
+    const specificSnapshot =
+      moduleParam && lessonIndexParam !== null
+        ? readLessonResultSnapshot(moduleParam, lessonIndexParam)
+        : null;
+    const savedSnapshot =
+      specificSnapshot || (!urlHasValidScore ? readLessonResultSnapshot() : null);
+    const displayResult = savedSnapshot
+      ? savedSnapshot
+      : normalizeLessonResultSnapshot({
+          moduleId: moduleParam || "default",
+          lessonIndex: lessonIndexParam ?? 0,
+          score: urlHasValidScore ? urlScore : 0,
+          total: urlHasValidScore ? urlTotal : 0,
+        });
+    const hasValidScore = displayResult.total > 0;
+    const percentage = displayResult.percentage;
 
     const scoreValue = document.getElementById("scoreValue");
     const motivationMessage = document.getElementById("motivationMessage");
     const rewardBtn = document.getElementById("rewardBtn");
+    const reviewBtn = lessonResultCard.querySelector(
+      '.actions .ghost[href*="qst_modulo"]'
+    );
 
     const messages = {
-      high: "Excelente! Você dominou este conteúdo e está pronto para avançar.",
-      mid: "Ótimo progresso! Continue praticando e refine os pontos que faltam.",
-      low: "Cada tentativa conta. Reveja os conceitos e tente novamente, você consegue!",
+      high: "Excelente! Voc\u00ea dominou este conte\u00fado e est\u00e1 pronto para avan\u00e7ar.",
+      mid: "\u00d3timo progresso! Continue praticando e refine os pontos que faltam.",
+      low: "Cada tentativa conta. Reveja os conceitos e tente novamente, voc\u00ea consegue!",
     };
 
-    if (hasValidScore) {
+    if (scoreValue) {
       scoreValue.textContent = `${percentage}%`;
+    }
+    if (reviewBtn) {
+      const reviewParams = new URLSearchParams({
+        review: "1",
+        module: displayResult.moduleId,
+        lesson: String(displayResult.lessonIndex),
+      });
+      reviewBtn.href = `qst_modulo.html?${reviewParams.toString()}`;
+    }
+    if (rewardBtn && hasValidScore) {
+      rewardBtn.href = getLessonRewardUrl(displayResult);
+    }
+
+    if (hasValidScore) {
       if (percentage >= 85) {
-        motivationMessage.textContent = messages.high;
+        if (motivationMessage) motivationMessage.textContent = messages.high;
       } else if (percentage >= 70) {
-        motivationMessage.textContent = messages.mid;
+        if (motivationMessage) motivationMessage.textContent = messages.mid;
       } else {
-        motivationMessage.textContent = messages.low;
-        rewardBtn.textContent = "Tentar de novo";
-        rewardBtn.href = "qst_modulo.html?retry=1";
+        if (motivationMessage) motivationMessage.textContent = messages.low;
+        if (rewardBtn) {
+          rewardBtn.style.display = "none";
+          rewardBtn.setAttribute("aria-hidden", "true");
+        }
+      }
+    } else {
+      if (motivationMessage) motivationMessage.textContent = messages.low;
+      if (rewardBtn) {
+        rewardBtn.style.display = "none";
+        rewardBtn.setAttribute("aria-hidden", "true");
       }
     }
   }
@@ -2805,6 +3081,33 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // 14. Ações de senha em perfil.html
+  if (rewardTitle && rewardDescription) {
+    const params = new URLSearchParams(window.location.search);
+    const moduleParam = params.get("module");
+    const lessonParam = params.get("lesson");
+    const snapshot =
+      readLessonResultSnapshot(
+        moduleParam,
+        lessonParam !== null && lessonParam !== "" ? Number(lessonParam) : null
+      ) || readLessonResultSnapshot();
+    const coins =
+      Number(snapshot?.rewardCoins) ||
+      parseInt(localStorage.getItem("lastRewardCoins"), 10) ||
+      0;
+    const resultBackLink = document.querySelector(
+      '.reward-page .actions .ghost[href*="resultado_modulo"]'
+    );
+    if (resultBackLink && snapshot) {
+      resultBackLink.href = getLessonResultUrl(snapshot);
+    }
+    rewardTitle.textContent =
+      coins > 0 ? `+${coins} moedas` : "Atividade conclu\u00edda";
+    rewardDescription.textContent =
+      coins > 0
+        ? "Voc\u00ea ganhou moedas por concluir a atividade e pelas respostas corretas."
+        : "Esta atividade j\u00e1 havia recebido recompensa.";
+  }
+
   const editPasswordBtn = document.getElementById("edit-password-btn");
   const savePasswordBtn = document.getElementById("save-password-btn");
   if (editPasswordBtn && savePasswordBtn) {

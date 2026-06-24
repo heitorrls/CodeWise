@@ -571,6 +571,45 @@ body::before {
   width: 100%;
 }
 
+.result-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 30px auto 18px;
+}
+
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  min-height: 52px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(168, 155, 209, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f1ff;
+  font-size: 1rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease,
+    border-color 0.25s ease, background 0.25s ease;
+}
+
+.secondary-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(168, 155, 209, 0.75);
+  background: rgba(168, 155, 209, 0.12);
+  box-shadow: 0 14px 32px rgba(139, 124, 200, 0.24);
+}
+
+.secondary-btn.exit-btn {
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #dcd6ef;
+}
+
 .advance-btn::before {
   content: "";
   position: absolute;
@@ -686,6 +725,15 @@ body::before {
   .advance-btn {
     padding: 18px 40px;
     font-size: 1.2rem;
+  }
+
+  .result-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .secondary-btn {
+    width: 100%;
   }
 }
 

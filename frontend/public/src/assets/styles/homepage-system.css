@@ -3531,3 +3531,99 @@ body.cw-homepage-system nav.sidebar .nav-item.active::after {
     gap: 0.65rem !important;
   }
 }
+
+/* Activity question flow: review/progress/lives refinements. */
+body.cw-homepage-system > .quiz-page .progress {
+  min-width: min(100%, 280px);
+  max-width: 520px;
+  padding: 10px 12px;
+  border-radius: 14px;
+}
+
+body.cw-homepage-system > .quiz-page .progress-meta {
+  align-items: center;
+  gap: 0.75rem;
+}
+
+body.cw-homepage-system > .quiz-page .progress-meta :is(p, span) {
+  margin: 0;
+  font-weight: 800;
+}
+
+body.cw-homepage-system > .quiz-page .progress-bar {
+  height: 12px;
+}
+
+body.cw-homepage-system > .quiz-page.review-mode .question-pill::after {
+  content: "modo revisão";
+  margin-left: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.14);
+  color: var(--cw-success);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+body.cw-homepage-system > .quiz-page .option {
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+body.cw-homepage-system > .quiz-page .option-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+body.cw-homepage-system > .quiz-page .answer-feedback {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+body.cw-homepage-system > .quiz-page .answer-feedback.correct {
+  background: rgba(16, 185, 129, 0.14);
+  color: var(--cw-success);
+}
+
+body.cw-homepage-system > .quiz-page .answer-feedback.incorrect {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--cw-danger);
+}
+
+body.cw-homepage-system .lives-pill.life-lost {
+  animation: life-lost-shake 0.58s ease both;
+  border-color: rgba(239, 68, 68, 0.72);
+  box-shadow:
+    0 0 0 6px rgba(239, 68, 68, 0.14),
+    var(--cw-shadow-md);
+}
+
+@keyframes life-lost-shake {
+  0%, 100% { transform: translateX(0) scale(1); }
+  18% { transform: translateX(-5px) scale(1.04); }
+  36% { transform: translateX(5px) scale(1.04); }
+  54% { transform: translateX(-3px) scale(1.02); }
+  72% { transform: translateX(3px) scale(1.01); }
+}
+
+@media (max-width: 768px) {
+  body.cw-homepage-system > .quiz-page .option {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  body.cw-homepage-system > .quiz-page .answer-feedback {
+    white-space: normal;
+  }
+}

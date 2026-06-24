@@ -170,6 +170,19 @@ exports.resetActivityAnswers = async (req, res) => {
       });
     }
 
+    const existingAnswers = await ActivityAnswer.getAnswers({
+      userId,
+      moduleId,
+      lessonIndex: lesson,
+    });
+
+    if (existingAnswers.length > 0) {
+      return res.status(409).json({
+        message:
+          "Esta atividade já possui respostas registradas e não pode ser reiniciada.",
+      });
+    }
+
     await ActivityAnswer.deleteAnswers({
       userId,
       moduleId,
