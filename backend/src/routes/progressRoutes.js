@@ -13,5 +13,6 @@ router.get(
 );
 router.get('/activity-answers', progressController.getActivityAnswers);
 router.post('/activity-answers', progressController.saveActivityAnswer);
+router.delete('/activity-answers', progressController.resetActivityAnswers);
 
 module.exports = router;

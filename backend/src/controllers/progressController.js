@@ -147,3 +147,38 @@ exports.saveActivityAnswer = async (req, res) => {
     res.status(500).json({ message: "Erro ao salvar resposta da atividade." });
   }
 };
+
+exports.resetActivityAnswers = async (req, res) => {
+  const { userId, moduleId, lessonIndex } = req.body;
+
+  if (!userId || !moduleId || lessonIndex === undefined) {
+    return res.status(400).json({
+      message: "userId, moduleId e lessonIndex são obrigatórios.",
+    });
+  }
+
+  try {
+    const lesson = Number(lessonIndex);
+    const progress = await ActivityProgress.getByUser(userId);
+    const moduleProgress = progress.find((item) => item.moduleId === moduleId);
+    const completedActivities =
+      Number(moduleProgress?.completedActivities) || 0;
+
+    if (!Number.isInteger(lesson) || lesson !== completedActivities) {
+      return res.status(409).json({
+        message: "Só é possível refazer a próxima atividade disponível.",
+      });
+    }
+
+    await ActivityAnswer.deleteAnswers({
+      userId,
+      moduleId,
+      lessonIndex: lesson,
+    });
+
+    res.status(200).json({ message: "Tentativa reiniciada." });
+  } catch (err) {
+    console.error("resetActivityAnswers error:", err);
+    res.status(500).json({ message: "Erro ao reiniciar atividade." });
+  }
+};

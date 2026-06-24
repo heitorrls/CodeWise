@@ -817,9 +817,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const lessonMeta = {
     "mod-js-basico": [
       {
-        title: "Agora você vai iniciar uma lição sobre variáveis em JavaScript",
-        focus: "Variáveis, tipos e atribuição",
-        goal: "Checar fundamentos antes de liberar os desafios práticos",
+        title: "Comece pelos primeiros passos com variáveis em JavaScript",
+        focus: "Entender como criar variáveis, guardar valores e reconhecer tipos básicos.",
+        goal: "Construir sua base inicial para resolver os primeiros exercícios com segurança.",
         estimatedTime: "10 questões • ~15 min",
         pill: "Variáveis e Tipos",
       },
@@ -882,11 +882,31 @@ document.addEventListener("DOMContentLoaded", async () => {
       forcedLives !== undefined &&
       lastKnownLives !== null &&
       currentLives !== lastKnownLives;
+    const lostLife =
+      forcedLives !== undefined &&
+      lastKnownLives !== null &&
+      currentLives < lastKnownLives;
     const livesEls = document.querySelectorAll("#livesCounter, #livesCounterHome, #livesCounterModules, #livesCounterSidebar, .lives-pill");
     livesEls.forEach((el) => {
-      el.textContent = `❤️ ${currentLives}/${MAX_LIVES} vidas`;
+      el.innerHTML = `
+        <span class="life-icon" aria-hidden="true">❤️</span>
+        <span class="life-count">${currentLives}/${MAX_LIVES}</span>
+        <span class="life-label">${currentLives === 1 ? "vida restante" : "vidas restantes"}</span>
+      `;
+      el.setAttribute(
+        "aria-label",
+        `${currentLives} ${currentLives === 1 ? "vida restante" : "vidas restantes"} de ${MAX_LIVES}`
+      );
+      el.classList.toggle("lives-low", currentLives > 0 && currentLives <= 2);
+      el.classList.toggle("lives-empty", currentLives <= 0);
       if (shouldAnimateLives) {
         window.pulseFeedbackElement?.(el);
+      }
+      if (lostLife) {
+        el.classList.remove("life-lost");
+        void el.offsetWidth;
+        el.classList.add("life-lost");
+        setTimeout(() => el.classList.remove("life-lost"), 700);
       }
     });
     lastKnownLives = currentLives;
@@ -1078,6 +1098,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       const completedCount = Math.min(progress.completedLessons || 0, availableLessons);
       // Considera concluído apenas quando todas as lições previstas (displayTotal) estiverem feitas
       const completed = completedCount >= displayTotal && unlocked;
+      const moduleState = completed
+        ? "completed"
+        : unlocked && completedCount > 0
+        ? "in-progress"
+        : unlocked
+        ? "available"
+        : "locked";
       const percent = Math.min(
         100,
         Math.round(
@@ -1087,7 +1114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       );
 
       const card = document.createElement("article");
-      card.className = "module-card";
+      card.className = `module-card module-state-${moduleState}`;
       card.innerHTML = `
         <span class="badge">${mod.badge || "Módulo"}</span>
         <h3>${mod.title}</h3>
@@ -1100,12 +1127,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="progress-fill" style="width:${percent}%"></div>
         </div>
         <div class="module-footer">
-          <span class="status ${completed ? "completed" : unlocked ? "" : "locked"}">
+          <span class="status ${moduleState}">
             ${
               completed
                 ? '<i class="fas fa-check-circle"></i> Concluído'
-                : unlocked
-                ? '<i class="fas fa-unlock"></i> Em andamento'
+                : moduleState === "in-progress"
+                ? '<i class="fas fa-play-circle"></i> Em andamento'
+                : moduleState === "available"
+                ? '<i class="fas fa-unlock"></i> Disponível'
                 : '<i class="fas fa-lock"></i> Bloqueado'
             }
           </span>
@@ -1187,11 +1216,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       const goalEl = document.getElementById("lessonGoal");
       const timeEl = document.getElementById("estimatedTime");
       const pillEl = document.querySelector(".intro-header .pill");
+      const eyebrowEl = document.getElementById("lessonIntroEyebrow");
       if (titleEl) titleEl.textContent = meta.title;
       if (focusEl) focusEl.textContent = meta.focus;
       if (goalEl) goalEl.textContent = meta.goal;
       if (timeEl) timeEl.textContent = meta.estimatedTime;
       if (pillEl) pillEl.textContent = meta.pill || "Lição";
+      if (eyebrowEl) {
+        eyebrowEl.textContent =
+          rawLessonIndex === 0 ? "Primeira atividade" : "Próxima atividade";
+      }
 
       let studentLevel = "";
       try {
@@ -2138,6 +2172,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const questionText = document.getElementById("questionText");
     const optionsList = document.getElementById("optionsList");
     const progressFill = document.getElementById("progressFill");
+    const progressPercent = document.getElementById("progressPercent");
     const questionIndicator = document.getElementById("questionIndicator");
     const questionPill = document.querySelector(".question-pill");
     const backBtn = document.getElementById("lessonBackBtn");
@@ -2148,6 +2183,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       questionText &&
       optionsList &&
       progressFill &&
+      progressPercent &&
       questionIndicator &&
       questionPill &&
       backBtn &&
@@ -2183,6 +2219,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const meta = metaList[Math.min(currentLessonIndex, metaList.length - 1)] || metaList[0];
       const lessonTitleEl = document.getElementById("lessonTitle");
       if (lessonTitleEl && meta?.pill) lessonTitleEl.textContent = meta.pill;
+      const pageParams = new URLSearchParams(window.location.search);
+      const isReviewMode = pageParams.get("review") === "1";
 
       const livesCounterEl = document.getElementById("livesCounter");
       updateLivesUI();
@@ -2276,6 +2314,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
 
+      async function resetCurrentActivityAnswers() {
+        if (!userId || !selectedModule?.id) return;
+
+        try {
+          const response = await fetch("/api/activity-answers", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId,
+              moduleId: selectedModule.id,
+              lessonIndex: currentLessonIndex,
+            }),
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(data.message || "Não foi possível reiniciar a atividade.");
+          }
+          userAnswers = [];
+          answeredFlags = [];
+        } catch (error) {
+          if (window.showToast) {
+            window.showToast(error.message || "Não foi possível reiniciar a atividade.");
+          }
+        }
+      }
+
       async function saveActivityAnswer(questionIndex, answerIndex) {
         const response = await fetch("/api/activity-answers", {
           method: "POST",
@@ -2301,6 +2365,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         return lessonQuestions.findIndex((_, index) => !answeredFlags[index]);
       }
 
+      function getCurrentSavedScore() {
+        return lessonQuestions.reduce((total, question, index) => {
+          const answer = userAnswers[index];
+          return total + (question.options?.[answer]?.correct ? 1 : 0);
+        }, 0);
+      }
+
+      function returnToLessonResult() {
+        const score = getCurrentSavedScore();
+        transitionToPage(
+          `resultado_modulo.html?score=${score}&total=${lessonQuestions.length}`
+        );
+      }
+
       function displayQuestion() {
         const data = lessonQuestions[currentQuestion];
         questionText.textContent = data.question;
@@ -2316,6 +2394,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (answeredFlags[currentQuestion]) {
             // já respondida: mostra feedback e trava interação
             btn.disabled = true;
+            btn.classList.add("locked");
             if (data.options[idx].correct) {
               btn.classList.add("correct");
             }
@@ -2328,7 +2407,17 @@ document.addEventListener("DOMContentLoaded", async () => {
           optionsList.appendChild(btn);
         });
         nextBtnLesson.disabled = !answeredFlags[currentQuestion];
+        skipBtnLesson.disabled = isReviewMode || !answeredFlags[currentQuestion];
+        skipBtnLesson.style.display = isReviewMode ? "none" : "";
         backBtn.disabled = currentQuestion === 0;
+        if (isReviewMode) {
+          if (currentQuestion === lessonQuestions.length - 1) {
+            nextBtnLesson.textContent = "Voltar ao resultado";
+          } else {
+            nextBtnLesson.textContent = "Próxima questão";
+          }
+          nextBtnLesson.disabled = false;
+        }
         updateExerciseContext();
       }
 
@@ -2346,6 +2435,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const buttons = optionsList.querySelectorAll(".option");
         buttons.forEach((btn, i) => {
           btn.style.pointerEvents = "none";
+          btn.disabled = true;
+          btn.classList.add("locked");
           if (lessonQuestions[currentQuestion].options[i].correct) {
             btn.classList.add("correct");
           }
@@ -2359,18 +2450,49 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       function updateProgress() {
         const progress = ((currentQuestion + 1) / lessonQuestions.length) * 100;
-        progressFill.style.width = `${progress}%`;
+        const roundedProgress = Math.round(progress);
+        progressFill.style.width = `${roundedProgress}%`;
+        progressPercent.textContent = `${roundedProgress}%`;
+        progressFill.parentElement?.setAttribute(
+          "aria-valuenow",
+          String(roundedProgress)
+        );
         questionIndicator.textContent = `Questão ${
           currentQuestion + 1
         } de ${lessonQuestions.length}`;
         nextBtnLesson.textContent =
-          currentQuestion < lessonQuestions.length - 1 ? "Avançar" : "Finalizar";
+          currentQuestion < lessonQuestions.length - 1
+            ? "Próxima questão"
+            : "Finalizar";
         backBtn.disabled = currentQuestion === 0;
         backBtn.style.opacity = currentQuestion === 0 ? "0.6" : "1";
         nextBtnLesson.disabled = selectedAnswer === null && !answeredFlags[currentQuestion];
+        skipBtnLesson.disabled =
+          !answeredFlags[currentQuestion] ||
+          currentQuestion >= lessonQuestions.length - 1;
+        if (isReviewMode) {
+          nextBtnLesson.textContent =
+            currentQuestion < lessonQuestions.length - 1
+              ? "Próxima questão"
+              : "Voltar ao resultado";
+          nextBtnLesson.disabled = false;
+          skipBtnLesson.disabled = true;
+        }
       }
 
       async function goToNext() {
+        if (isReviewMode) {
+          if (currentQuestion < lessonQuestions.length - 1) {
+            currentQuestion++;
+            selectedAnswer = userAnswers[currentQuestion] ?? null;
+            displayQuestion();
+            updateProgress();
+          } else {
+            returnToLessonResult();
+          }
+          return;
+        }
+
         if (!answeredFlags[currentQuestion]) {
           if (selectedAnswer === null) return;
 
@@ -2432,6 +2554,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       function skipQuestion() {
+        if (!answeredFlags[currentQuestion]) {
+          if (window.showToast) {
+            window.showToast("Responda a questão antes de avançar.");
+          }
+          return;
+        }
+
         if (currentQuestion < lessonQuestions.length - 1) {
           currentQuestion++;
           selectedAnswer = userAnswers[currentQuestion] ?? null;
@@ -2455,15 +2584,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           return;
         }
 
-        // Recalcula o score com base em todas as respostas marcadas
-        // Persistir estatísticas desta lição
-        // Marca primeira lição concluída (para conquistas) e agenda modal ao voltar à home
-        if (!localStorage.getItem("ach_first_lesson")) {
-          localStorage.setItem("ach_first_lesson", "1");
-          localStorage.setItem("pendingAchievement", JSON.stringify({ title: "Primeira Lição" }));
-        }
         let rewardCoins = 0;
         let completionRegistered = false;
+        let rewardAwarded = false;
         try {
           const rewardResponse = await fetch("/api/profile/rewards/lesson", {
             method: "POST",
@@ -2478,54 +2601,74 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           if (rewardResponse.ok) {
             completionRegistered = true;
+            rewardAwarded = rewardData.awarded !== false;
             score = Number(rewardData.correctCount) || 0;
             rewardCoins = Number(rewardData.reward) || 0;
             updateCoinBalanceUI(rewardData.saldo);
-            window.queueToast?.("Atividade concluída!", { type: "success" });
-            if (rewardCoins > 0) {
-              window.queueToast?.(`+${rewardCoins} moedas recebidas.`, {
-                type: "coins",
-              });
-            }
             const completedActivities =
               Number(rewardData.completedActivities) || 0;
-            saveModuleProgress(
-              selectedModule.id,
-              completedActivities,
-              selectedModule.displayLessons || selectedModule.totalLessons
-            );
-            const currentModuleIndex = moduleCatalog.findIndex(
-              (mod) => mod.id === selectedModule?.id
-            );
-            const nextModule = moduleCatalog[currentModuleIndex + 1];
-            const moduleFullyCompleted =
-              completedActivities >=
-              (selectedModule.displayLessons || selectedModule.totalLessons || 1);
-            const unlockToastKey = nextModule
-              ? `cw_unlock_toast_${userId || "anon"}_${nextModule.id}`
-              : "";
-            if (
-              nextModule &&
-              moduleFullyCompleted &&
-              !localStorage.getItem(unlockToastKey)
-            ) {
-              localStorage.setItem(unlockToastKey, "1");
-              window.queueToast?.(`Módulo desbloqueado: ${nextModule.title}`, {
-                type: "unlock",
-              });
-            }
-            localStorage.setItem(
-              lessonIndexKey(selectedModule.id),
-              String(
-                Math.min(
-                  completedActivities,
-                  (selectedModule.displayLessons || 1) - 1
+
+            if (rewardAwarded) {
+              if (!localStorage.getItem("ach_first_lesson")) {
+                localStorage.setItem("ach_first_lesson", "1");
+                localStorage.setItem(
+                  "pendingAchievement",
+                  JSON.stringify({ title: "Primeira Lição" })
+                );
+              }
+              window.queueToast?.("Atividade concluída!", { type: "success" });
+              if (rewardCoins > 0) {
+                window.queueToast?.(`+${rewardCoins} moedas recebidas.`, {
+                  type: "coins",
+                });
+              }
+              saveModuleProgress(
+                selectedModule.id,
+                completedActivities,
+                selectedModule.displayLessons || selectedModule.totalLessons
+              );
+              const currentModuleIndex = moduleCatalog.findIndex(
+                (mod) => mod.id === selectedModule?.id
+              );
+              const nextModule = moduleCatalog[currentModuleIndex + 1];
+              const moduleFullyCompleted =
+                completedActivities >=
+                (selectedModule.displayLessons || selectedModule.totalLessons || 1);
+              const unlockToastKey = nextModule
+                ? `cw_unlock_toast_${userId || "anon"}_${nextModule.id}`
+                : "";
+              if (
+                nextModule &&
+                moduleFullyCompleted &&
+                !localStorage.getItem(unlockToastKey)
+              ) {
+                localStorage.setItem(unlockToastKey, "1");
+                window.queueToast?.(`Módulo desbloqueado: ${nextModule.title}`, {
+                  type: "unlock",
+                });
+              }
+              localStorage.setItem(
+                lessonIndexKey(selectedModule.id),
+                String(
+                  Math.min(
+                    completedActivities,
+                    (selectedModule.displayLessons || 1) - 1
+                  )
                 )
-              )
-            );
-            if (!rewardData.awarded && window.showToast) {
-              window.showToast("Esta lição já recebeu recompensa.");
+              );
+            } else if (window.showToast) {
+              window.showToast(
+                "Esta atividade já foi concluída. Nenhum progresso ou moeda adicional foi aplicado."
+              );
             }
+          } else if (rewardResponse.status === 409) {
+            const failedScore = Number(rewardData.correctCount) || 0;
+            const failedTotal =
+              Number(rewardData.totalQuestions) || lessonQuestions.length;
+            transitionToPage(
+              `resultado_modulo.html?score=${failedScore}&total=${failedTotal}`
+            );
+            return;
           } else if (window.showToast) {
             window.showToast(
               rewardData.message || "Não foi possível registrar a recompensa."
@@ -2537,8 +2680,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
         }
         if (!completionRegistered) return;
-        localStorage.setItem("lastRewardCoins", String(rewardCoins));
-        window.markPremiumAdAfterActivity?.();
+        localStorage.setItem(
+          "lastRewardCoins",
+          String(rewardAwarded ? rewardCoins : 0)
+        );
+        if (rewardAwarded) {
+          window.markPremiumAdAfterActivity?.();
+        }
         transitionToPage(
           `resultado_modulo.html?score=${score}&total=${lessonQuestions.length}`
         );
@@ -2548,13 +2696,51 @@ document.addEventListener("DOMContentLoaded", async () => {
       skipBtnLesson.addEventListener("click", skipQuestion);
       nextBtnLesson.addEventListener("click", goToNext);
       const exitBtn = document.getElementById("lessonExitBtn");
-      if (exitBtn) exitBtn.addEventListener("click", () => transitionToPage("home.html"));
+      if (exitBtn) {
+        if (isReviewMode) {
+          exitBtn.textContent = "Voltar ao resultado";
+          exitBtn.addEventListener("click", returnToLessonResult);
+        } else {
+          exitBtn.addEventListener("click", () => {
+            const leaveLesson = () => transitionToPage("home.html");
+            if (window.showConfirmBox) {
+              window.showConfirmBox({
+                title: "Sair da lição?",
+                message:
+                  "As respostas já enviadas ficam salvas, mas você sairá da atividade atual.",
+                cancelText: "Continuar lição",
+                confirmText: "Sair da lição",
+                onConfirm: leaveLesson,
+              });
+              return;
+            }
+
+            if (
+              window.confirm(
+                "Sair da lição? As respostas já enviadas ficam salvas."
+              )
+            ) {
+              leaveLesson();
+            }
+          });
+        }
+      }
 
       (async () => {
+        const shouldRetry =
+          pageParams.get("retry") === "1";
+        if (shouldRetry && !isReviewMode) {
+          await resetCurrentActivityAnswers();
+        }
         await loadSavedActivityAnswers();
+        if (isReviewMode && getFirstUnansweredQuestionIndex() >= 0) {
+          returnToLessonResult();
+          return;
+        }
         const state = await fetchLivesState();
         updateLivesUI(state.lives);
         if (
+          !isReviewMode &&
           (state.lives ?? MAX_LIVES) <= 0 &&
           getFirstUnansweredQuestionIndex() >= 0
         ) {
@@ -2601,7 +2787,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         motivationMessage.textContent = messages.low;
         rewardBtn.textContent = "Tentar de novo";
-        rewardBtn.href = "qst_modulo.html";
+        rewardBtn.href = "qst_modulo.html?retry=1";
       }
     }
   }
@@ -2910,11 +3096,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             : i === completed && i < sequentiallyAvailable
             ? "current"
             : "locked";
+        const isNextAvailable =
+          i === completed + 1 && i < sequentiallyAvailable;
 
         const node = document.createElement("div");
         node.className = "trail-item";
         node.innerHTML = `
-          <button class="exercise-node ${status}" type="button" title="Lição ${i + 1}" data-lesson-index="${i}">
+          <button class="exercise-node ${status}${
+            isNextAvailable ? " next-available" : ""
+          }" type="button" title="Lição ${i + 1}" data-lesson-index="${i}">
             ${
               status === "completed"
                 ? '<i class="fas fa-check"></i>'

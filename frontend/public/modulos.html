@@ -754,6 +754,190 @@
       }
     </style>
     <link rel="stylesheet" href="src/assets/styles/homepage-system.css" />
+    <style>
+      .modules-homepage-skin .container {
+        grid-template-columns: 240px minmax(0, 1fr) minmax(280px, 320px);
+        gap: 1.25rem;
+        align-items: start;
+        width: min(1500px, calc(100% - 2.5rem));
+      }
+
+      .modules-homepage-skin .main-content {
+        min-width: 0;
+      }
+
+      .modules-homepage-skin .knowledge-trail.modules-wrapper {
+        padding: clamp(1.25rem, 2vw, 1.75rem);
+      }
+
+      .modules-homepage-skin .modules-header {
+        display: block;
+        padding-bottom: 1rem;
+      }
+
+      .modules-homepage-skin .modules-subtitle {
+        max-width: 680px;
+      }
+
+      .modules-homepage-skin .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      .modules-homepage-skin .module-card {
+        display: grid;
+        grid-template-rows: auto auto minmax(3.25rem, 1fr) auto auto auto;
+        gap: 0.8rem;
+        min-height: 252px;
+        padding: 1.15rem;
+        border-radius: 14px;
+        box-shadow: 0 8px 22px rgba(124, 58, 237, 0.1);
+      }
+
+      .modules-homepage-skin .module-card:hover {
+        transform: translateY(-3px);
+      }
+
+      .modules-homepage-skin .module-card .badge {
+        width: fit-content;
+      }
+
+      .modules-homepage-skin .module-card h3,
+      .modules-homepage-skin .module-card p {
+        margin: 0;
+      }
+
+      .modules-homepage-skin .progress-row {
+        margin-top: 0;
+      }
+
+      .modules-homepage-skin .module-footer {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .modules-homepage-skin .module-footer .status {
+        width: fit-content;
+      }
+
+      .modules-homepage-skin .module-state-available {
+        border-color: rgba(124, 58, 237, 0.24);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 246, 255, 0.96));
+      }
+
+      .modules-homepage-skin .module-state-in-progress {
+        border-color: rgba(245, 158, 11, 0.32);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 251, 235, 0.68));
+      }
+
+      .modules-homepage-skin .module-state-in-progress::before {
+        background: linear-gradient(90deg, var(--cw-accent), var(--cw-secondary));
+      }
+
+      .modules-homepage-skin .module-state-completed {
+        border-color: rgba(16, 185, 129, 0.3);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(236, 253, 245, 0.72));
+      }
+
+      .modules-homepage-skin .module-state-locked {
+        opacity: 0.82;
+      }
+
+      :root:not([data-theme="light"]) .modules-homepage-skin .module-state-available {
+        border-color: rgba(167, 139, 250, 0.28);
+        background:
+          linear-gradient(180deg, rgba(37, 42, 70, 0.98), rgba(45, 39, 76, 0.94));
+      }
+
+      :root:not([data-theme="light"]) .modules-homepage-skin .module-state-in-progress {
+        border-color: rgba(245, 158, 11, 0.34);
+        background:
+          linear-gradient(180deg, rgba(37, 42, 70, 0.98), rgba(68, 52, 37, 0.88));
+      }
+
+      :root:not([data-theme="light"]) .modules-homepage-skin .module-state-completed {
+        border-color: rgba(52, 211, 153, 0.32);
+        background:
+          linear-gradient(180deg, rgba(37, 42, 70, 0.98), rgba(28, 62, 58, 0.86));
+      }
+
+      .modules-homepage-skin .module-footer .status.available {
+        background: rgba(124, 58, 237, 0.1);
+        color: var(--cw-primary-dark);
+      }
+
+      .modules-homepage-skin .module-footer .status.in-progress {
+        background: rgba(245, 158, 11, 0.14);
+        color: #b45309;
+      }
+
+      .modules-homepage-skin .module-footer .status.in-progress i {
+        color: var(--cw-accent);
+      }
+
+      :root:not([data-theme="light"]) .modules-homepage-skin .module-footer .status.available {
+        color: var(--cw-primary-light);
+      }
+
+      :root:not([data-theme="light"]) .modules-homepage-skin .module-footer .status.in-progress {
+        color: #fbbf24;
+      }
+
+      .modules-homepage-skin .right-sidebar {
+        position: sticky;
+        top: 96px;
+        align-self: start;
+        max-height: calc(100vh - 112px);
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+
+      .modules-homepage-skin .stats-missions-container,
+      .modules-homepage-skin .daily-missions,
+      .modules-homepage-skin .stats,
+      .modules-homepage-skin .mission-item,
+      .modules-homepage-skin .mission-item span {
+        min-width: 0;
+      }
+
+      @media (max-width: 1200px) {
+        .modules-homepage-skin .container {
+          grid-template-columns: 220px minmax(0, 1fr);
+          grid-template-areas:
+            "sidebar main"
+            "sidebar right-sidebar";
+        }
+
+        .modules-homepage-skin .right-sidebar {
+          position: static;
+          max-height: none;
+          overflow: visible;
+        }
+      }
+
+      @media (max-width: 992px) {
+        .modules-homepage-skin .container {
+          width: min(100% - 1rem, 760px);
+        }
+
+        .modules-homepage-skin .module-footer {
+          grid-template-columns: 1fr;
+          align-items: stretch;
+        }
+
+        .modules-homepage-skin .module-footer .status {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
   </head>
   <body class="modules-homepage-skin cw-homepage-system">
     <header class="header">
@@ -799,11 +983,6 @@
               <p class="modules-subtitle">
                 Escolha um módulo para abrir suas lições. Conclua todas para desbloquear o próximo.
               </p>
-            </div>
-            <div class="pill legend">
-              <span><i class="fas fa-unlock"></i> Em andamento</span>
-              <span><i class="fas fa-check-circle"></i> Concluído</span>
-              <span><i class="fas fa-lock"></i> Bloqueado</span>
             </div>
           </div>
           <section class="modules-grid" id="modulesGrid">

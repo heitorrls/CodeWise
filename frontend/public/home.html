@@ -1058,6 +1058,172 @@
       }
     </style>
     <link rel="stylesheet" href="src/assets/styles/homepage-system.css" />
+    <style>
+      .home-homepage-skin .knowledge-trail {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        gap: 1.15rem;
+      }
+
+      .home-homepage-skin .knowledge-trail h2 {
+        padding-bottom: 0.9rem;
+      }
+
+      .home-homepage-skin .trail-progress {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.65rem;
+        padding: 0.9rem 1rem;
+      }
+
+      .home-homepage-skin .exercise-tree {
+        width: min(100%, 620px);
+        min-height: 0;
+        display: grid;
+        justify-items: center;
+        align-content: start;
+        gap: clamp(1.7rem, 3vh, 2.35rem);
+        margin: 0 auto;
+        padding: 1.4rem 1rem 1rem;
+        border: 1px solid rgba(124, 58, 237, 0.12);
+        border-radius: 18px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(248, 246, 255, 0.76));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+      }
+
+      .home-homepage-skin .trail-item {
+        position: relative;
+        width: min(100%, 440px);
+        display: grid;
+        justify-items: center;
+      }
+
+      .home-homepage-skin .trail-item:not(:first-child)::after {
+        height: clamp(1.05rem, 2.5vh, 1.55rem);
+        bottom: calc(100% + 0.18rem);
+        width: 3px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(124, 58, 237, 0.34), rgba(236, 72, 153, 0.22));
+        background-size: auto;
+      }
+
+      .home-homepage-skin .exercise-node {
+        position: relative;
+        width: clamp(62px, 7vh, 78px);
+        height: clamp(62px, 7vh, 78px);
+        border-width: 3px;
+        isolation: isolate;
+      }
+
+      .home-homepage-skin .exercise-node::after {
+        content: "Bloqueada";
+        position: absolute;
+        left: calc(100% + 0.8rem);
+        top: 50%;
+        min-width: 98px;
+        padding: 0.34rem 0.62rem;
+        border: 1px solid rgba(124, 58, 237, 0.12);
+        border-radius: 999px;
+        background: var(--cw-surface);
+        color: var(--cw-muted);
+        font-size: 0.78rem;
+        font-weight: 900;
+        line-height: 1;
+        text-align: center;
+        transform: translateY(-50%);
+        box-shadow: var(--cw-shadow-sm);
+      }
+
+      .home-homepage-skin .exercise-node.completed {
+        border-color: rgba(16, 185, 129, 0.42);
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(52, 211, 153, 0.12));
+        color: var(--cw-success);
+      }
+
+      .home-homepage-skin .exercise-node.completed::after {
+        content: "Concluída";
+        background: rgba(16, 185, 129, 0.12);
+        border-color: rgba(16, 185, 129, 0.22);
+        color: var(--cw-success);
+      }
+
+      .home-homepage-skin .exercise-node.current {
+        border-color: rgba(255, 255, 255, 0.9);
+        outline: 5px solid rgba(124, 58, 237, 0.14);
+        transform: scale(1.04);
+      }
+
+      .home-homepage-skin .exercise-node.current::after {
+        content: "Atividade atual";
+        min-width: 116px;
+        background: linear-gradient(135deg, var(--cw-primary), var(--cw-primary-dark));
+        border-color: transparent;
+        color: #fff;
+      }
+
+      .home-homepage-skin .exercise-node.next-available {
+        border-style: dashed;
+        border-color: rgba(245, 158, 11, 0.5);
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(236, 72, 153, 0.08));
+        color: var(--cw-accent);
+      }
+
+      .home-homepage-skin .exercise-node.next-available::after {
+        content: "Próxima";
+        background: rgba(245, 158, 11, 0.14);
+        border-color: rgba(245, 158, 11, 0.28);
+        color: #b45309;
+      }
+
+      .home-homepage-skin .exercise-node.locked:not(.next-available) {
+        border-color: rgba(156, 163, 175, 0.32);
+        background: #f8fafc;
+        color: #9ca3af;
+        box-shadow: 0 6px 16px rgba(31, 41, 55, 0.07);
+      }
+
+      :root:not([data-theme="light"]) .home-homepage-skin .exercise-tree {
+        background:
+          linear-gradient(180deg, rgba(37, 42, 70, 0.78), rgba(27, 32, 56, 0.78));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      :root:not([data-theme="light"]) .home-homepage-skin .exercise-node::after {
+        background: #252a46;
+        border-color: rgba(167, 139, 250, 0.16);
+      }
+
+      :root:not([data-theme="light"]) .home-homepage-skin .exercise-node.locked:not(.next-available) {
+        background: #20243c;
+        color: #8f96ad;
+      }
+
+      :root:not([data-theme="light"]) .home-homepage-skin .exercise-node.next-available::after {
+        color: #fbbf24;
+      }
+
+      @media (max-width: 640px) {
+        .home-homepage-skin .exercise-tree {
+          width: 100%;
+          padding-inline: 0.75rem;
+        }
+
+        .home-homepage-skin .trail-item {
+          width: 100%;
+        }
+
+        .home-homepage-skin .exercise-node::after {
+          left: 50%;
+          top: calc(100% + 0.42rem);
+          min-width: 90px;
+          transform: translateX(-50%);
+        }
+
+        .home-homepage-skin .trail-item:not(:last-child) {
+          margin-bottom: 1.1rem;
+        }
+      }
+    </style>
     <link rel="stylesheet" href="src/assets/styles/chat.css" />
   </head>
   <body class="home-homepage-skin cw-homepage-system">

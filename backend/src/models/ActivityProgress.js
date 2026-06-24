@@ -1,4 +1,7 @@
 const db = require("../config/database");
+const {
+  MIN_LESSON_PASS_PERCENTAGE,
+} = require("../services/activityCatalog");
 
 let tableReady = null;
 
@@ -36,7 +39,7 @@ const ActivityProgress = {
   async getByUser(userId) {
     await ensureTable();
 
-    return new Promise((resolve, reject) => {
+    const progressRows = await new Promise((resolve, reject) => {
       db.query(
         `SELECT module_key AS moduleId,
                 completed_activities AS completedActivities
@@ -48,6 +51,52 @@ const ActivityProgress = {
           resolve(rows || []);
         }
       );
+    });
+
+    const completionRows = await new Promise((resolve) => {
+      db.query(
+        `SELECT module_key AS moduleId,
+                lesson_index AS lessonIndex,
+                percentage
+         FROM activity_completions
+         WHERE user_id = ?
+         ORDER BY module_key ASC, lesson_index ASC`,
+        [userId],
+        (err, rows) => {
+          resolve(err ? [] : rows || []);
+        }
+      );
+    });
+
+    const completionsByModule = new Map();
+    completionRows.forEach((row) => {
+      const moduleId = row.moduleId;
+      if (!completionsByModule.has(moduleId)) {
+        completionsByModule.set(moduleId, []);
+      }
+      completionsByModule.get(moduleId).push(row);
+    });
+
+    return progressRows.map((row) => {
+      const completions = completionsByModule.get(row.moduleId);
+      if (!completions?.length) return row;
+
+      const passedLessons = new Set(
+        completions
+          .filter((completion) => (
+            Number(completion.percentage) >= MIN_LESSON_PASS_PERCENTAGE
+          ))
+          .map((completion) => Number(completion.lessonIndex))
+      );
+      let contiguousCompleted = 0;
+      while (passedLessons.has(contiguousCompleted)) {
+        contiguousCompleted++;
+      }
+
+      return {
+        ...row,
+        completedActivities: contiguousCompleted,
+      };
     });
   },
 };
